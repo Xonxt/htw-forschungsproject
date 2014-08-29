@@ -1,10 +1,9 @@
 #include "stdafx.h"
 #include "Hand.h"
 
-
 Hand::Hand()
 {
-
+	std::cout << "new hand created!" << std::endl;
 }
 
 void Hand::assignNewLocation(const cv::RotatedRect& newBbox) {
