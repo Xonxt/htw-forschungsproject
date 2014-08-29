@@ -13,25 +13,28 @@
 const char* VideoFile[] = { "D:\\temp\\FP\\HFD\\MVI_5513.MOV", 
 							"D:\\temp\\FP\\HFD\\00237.MTS", 
 							"D:\\temp\\FP\\HFD\\00238.MTS", 
-							"D:\\temp\\FP\\HFD\\00239.MTS" };
+							"D:\\temp\\FP\\HFD\\00239.MTS",
+                            "/Users/nikita/Movies/MVI_5513.MOV"
+};
 
 enum VideoFileNames {
 	VIDEO_FILE_MVI5513MOV = 0,
 	VIDEO_FILE_00237MTS = 1,
 	VIDEO_FILE_00238MTS = 2,
 	VIDEO_FILE_00239MTS = 3,
+    MAC_VIDEO_FILE_MVI5513MOV = 4
 };
 
 using namespace cv;
 using namespace std;
 
-int _tmain(int argc, _TCHAR* argv[])
+int main(int argc, char* argv[])
 {
 	/* open capture */
 	VideoCapture capture;
 
 	if (VIDEO_FILE) { // from video file
-		capture = VideoCapture(VideoFile[VIDEO_FILE_MVI5513MOV]);
+		capture = VideoCapture(VideoFile[MAC_VIDEO_FILE_MVI5513MOV]);
 	}
 	else { // or from webcam
 		capture = VideoCapture(0);
@@ -103,19 +106,20 @@ int _tmain(int argc, _TCHAR* argv[])
 		else if (char(key) == 32) { // 'Spacebar'
 			// save snapshot to file
 			std::ostringstream ost;
-
+            
+            /*
 			char name[12];
 			time_t now = time(0);
 			struct tm _Tm;
 			localtime_s(&_Tm, &now);
 			strftime(name, sizeof(name), "%H-%M-%S", &_Tm);
-			
-			/* 
+			*/
+			 
 			// 
 			char name[12];
             time_t now = time(0);
             strftime(name, sizeof(name), "%H-%M-%S", localtime(&now));
-			*/
+			
 
 			ost << "frame-" << name << ".jpg";
 			imwrite(ost.str(), frame);
