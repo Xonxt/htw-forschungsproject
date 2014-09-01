@@ -13,7 +13,7 @@
 #define VIDEO_FILE true
 
 // should I record the video too?
-#define RECORD_VIDEO false
+#define RECORD_VIDEO true
 
 const char* VideoFile[] = { "D:\\temp\\FP\\HFD\\MVI_5513.MOV", 
 							"D:\\temp\\FP\\HFD\\00237.MTS", 

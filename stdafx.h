@@ -21,6 +21,13 @@ enum SkinSegmMethod {
 	SKIN_SEGMENT_HSV = 2
 };
 
+enum MovementDirection {
+	MOVEMENT_UP = 0,
+	MOVEMENT_DOWN,
+	MOVEMENT_LEFT,
+	MOVEMENT_RIGHT
+};
+
 struct YCbCrBounds {
 	int Y_MIN,  Y_MAX;
 	int Cr_MIN, Cr_MAX;

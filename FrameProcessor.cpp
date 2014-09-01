@@ -84,6 +84,28 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 		}
 	}	
 
+	// now remove heavily intersecting regions
+	for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end(); ++it) {
+		cv::Rect firstHand = (*it).handBox.boundingRect();
+
+		// iterate once again:
+		for (std::vector<Hand>::iterator it2 = (it + 1); it2 != hands.end(); ++it2) {
+			cv::Rect secondHand = (*it2).handBox.boundingRect();
+
+			// intersection
+			cv::Rect intersection = firstHand & secondHand;
+
+			// take the smallest hand
+			cv::Rect smallestHand = (firstHand.area() < secondHand.area()) ? firstHand : secondHand;
+
+			// compare intersection sizes
+			if (intersection.area() >= (smallestHand.area() * 0.5)) {
+				// remove the largest one
+				hands.erase((firstHand.area() > secondHand.area()) ? it : it2);
+			}
+		}
+	}
+
 	// now check if new hands were added and then delete face regions
 	if (newHandsAdded) {
 		std::vector<cv::Rect> faces;
