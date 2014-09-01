@@ -35,4 +35,18 @@ void Hand::initTracker() {
 	Tracker.KalmanTracker.KF.measurementMatrix = *(cv::Mat_<float>(2, 6) << 1, 0, 1, 0, 0.5, 0, 0, 1, 0, 1, 0, 0.5);
 	Tracker.KalmanTracker.measurement = cv::Mat(2, 1, CV_32F);
 	Tracker.KalmanTracker.measurement.setTo(cv::Scalar(0));
+    
+    Tracker.KalmanTracker.KF.statePre.at<float>(0) = handBox.center.x;
+    Tracker.KalmanTracker.KF.statePre.at<float>(1) = handBox.center.y;
+    Tracker.KalmanTracker.KF.statePre.at<float>(2) = 0;
+    Tracker.KalmanTracker.KF.statePre.at<float>(3) = 0;
+    Tracker.KalmanTracker.KF.statePre.at<float>(4) = 0;
+    Tracker.KalmanTracker.KF.statePre.at<float>(5) = 0;
+    
+    cv::setIdentity(Tracker.KalmanTracker.KF.measurementMatrix);
+    cv::setIdentity(Tracker.KalmanTracker.KF.processNoiseCov, cv::Scalar::all(1e-4));
+    cv::setIdentity(Tracker.KalmanTracker.KF.measurementNoiseCov, cv::Scalar::all(1e-1));
+    cv::setIdentity(Tracker.KalmanTracker.KF.errorCovPost, cv::Scalar::all(.1));
+    
+    
 }

@@ -81,9 +81,17 @@ void HandDetector::detectHands(const cv::Mat frame, std::vector<Hand>& hands, st
 		for (int j = 0; j < handRects.size(); j++) {
 			// create temporary Hand object
 			Hand tempHand;
-
+            
+            cv::Rect rect = handRects[j];
+            if (rect.x <= 0 || rect.y <= 0 || rect.br().x >= (frame.cols-1) || rect.br().y >= (frame.rows-1)) {
+                continue;
+            }
+            
 			//convert the rect into hand
 			rect2Hand(handRects[j], tempHand, pedestrians[i].tl());
+            
+            if (tempHand.handBox.center.x <= 0 || tempHand.handBox.center.y <= 0)
+                continue;
 
 			// assign the hands ROI (the pedestrian rectange)
 			tempHand.roiRectange = pedestrians[i];

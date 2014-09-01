@@ -49,9 +49,11 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 	catch (...) {
 		std::cout << "Some other kind of exception caught" << std::endl;
 	}
-
+    std::cout << "after tracking: " << hands.size();
 	// now detect (new) hands in the frame
 	handDetector.detectHands(frame, detectedHands, pedestrians);
+    
+    std::cout << ", detected: " << detectedHands.size();
 
 	// were any new hands added?
 	bool newHandsAdded = false;
@@ -67,9 +69,9 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 
 		// check if this hand's position intersects with the position of a tracked hand
 		for (std::vector<Hand>::iterator it2 = hands.begin(); it2 != hands.end(); ++it2) {
-			// if the area of intersection is 50% of the hand's size or more
+			// if the area of intersection is 75% of the hand's size or more
 			cv::Rect intersection = tempHand.handBox.boundingRect() & (*it2).handBox.boundingRect();
-			if (intersection.area() >= (tempHand.handBox.boundingRect().area() * 0.5)) {
+			if (intersection.area() >= (tempHand.handBox.boundingRect().area() * 0.75)) {
 				// then this hand is already being tracked, correct position
 				(*it2).assignNewLocation(tempHand.handBox);
 				sameHand = true;
@@ -82,30 +84,44 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 			hands.push_back(tempHand);
 			newHandsAdded = true;
 		}
-	}	
+	}
+    std::cout << ", detect+track: " << hands.size();
+    /*
+    // delete idiotic hands out of bounds
+    for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end(); ++it) {
+        cv::Rect rect = (*it).handBox.boundingRect();
+        if (rect.x <= 0 || rect.y <= 0 || rect.br().x >= (frame.cols-1) || rect.br().y >= (frame.rows-1)) {
+            cv::Mat tempFrame = cv::Mat(frame);
+            cv::rectangle(tempFrame, (*it).handBox.boundingRect(), cv::Scalar(255,0,0), 3);
+            cv::imwrite("badImage.jpg", tempFrame);
+            hands.erase(it);
+        }
+    }
 
 	// now remove heavily intersecting regions
-	for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end(); ++it) {
-		cv::Rect firstHand = (*it).handBox.boundingRect();
+    if (hands.size() > 1) {
+        for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end()-1; ++it) {
+            cv::Rect firstHand = (*it).handBox.boundingRect();
 
-		// iterate once again:
-		for (std::vector<Hand>::iterator it2 = (it + 1); it2 != hands.end(); ++it2) {
-			cv::Rect secondHand = (*it2).handBox.boundingRect();
+            // iterate once again:
+            for (std::vector<Hand>::iterator it2 = (it + 1); it2 != hands.end(); ++it2) {
+                cv::Rect secondHand = (*it2).handBox.boundingRect();
 
-			// intersection
-			cv::Rect intersection = firstHand & secondHand;
+                // intersection
+                cv::Rect intersection = firstHand & secondHand;
 
-			// take the smallest hand
-			cv::Rect smallestHand = (firstHand.area() < secondHand.area()) ? firstHand : secondHand;
+                // take the smallest hand
+                cv::Rect smallestHand = (firstHand.area() < secondHand.area()) ? firstHand : secondHand;
 
-			// compare intersection sizes
-			if (intersection.area() >= (smallestHand.area() * 0.5)) {
-				// remove the largest one
-				hands.erase((firstHand.area() > secondHand.area()) ? it : it2);
-			}
-		}
-	}
-
+                // compare intersection sizes
+                if (intersection.area() >= (smallestHand.area() * 0.5)) {
+                    // remove the largest one
+                    hands.erase((firstHand.area() > secondHand.area()) ? it : it2);
+                }
+            }
+        }
+    }
+*/
 	// now check if new hands were added and then delete face regions
 	if (newHandsAdded) {
 		std::vector<cv::Rect> faces;
@@ -127,6 +143,8 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 			}
 		}
 	}
+    
+    std::cout << ", -faces: " << hands.size() << std::endl;
 
 	// replace the frame with a mask if needed
 	if (showMask) {
@@ -166,7 +184,7 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 	}
 
 	for (int i = 0; i < strings.size(); i++) {
-		cv::putText(frame, strings[i], cv::Point(20, (i + 1) * 35), CV_FONT_HERSHEY_PLAIN, 3, cv::Scalar(0, 0, 255), 3);
+      //  cv::putText(frame, strings[i], cv::Point(20, (i + 1) * 35), CV_FONT_HERSHEY_PLAIN, 3, cv::Scalar(0, 0, 255), 3);
 	}
 }
 

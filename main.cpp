@@ -13,7 +13,7 @@
 #define VIDEO_FILE true
 
 // should I record the video too?
-#define RECORD_VIDEO true
+#define RECORD_VIDEO false
 
 const char* VideoFile[] = { "D:\\temp\\FP\\HFD\\MVI_5513.MOV", 
 							"D:\\temp\\FP\\HFD\\00237.MTS", 
@@ -36,19 +36,19 @@ using namespace std;
 // construct a filename based on the current time and supplied extension (with a ".")
 std::string generateFileName(const char* ext) {
 	std::ostringstream ost;
-
+/*
 	// Visual studio
 	char timeString[12];
 	time_t now = time(0);
 	struct tm _Tm;
 	localtime_s(&_Tm, &now);
 	strftime(timeString, sizeof(timeString), "%H-%M-%S", &_Tm);
-
-	/* Code::Blocks and XCode
-	char name[12];
+*/
+	// Code::Blocks and XCode
+	char timeString[12];
 	time_t now = time(0);
-	strftime(name, sizeof(name), "%H-%M-%S", localtime(&now));
-	*/
+	strftime(timeString, sizeof(timeString), "%H-%M-%S", localtime(&now));
+	
 
 	ost << timeString;
 
@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
 	VideoCapture capture;
 
 	if (VIDEO_FILE) { // from video file
-		capture = VideoCapture(VideoFile[VIDEO_FILE_MVI5513MOV]);
+		capture = VideoCapture(VideoFile[MAC_VIDEO_FILE_MVI5513MOV]);
 	}
 	else { // or from webcam
 		capture = VideoCapture(0);

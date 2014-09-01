@@ -106,10 +106,10 @@ bool Tracker::getNewPosition(Hand& hand) {
 	cv::Point predictPt(prediction.at<float>(0), prediction.at<float>(1));
 
 	// if the tracking was successful, add the measurement to KalmanFilter
-	if (!badTracking) {
+	//if (!badTracking) {
 		hand.Tracker.KalmanTracker.measurement(0) = trackBox.center.x;
 		hand.Tracker.KalmanTracker.measurement(1) = trackBox.center.y;
-	}
+	//}
 
 	// estimate the new position of the hand
 	cv::Mat estimated = hand.Tracker.KalmanTracker.KF.correct(hand.Tracker.KalmanTracker.measurement);
@@ -128,6 +128,11 @@ bool Tracker::getNewPosition(Hand& hand) {
 	// assign new positions for 
 	hand.Tracker.trackWindow = trackWindow;
 	hand.handBox = trackBox;
+    
+    if (trackBox.center.x <= 0 || trackBox.center.y <= 0) {
+        std::cout << "fuck!" << std::endl;
+        
+    }
 
 	return true;
 }
