@@ -122,6 +122,30 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 		// put a rectangle|ellepse on the image
 		cv::ellipse(frame, (*it).handBox, cv::Scalar(0, 0, 255), 2);
 	}
+
+	// display text
+	std::vector<std::string> strings;
+	
+	if (showMask)
+		strings.push_back("showing mask");
+
+	switch (handTracker.getSkinMethod()) {
+	case SKIN_SEGMENT_ADAPTIVE:
+		strings.push_back("Skin segmentation: adaptive");
+		break;
+	case SKIN_SEGMENT_HSV:
+		strings.push_back("Skin segmentation: HSV");
+		break;
+	case SKIN_SEGMENT_YCRCB:
+		strings.push_back("Skin segmentation: YCrCb");
+		break;
+	default:
+		break;
+	}
+
+	for (int i = 0; i < strings.size(); i++) {
+		cv::putText(frame, strings[i], cv::Point(20, (i + 1) * 35), CV_FONT_HERSHEY_PLAIN, 3, cv::Scalar(0, 0, 255), 3);
+	}
 }
 
 // change skin segmentation method

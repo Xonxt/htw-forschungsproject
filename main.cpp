@@ -129,7 +129,6 @@ int main(int argc, char* argv[])
 
 	// infinite loop for the video stream
 	while (true) {		
-
 		// read a frame
 		capture >> frame;
 
