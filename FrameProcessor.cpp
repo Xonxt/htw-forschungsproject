@@ -6,7 +6,6 @@ FrameProcessor::FrameProcessor()
 	hands.clear();
 }
 
-
 // initialize the processor
 bool FrameProcessor::initialize() {
 	bool result = true;
@@ -90,7 +89,7 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 		std::vector<cv::Rect> faces;
 
 		// look for faces in the frame
-		faceCascade.detectMultiScale(frame, faces, 1.1, 3);
+		faceCascade.detectMultiScale(frame, faces, 1.1, 2, CV_HAAR_FIND_BIGGEST_OBJECT);
 
 		// iterate through hands
 		for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end(); ++it) {

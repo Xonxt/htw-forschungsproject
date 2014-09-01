@@ -4,6 +4,7 @@
 
 HandDetector::HandDetector()
 {
+	frameNumber = 0;
 }
 
 
@@ -37,26 +38,28 @@ void HandDetector::detectHands(const cv::Mat frame, std::vector<Hand>& hands, st
 	// downsize the frame
 	cv::Mat frameResized;
 	cv::resize(frame, frameResized, cv::Size(RESIZE_WIDTH, RESIZE_HEIGHT));
+	
+	// pedestrians will be detected only every N drames
+	if ((frameNumber++ % PEDESTRIANS_SKIP_FRAMES) == 0) {
+		pedestrians.clear();
+		pedestrianDetector.detectMultiScale(frameResized, pedestrians);
 
-	// detect pedestrians in frame
-	std::vector<cv::Rect> pedestrians;
-	pedestrianDetector.detectMultiScale(frameResized, pedestrians);
-
-	if (pedestrians.empty()) {
-		// if no pedestrians detected, process the entire image next
-		pedestrians.push_back(cv::Rect(0, 0, frameWidth, frameHeight));
-	}
-	else {
-		for (int i = 0; i < pedestrians.size(); i++) {
-			// if pedestrians detected, rescale each ROI back to original image size
-			pedestrians[i].x *= (frameWidth / RESIZE_WIDTH);
-			pedestrians[i].y *= (frameHeight / RESIZE_HEIGHT);
-			pedestrians[i].height *= (frameHeight / RESIZE_HEIGHT);
-			pedestrians[i].height *= 0.6; // limit to only upper-body region
-			pedestrians[i].width *= (frameWidth / RESIZE_WIDTH);
-			// additionally enlarge the region a little (make it 20% cooler)
-			pedestrians[i] -= cv::Point(pedestrians[i].width * 0.1, pedestrians[i].height * 0.1);
-			pedestrians[i] += cv::Size(pedestrians[i].width * 0.2, pedestrians[i].height * 0.2);
+		if (pedestrians.empty()) {
+			// if no pedestrians detected, process the entire image next
+			pedestrians.push_back(cv::Rect(0, 0, frameWidth, frameHeight));
+		}
+		else {
+			for (int i = 0; i < pedestrians.size(); i++) {
+				// if pedestrians detected, rescale each ROI back to original image size
+				pedestrians[i].x *= (frameWidth / RESIZE_WIDTH);
+				pedestrians[i].y *= (frameHeight / RESIZE_HEIGHT);
+				pedestrians[i].height *= (frameHeight / RESIZE_HEIGHT);
+				pedestrians[i].height *= 0.6; // limit to only upper-body region
+				pedestrians[i].width *= (frameWidth / RESIZE_WIDTH);
+				// additionally enlarge the region a little (make it 20% cooler)
+				pedestrians[i] -= cv::Point(pedestrians[i].width * 0.1, pedestrians[i].height * 0.1);
+				pedestrians[i] += cv::Size(pedestrians[i].width * 0.2, pedestrians[i].height * 0.2);
+			}
 		}
 	}
 

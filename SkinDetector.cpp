@@ -20,7 +20,7 @@ SkinDetector::SkinDetector() {
 	HSV.V_MAX = 255;
 
 	// initialize the adaptive skin detector
-	filter = CvAdaptiveSkinDetector(1, CvAdaptiveSkinDetector::MORPHING_METHOD_ERODE_DILATE);
+	// filter = CvAdaptiveSkinDetector(1, CvAdaptiveSkinDetector::MORPHING_METHOD_ERODE_DILATE);
 }
 
 // extract the skin mask

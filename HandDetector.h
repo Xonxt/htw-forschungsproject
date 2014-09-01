@@ -5,6 +5,9 @@
 #define RESIZE_HEIGHT 240
 #define RESIZE_WIDTH  320
 
+// amount of frames skipped for pedestrian detection
+#define PEDESTRIANS_SKIP_FRAMES 25
+
 #include "stdafx.h"
 #include "Hand.h"
 
@@ -34,5 +37,11 @@ private:
 
 	// HOG pedestrian detector
 	cv::HOGDescriptor pedestrianDetector;
+
+	// current frame number
+	int frameNumber;
+	
+	// a list of pedestrians in frame
+	std::vector<cv::Rect> pedestrians;
 };
 

@@ -12,6 +12,9 @@
 // or 'false' if you use a capture devide (web-cam)
 #define VIDEO_FILE true
 
+// should I record the video too?
+#define RECORD_VIDEO false
+
 const char* VideoFile[] = { "D:\\temp\\FP\\HFD\\MVI_5513.MOV", 
 							"D:\\temp\\FP\\HFD\\00237.MTS", 
 							"D:\\temp\\FP\\HFD\\00238.MTS", 
@@ -30,6 +33,33 @@ enum VideoFileNames {
 using namespace cv;
 using namespace std;
 
+// construct a filename based on the current time and supplied extension (with a ".")
+std::string generateFileName(const char* ext) {
+	std::ostringstream ost;
+
+	// Visual studio
+	char timeString[12];
+	time_t now = time(0);
+	struct tm _Tm;
+	localtime_s(&_Tm, &now);
+	strftime(timeString, sizeof(timeString), "%H-%M-%S", &_Tm);
+
+	/* Code::Blocks and XCode
+	char name[12];
+	time_t now = time(0);
+	strftime(name, sizeof(name), "%H-%M-%S", localtime(&now));
+	*/
+
+	ost << timeString;
+
+	if (ext[0] != '.')
+		ost << ".";
+
+	ost << ext;
+
+	return ost.str();
+}
+
 int main(int argc, char* argv[])
 {
 	/* open capture */
@@ -46,6 +76,25 @@ int main(int argc, char* argv[])
 	if (!capture.isOpened()) {
 		cout << "Failed to open video device!" << endl;
 		return -1;
+	}
+
+	// open video recorder
+	VideoWriter outputVideo;
+	if (RECORD_VIDEO) {
+		// output video
+		int ex = static_cast<int>(capture.get(CV_CAP_PROP_FOURCC));
+		Size S = Size((int)capture.get(CV_CAP_PROP_FRAME_WIDTH),    // Acquire input size
+					  (int)capture.get(CV_CAP_PROP_FRAME_HEIGHT));
+		
+
+		// construct a video file name
+
+		outputVideo.open(generateFileName(".avi"), -1, capture.get(CV_CAP_PROP_FPS), S, true);
+
+		if (!outputVideo.isOpened()) {
+			cout << "Could not open the output video for write: " << endl;
+			//return -1;
+		}
 	}
 
 	// create Frame Processor object
@@ -69,6 +118,14 @@ int main(int argc, char* argv[])
 
 	// current frame number
 	int frameNumber = 0;
+
+	// display a menu
+	std::cout << "Use the following keys for result" << std::endl << std::endl;
+	std::cout << "'ESC'\texit application" << std::endl;
+	std::cout << "'SPACE'\tsave screenshot" << std::endl;
+	std::cout << "'m'\tdisplay backprojection mask" << std::endl;
+	std::cout << "'s'\tchange skin segmentation method" << std::endl;
+
 
 	// infinite loop for the video stream
 	while (true) {		
@@ -95,6 +152,11 @@ int main(int argc, char* argv[])
 
 			// show the frame
 			imshow("video", frame);
+
+			// write the frame into video
+			if (outputVideo.isOpened() && RECORD_VIDEO) {
+				outputVideo << frame;
+			}
 		}
 
 		// key pressed?
@@ -107,23 +169,7 @@ int main(int argc, char* argv[])
 		}
 		else if (char(key) == 32) { // 'Spacebar'
 			// save snapshot to file
-			std::ostringstream ost;
-            
-            // Visual studio
-			char name[12];
-			time_t now = time(0);
-			struct tm _Tm;
-			localtime_s(&_Tm, &now);
-			strftime(name, sizeof(name), "%H-%M-%S", &_Tm);
-						 
-			/* Code::Blocks and XCode
-			char name[12];
-            time_t now = time(0);
-            strftime(name, sizeof(name), "%H-%M-%S", localtime(&now));
-			*/
-
-			ost << "frame-" << name << ".jpg";
-			imwrite(ost.str(), frame);
+			imwrite(generateFileName(".jpg"), frame);
 		}
 		else { // a different key
 			switch (char(key)) {
@@ -136,6 +182,9 @@ int main(int argc, char* argv[])
 			}
 		}
 	}
+
+	// release the video writer
+	outputVideo.release();
 
 	return 0;
 }

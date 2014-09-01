@@ -1,9 +1,8 @@
 #include "stdafx.h"
 #include "Hand.h"
 
-Hand::Hand()
-{
-	std::cout << "new hand created!" << std::endl;
+Hand::Hand() {
+	// new hand created!
 }
 
 void Hand::assignNewLocation(const cv::RotatedRect& newBbox) {
@@ -20,7 +19,6 @@ void Hand::assignNewLocation(const cv::RotatedRect& newBbox) {
 }
 
 void Hand::initTracker() {
-
 	// init Tracker
 	Tracker.trackWindow = handBox.boundingRect();
 	Tracker.isTracked = false;
@@ -31,8 +29,8 @@ void Hand::initTracker() {
 	Tracker.KalmanTracker.processNoise = cv::Mat(6, 1, CV_32F);
 
 	Tracker.KalmanTracker.KF.transitionMatrix = *(cv::Mat_<float>(6, 6) << 1, 0, 1, 0, 0.5, 0, 0, 1, 0, 1, 0, 0.5,
-																		   0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 
-																		   0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1);
+																		   0, 0, 1, 0,   1, 0, 0, 0, 0, 1, 0,   1, 
+																		   0, 0, 0, 0,   1, 0, 0, 0, 0, 0, 0,   1);
 
 	Tracker.KalmanTracker.KF.measurementMatrix = *(cv::Mat_<float>(2, 6) << 1, 0, 1, 0, 0.5, 0, 0, 1, 0, 1, 0, 0.5);
 	Tracker.KalmanTracker.measurement = cv::Mat(2, 1, CV_32F);
