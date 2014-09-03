@@ -49,11 +49,9 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 	catch (...) {
 		std::cout << "Some other kind of exception caught" << std::endl;
 	}
-    std::cout << "after tracking: " << hands.size();
+ 
 	// now detect (new) hands in the frame
 	handDetector.detectHands(frame, detectedHands, pedestrians);
-    
-    std::cout << ", detected: " << detectedHands.size();
 
 	// were any new hands added?
 	bool newHandsAdded = false;
@@ -85,18 +83,6 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 			newHandsAdded = true;
 		}
 	}
-    std::cout << ", detect+track: " << hands.size();
-    /*
-    // delete idiotic hands out of bounds
-    for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end(); ++it) {
-        cv::Rect rect = (*it).handBox.boundingRect();
-        if (rect.x <= 0 || rect.y <= 0 || rect.br().x >= (frame.cols-1) || rect.br().y >= (frame.rows-1)) {
-            cv::Mat tempFrame = cv::Mat(frame);
-            cv::rectangle(tempFrame, (*it).handBox.boundingRect(), cv::Scalar(255,0,0), 3);
-            cv::imwrite("badImage.jpg", tempFrame);
-            hands.erase(it);
-        }
-    }
 
 	// now remove heavily intersecting regions
     if (hands.size() > 1) {
@@ -121,7 +107,7 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
             }
         }
     }
-*/
+
 	// now check if new hands were added and then delete face regions
 	if (newHandsAdded) {
 		std::vector<cv::Rect> faces;
@@ -143,8 +129,6 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 			}
 		}
 	}
-    
-    std::cout << ", -faces: " << hands.size() << std::endl;
 
 	// replace the frame with a mask if needed
 	if (showMask) {
@@ -159,8 +143,16 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 void FrameProcessor::drawFrame(cv::Mat& frame) {
 	// iterate through our vector of hands
 	for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end(); ++it) {
+		// draw track lines
+		
+		if ((*it).Tracker.kalmTrack.size() >= 2) {
+			for (int i = 0; i < (*it).Tracker.kalmTrack.size() - 1; i++) {
+				cv::line(frame, (*it).Tracker.kalmTrack[i], (*it).Tracker.kalmTrack[i + 1], cv::Scalar(0, 255, 0), 2);
+			}
+		}
+		
 		// put a rectangle|ellepse on the image
-		cv::ellipse(frame, (*it).handBox, cv::Scalar(0, 0, 255), 2);
+		cv::ellipse(frame, (*it).handBox, ((*it).Tracker.isKalman) ? cv::Scalar(255, 0, 0) : cv::Scalar(0,0,255), 2);
 	}
 
 	// display text
@@ -184,8 +176,9 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 	}
 
 	for (int i = 0; i < strings.size(); i++) {
-      //  cv::putText(frame, strings[i], cv::Point(20, (i + 1) * 35), CV_FONT_HERSHEY_PLAIN, 3, cv::Scalar(0, 0, 255), 3);
-	}
+        cv::putText(frame, strings[i], cv::Point(20, (i + 1) * 35), CV_FONT_HERSHEY_PLAIN, 3, cv::Scalar(0, 0, 255), 3);
+	}	
+
 }
 
 // change skin segmentation method

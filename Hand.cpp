@@ -48,5 +48,8 @@ void Hand::initTracker() {
     cv::setIdentity(Tracker.KalmanTracker.KF.measurementNoiseCov, cv::Scalar::all(1e-1));
     cv::setIdentity(Tracker.KalmanTracker.KF.errorCovPost, cv::Scalar::all(.1));
     
-    
+	Tracker.isKalman = false;
+
+	Tracker.kalmTrack.clear();
+	Tracker.kalmTrack.push_back(cv::Point(handBox.center.x, handBox.center.y));
 }

@@ -42,6 +42,12 @@ public:
 		// hand histogram
 		cv::Mat hist;
 
+		// is it tracked by KalmanFilter?
+		bool isKalman;
+
+		// kalman track
+		std::vector<cv::Point> kalmTrack;
+
 		// Kalman Filter Data
 		struct KalmanFilterTracker {
 			cv::Mat_<float> measurement;
