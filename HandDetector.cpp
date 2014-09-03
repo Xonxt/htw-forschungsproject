@@ -62,6 +62,27 @@ void HandDetector::detectHands(const cv::Mat frame, std::vector<Hand>& hands, st
 			}
 		}
 	}
+    
+    // remove pedestrian intersections
+    if (pedestrians.size() > 1) {
+        for (std::vector<cv::Rect>::iterator it = pedestrians.begin(); it != pedestrians.end()-1; ++it) {
+            cv::Rect first = *it;
+            
+            // iterate once again:
+            for (std::vector<cv::Rect>::iterator it2 = (it + 1); it2 != pedestrians.end(); ++it2) {
+                cv::Rect second = *it2;
+                
+                // intersection
+                cv::Rect intersection = first & second;
+                
+                // compare intersection sizes
+                if (intersection.area() >= (first.area() * 0.75)) {
+                    // remove the largest one
+                    pedestrians.erase(it2);                    
+                }
+            }
+        }
+    }
 
 	// return the pedestrians as ROIs
 	rois = pedestrians;
@@ -75,23 +96,15 @@ void HandDetector::detectHands(const cv::Mat frame, std::vector<Hand>& hands, st
 		cv::Mat frameCrop = cv::Mat(frame, pedestrians[i]);
 
 		// look for hand objects in the frame
-		handCascade.detectMultiScale(frameCrop, handRects, 1.1, 4, CV_HAAR_FIND_BIGGEST_OBJECT);
+		handCascade.detectMultiScale(frameCrop, handRects, 1.05, 6, CV_HAAR_FIND_BIGGEST_OBJECT);
 
 		// iterate through located objects
 		for (int j = 0; j < handRects.size(); j++) {
 			// create temporary Hand object
 			Hand tempHand;
             
-            cv::Rect rect = handRects[j];
-            if (rect.x <= 0 || rect.y <= 0 || rect.br().x >= (frame.cols-1) || rect.br().y >= (frame.rows-1)) {
-                continue;
-            }
-            
 			//convert the rect into hand
 			rect2Hand(handRects[j], tempHand, pedestrians[i].tl());
-            
-            if (tempHand.handBox.center.x <= 0 || tempHand.handBox.center.y <= 0)
-                continue;
 
 			// assign the hands ROI (the pedestrian rectange)
 			tempHand.roiRectange = pedestrians[i];

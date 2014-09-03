@@ -36,20 +36,20 @@ using namespace std;
 // construct a filename based on the current time and supplied extension (with a ".")
 std::string generateFileName(const char* ext) {
 	std::ostringstream ost;
-
+/*
 	// Visual studio
 	char timeString[12];
 	time_t now = time(0);
 	struct tm _Tm;
 	localtime_s(&_Tm, &now);
 	strftime(timeString, sizeof(timeString), "%H-%M-%S", &_Tm);
-
-	/*
+*/
+	
 	// Code::Blocks and XCode
 	char timeString[12];
 	time_t now = time(0);
 	strftime(timeString, sizeof(timeString), "%H-%M-%S", localtime(&now));	
-	*/
+	
 
 	ost << timeString;
 
@@ -66,8 +66,8 @@ int main(int argc, char* argv[])
 	/* open capture */
 	VideoCapture capture;
 
-	if (VIDEO_FILE) { // from video file
-		capture = VideoCapture(VideoFile[VIDEO_FILE_MVI5513MOV]);
+	if (VIDEO_FILE) { // from video file        
+		capture = VideoCapture(VideoFile[MAC_VIDEO_FILE_MVI5513MOV]);
 	}
 	else { // or from webcam
 		capture = VideoCapture(0);
@@ -112,13 +112,16 @@ int main(int argc, char* argv[])
 	resizeWindow("video", 640, 480);
 
 	// a frame variable
-	Mat frame;
+	Mat frame, stillFrame;
 
 	// should we skip some frames?
 	int skipFrames = 70;
 
 	// current frame number
 	int frameNumber = 0;
+    
+    // pause or resume
+    bool pause = false;
 
 	// display a menu
 	std::cout << "Use the following keys for result" << std::endl << std::endl;
@@ -126,13 +129,20 @@ int main(int argc, char* argv[])
 	std::cout << "'SPACE'\tsave screenshot" << std::endl;
 	std::cout << "'m'\tdisplay backprojection mask" << std::endl;
 	std::cout << "'s'\tchange skin segmentation method" << std::endl;
+    std::cout << "'p'\tpause or resume" << std::endl;
 
 
 	// infinite loop for the video stream
 	while (true) {		
 		// read a frame
-		capture >> frame;
-
+        if (!pause) {
+            capture >> frame;
+            frame.copyTo(stillFrame);
+        }
+        else {
+            stillFrame.copyTo(frame);
+        }
+            
 		// frame not empty?
 		if (!frame.empty()) {
 
@@ -179,12 +189,17 @@ int main(int argc, char* argv[])
 			case 'm':	// display back-projection mask
 				frameProcessor.toggleShowMask();
 				break;
-			}
+			case 'p':   // pause/resume
+                pause = !pause;
+                break;
+            }
+            
 		}
 	}
 
 	// release the video writer
-	outputVideo.release();
+    if (RECORD_VIDEO)
+        outputVideo.release();
 
 	return 0;
 }

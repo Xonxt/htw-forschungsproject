@@ -51,8 +51,9 @@ private:
 
 	// the calculated back-projection
 	cv::Mat backprojection;
-
-
+    
+    // something is being tracked
+    bool somethingIsTracked;
 
 };
 

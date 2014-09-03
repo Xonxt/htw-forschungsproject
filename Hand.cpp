@@ -5,6 +5,11 @@ Hand::Hand() {
 	// new hand created!
 }
 
+Hand::~Hand() {
+    //Tracker.hist.release();
+    Tracker.KalmanTracker.KF.~KalmanFilter();
+}
+
 void Hand::assignNewLocation(const cv::RotatedRect& newBbox) {
 	handBox = newBbox;
 
@@ -27,6 +32,11 @@ void Hand::initTracker() {
 	Tracker.KalmanTracker.KF = cv::KalmanFilter(6, 2, 0);
 	Tracker.KalmanTracker.state = cv::Mat(6, 1, CV_32F);
 	Tracker.KalmanTracker.processNoise = cv::Mat(6, 1, CV_32F);
+    
+    randn(Tracker.KalmanTracker.state, cv::Scalar::all(0), cv::Scalar::all(0.1));
+    randn(Tracker.KalmanTracker.KF.statePost, cv::Scalar::all(0), cv::Scalar::all(0.1));
+    
+    
 
 	Tracker.KalmanTracker.KF.transitionMatrix = *(cv::Mat_<float>(6, 6) << 1, 0, 1, 0, 0.5, 0, 0, 1, 0, 1, 0, 0.5,
 																		   0, 0, 1, 0,   1, 0, 0, 0, 0, 1, 0,   1, 
@@ -44,7 +54,7 @@ void Hand::initTracker() {
     Tracker.KalmanTracker.KF.statePre.at<float>(5) = 0;
     
     cv::setIdentity(Tracker.KalmanTracker.KF.measurementMatrix);
-    cv::setIdentity(Tracker.KalmanTracker.KF.processNoiseCov, cv::Scalar::all(1e-4));
+    cv::setIdentity(Tracker.KalmanTracker.KF.processNoiseCov, cv::Scalar::all(1e-2));
     cv::setIdentity(Tracker.KalmanTracker.KF.measurementNoiseCov, cv::Scalar::all(1e-1));
     cv::setIdentity(Tracker.KalmanTracker.KF.errorCovPost, cv::Scalar::all(.1));
     

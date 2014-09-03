@@ -90,7 +90,7 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
             cv::Rect firstHand = (*it).handBox.boundingRect();
 
             // iterate once again:
-            for (std::vector<Hand>::iterator it2 = (it + 1); it2 != hands.end(); ++it2) {
+            for (std::vector<Hand>::iterator it2 = (it + 1); it2 != hands.end() && hands.size() > 1; ++it2) {
                 cv::Rect secondHand = (*it2).handBox.boundingRect();
 
                 // intersection
@@ -100,16 +100,50 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
                 cv::Rect smallestHand = (firstHand.area() < secondHand.area()) ? firstHand : secondHand;
 
                 // compare intersection sizes
-                if (intersection.area() >= (smallestHand.area() * 0.5)) {
+                //if (intersection.area() >= (smallestHand.area() * 0.5)) {
+                if (intersection.area() > 0 && hands.size() > 1) {
+                    
                     // remove the largest one
-                    hands.erase((firstHand.area() > secondHand.area()) ? it : it2);
+                    if ((firstHand.area() > secondHand.area()))
+                        it = hands.erase(it);
+                    else
+                        it2 = hands.erase(it2);
+                    
+                    if (it2 == hands.end() || it == hands.end())
+                        break;
+                    
+                  //  hands.erase((firstHand.area() > secondHand.area()) ? it : it2);
                 }
             }
+            if (it == hands.end() || hands.size() < 2)
+                break;
         }
+    }
+    
+    // remove strange regions
+    for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end(); ++it) {
+        Hand temp = *it;
+        
+        bool remove = false;
+        
+        if (temp.handBox.center.x <= 0 || temp.handBox.center.y <= 0)
+            remove = true;
+        
+        if (temp.handBox.size.height <= 0 || temp.handBox.size.height >= temp.roiRectange.height || temp.handBox.size.height == NAN)
+            remove = true;
+        
+        if (temp.handBox.size.width <= 0 || temp.handBox.size.width >= temp.roiRectange.width || temp.handBox.size.width == NAN)
+            remove = true;
+        
+        if (remove)
+            it = hands.erase(it);
+        
+        if (it == hands.end())
+            break;
     }
 
 	// now check if new hands were added and then delete face regions
-	if (newHandsAdded) {
+	if (newHandsAdded && hands.size() > 0) {
 		std::vector<cv::Rect> faces;
 
 		// look for faces in the frame
@@ -122,11 +156,16 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 				cv::Rect intersection = (*it).handBox.boundingRect() & (*fc);
 
 				// check if the intersection area too big
-				if (intersection.area() >= ((*it).handBox.boundingRect().area() * 0.5)) {
-					// delete that hand from list
-					hands.erase(it);
+				//if (intersection.area() >= ((*fc).area() * 0.5)) {
+                if (intersection.area() > 0) {
+					it = hands.erase(it);
+                    
+                    if (it == hands.end())
+                        break;
 				}
 			}
+            if (it == hands.end())
+                break;
 		}
 	}
 
@@ -136,23 +175,33 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 	}
 
 	// draw the AR-things on the frame
-	drawFrame(frame);
+    try {
+        drawFrame(frame);
+    } catch (cv::Exception ex) {
+        std::cout << "OpenCV Exception caught: " << ex.what() << std::endl;
+    }
+    catch (...) {
+        std::cout << "Some kind of exception caught!" << std::endl;
+    }
 }
 
 // draw everything on frame (hands, fingers, etc.)
 void FrameProcessor::drawFrame(cv::Mat& frame) {
 	// iterate through our vector of hands
+    int clr = 0;
 	for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end(); ++it) {
 		// draw track lines
-		
+		/*
 		if ((*it).Tracker.kalmTrack.size() >= 2) {
 			for (int i = 0; i < (*it).Tracker.kalmTrack.size() - 1; i++) {
-				cv::line(frame, (*it).Tracker.kalmTrack[i], (*it).Tracker.kalmTrack[i + 1], cv::Scalar(0, 255, 0), 2);
+				cv::line(frame, (*it).Tracker.kalmTrack[i], (*it).Tracker.kalmTrack[i + 1], fpColors[clr], 2);
 			}
 		}
-		
+		*/
 		// put a rectangle|ellepse on the image
-		cv::ellipse(frame, (*it).handBox, ((*it).Tracker.isKalman) ? cv::Scalar(255, 0, 0) : cv::Scalar(0,0,255), 2);
+		cv::ellipse(frame, (*it).handBox, fpColors[clr], 2);
+        //cv::rectangle(frame, (*it).roiRectange, fpColors[clr], 2);
+        clr++;
 	}
 
 	// display text

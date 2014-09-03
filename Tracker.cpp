@@ -11,6 +11,8 @@ bool Tracker::initialize() {
 	bool result = true;
 	
 	skinSegmMethod = SKIN_SEGMENT_HSV;
+    
+    somethingIsTracked = false;
 
 	return result;
 }
@@ -19,6 +21,9 @@ bool Tracker::initialize() {
 void Tracker::trackHands(const cv::Mat inputFrame, std::vector<Hand>& hands) {
 	// cope the current frame into an external variable
 	inputFrame.copyTo(image);
+    
+    // nothing is tracked yet
+    somethingIsTracked = false;
 
 	// convert the image to HSV
 	cv::cvtColor(image, hsv, cv::COLOR_BGR2HSV);
@@ -76,7 +81,7 @@ bool Tracker::getNewPosition(Hand& hand) {
 		cv::normalize(hand.Tracker.hist, hand.Tracker.hist, 0, 255, cv::NORM_MINMAX, -1, cv::Mat());
 
 		// set the hand to 'being tracked'
-		hand.Tracker.isTracked = true;		
+		hand.Tracker.isTracked = true;
 	}
 
 	// calculate the back projection
@@ -141,6 +146,7 @@ bool Tracker::getNewPosition(Hand& hand) {
 	hand.Tracker.trackWindow = trackWindow;
 	hand.handBox = trackBox;
 
+    somethingIsTracked = true;
 	return true;
 }
 
@@ -161,7 +167,10 @@ SkinSegmMethod Tracker::getSkinMethod() {
 
 // retrieve the skin mask for debugging purposes
 void Tracker::getSkinMask(cv::Mat& outputSkinMask) {
-	cv::cvtColor(backprojection, outputSkinMask, cv::COLOR_GRAY2BGR);
+    if (somethingIsTracked)
+        cv::cvtColor(backprojection, outputSkinMask, cv::COLOR_GRAY2BGR);
+    else
+        image.copyTo(outputSkinMask);
 }
 
 // filter out the blobs smaller than a threshold

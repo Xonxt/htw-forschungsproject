@@ -6,6 +6,8 @@ class Hand
 {
 public:
 	Hand();
+    
+    ~Hand();
 
 	// init the tracker
 	void initTracker();
