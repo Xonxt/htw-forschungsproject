@@ -6,6 +6,10 @@ FrameProcessor::FrameProcessor()
 	hands.clear();
 }
 
+FrameProcessor::~FrameProcessor() {
+    fout.close();
+}
+
 // initialize the processor
 bool FrameProcessor::initialize() {
 	bool result = true;
@@ -26,6 +30,9 @@ bool FrameProcessor::initialize() {
 
 	if (!(result &= faceCascade.load(FACE_DETECTOR_XML)))
 		std::cout << "\tError initializing face detector cascade!" << std::endl;
+    
+    fout.open("time.txt", std::ios::out | std::ios::trunc);
+    fout << "track; detect; detect+track; intersect; strange; face; " << std::endl;
 
 	return result;
 }
@@ -34,12 +41,14 @@ bool FrameProcessor::initialize() {
 void FrameProcessor::processFrame(cv::Mat& frame) {
 	// create the hands vector
 	std::vector<Hand> detectedHands;
-	detectedHands.clear();
+	detectedHands.clear();    
 
 	// a list of pedestrian ROIs
 	std::vector<cv::Rect> pedestrians;
 
 	// first track the present hands in the frame
+    
+    startClock = clock();
 	try {
 		handTracker.trackHands(frame, hands);
 	}
@@ -49,15 +58,20 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 	catch (...) {
 		std::cout << "Some other kind of exception caught" << std::endl;
 	}
- 
+    //finishClock = clock();
+    fout << clock() - startClock << "; ";
+    
 	// now detect (new) hands in the frame
+    startClock = clock();
 	handDetector.detectHands(frame, detectedHands, pedestrians);
-
+    fout << clock() - startClock << "; ";
+    
 	// were any new hands added?
 	bool newHandsAdded = false;
 
 	// add new hands to the tracking list,
 	// but remove those already being tracked
+    startClock = clock();
 	for (std::vector<Hand>::iterator it = detectedHands.begin(); it != detectedHands.end(); ++it) {
 		// take the temporary hand
 		Hand tempHand = *it;
@@ -83,8 +97,10 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 			newHandsAdded = true;
 		}
 	}
+    fout << clock() - startClock << "; ";
 
 	// now remove heavily intersecting regions
+    startClock = clock();
     if (hands.size() > 1) {
         for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end()-1; ++it) {
             cv::Rect firstHand = (*it).handBox.boundingRect();
@@ -119,8 +135,10 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
                 break;
         }
     }
+    fout << clock() - startClock << "; ";
     
     // remove strange regions
+    startClock = clock();
     for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end(); ++it) {
         Hand temp = *it;
         
@@ -141,8 +159,10 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
         if (it == hands.end())
             break;
     }
+    fout << clock() - startClock << "; ";
 
 	// now check if new hands were added and then delete face regions
+    startClock = clock();
 	if (newHandsAdded && hands.size() > 0) {
 		std::vector<cv::Rect> faces;
 
@@ -168,6 +188,7 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
                 break;
 		}
 	}
+    fout << clock() - startClock << "; ";
 
 	// replace the frame with a mask if needed
 	if (showMask) {
@@ -183,6 +204,8 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
     catch (...) {
         std::cout << "Some kind of exception caught!" << std::endl;
     }
+    
+    fout << std::endl;
 }
 
 // draw everything on frame (hands, fingers, etc.)

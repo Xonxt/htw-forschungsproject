@@ -5,12 +5,18 @@
 #include "HandDetector.h"
 #include "Tracker.h"
 
+#include <time.h>
+#include <ctime>
+
+#include <fstream>
+
 #define FACE_DETECTOR_XML "lbpcascade_frontalface.xml"
 
 class FrameProcessor
 {
 public:
 	FrameProcessor();
+    ~FrameProcessor();
 
 	// initizlize the processor
 	bool initialize();
@@ -42,5 +48,10 @@ private:
 
 	// show backprojection mask or not?
 	bool showMask;
+    
+    // time measure
+    clock_t startClock,finishClock;
+    double timeCount;
+    std::ofstream fout;
 };
 
