@@ -39,18 +39,22 @@ void Tracker::trackHands(const cv::Mat inputFrame, std::vector<Hand>& hands) {
 	for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end(); ++it) {
 		startClock = clock();
 		// extract the boolean mask
-		skinDetector.extrackskinMask(image, mask, skinSegmMethod);
+        cv::Mat smallMask;
+        //mask = cv::Mat::zeros(image.rows, image.cols, CV_8U);
+        mask = cv::Mat(image.rows, image.cols, CV_8U);
+		skinDetector.extrackskinMask(cv::Mat(image, (*it).roiRectange), smallMask, skinSegmMethod);
 		fout << clock() - startClock << "; ";
-
-		// delete everything outside the ROI
-		cv::Mat rectMask = cv::Mat::zeros(mask.rows, mask.cols, CV_8U);
-		cv::rectangle(rectMask, (*it).roiRectange, cv::Scalar(255), CV_FILLED);
-		mask &= rectMask;
 
 		startClock = clock();
 		// filter ot the small blobs
-		removeSmallBlobs(mask, 100);
+		removeSmallBlobs(smallMask, 100);
 		fout << clock() - startClock << "; ";
+        
+        if (smallMask.rows < image.rows && smallMask.cols < image.cols) {
+            smallMask.copyTo(mask((*it).roiRectange));
+        }
+        else
+            smallMask.copyTo(mask);
 
 		startClock = clock();
 		// locate the new position for the hand:

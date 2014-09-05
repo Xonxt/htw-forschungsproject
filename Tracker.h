@@ -7,6 +7,8 @@
 #include <time.h>
 #include <ctime>
 
+#include <fstream>
+
 class Tracker {
 public:
 	Tracker();
