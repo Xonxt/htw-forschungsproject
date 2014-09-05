@@ -7,7 +7,7 @@ FrameProcessor::FrameProcessor()
 }
 
 FrameProcessor::~FrameProcessor() {
-//    fout.close();
+
 }
 
 // initialize the processor
@@ -16,6 +16,12 @@ bool FrameProcessor::initialize() {
 
 	// don't show mask at first
 	showMask = false;
+
+	// don't show the contour at the beginning
+	showContour = false;
+
+	// show bounding box at the beginning
+	showBoundingBox = true;
 
 	// clear the hands list
 	hands.clear();
@@ -30,9 +36,6 @@ bool FrameProcessor::initialize() {
 
 	if (!(result &= faceCascade.load(FACE_DETECTOR_XML)))
 		std::cout << "\tError initializing face detector cascade!" << std::endl;
-    
-//    fout.open("time.txt", std::ios::out | std::ios::trunc);
-//    fout << "track; detect; detect+track; intersect; strange; face; " << std::endl;
 
 	return result;
 }
@@ -47,8 +50,6 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 	std::vector<cv::Rect> pedestrians;
 
 	// first track the present hands in the frame
-    // TODO: see if it can be made faster?
-//    startClock = clock();
 	try {
 		handTracker.trackHands(frame, hands);
 	}
@@ -58,13 +59,9 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 	catch (...) {
 		std::cout << "Some other kind of exception caught" << std::endl;
 	}
-    //finishClock = clock();
-//    fout << clock() - startClock << "; ";
     
 	// now detect (new) hands in the frame
-//    startClock = clock();
 	handDetector.detectHands(frame, detectedHands, pedestrians);
-//    fout << clock() - startClock << "; ";
     
 	// were any new hands added?
 	bool newHandsAdded = false;
@@ -97,7 +94,40 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 		}
 	}
 
-	// now remove heavily intersecting regions
+	// remove intersecting regions (if two hands located in one position)
+	if (hands.size() > 1) {
+		int N = hands.size();
+		for (int i = 0; i < N - 1 && N > 1; i++) {
+			cv::Rect firstHand = hands[i].handBox.boundingRect();
+			for (int j = i + 1; j < N && N > 1; j++) {
+				cv::Rect secondHand = hands[j].handBox.boundingRect();
+				// intersection
+				cv::Rect intersection = firstHand & secondHand;
+
+				// take the smallest hand
+				cv::Rect smallestHand = (firstHand.area() < secondHand.area()) ? firstHand : secondHand;
+
+				// compare intersection sizes
+				if (intersection.area() > 0 && hands.size() > 1) {
+					// remove the largest region
+					if ((firstHand.area() < secondHand.area())) {
+						hands.erase(hands.begin() + i--);
+					}
+					else {
+						hands.erase(hands.begin() + j--);
+					}
+					N--;
+				}
+				
+				if (N < 2 || i == N || j == N) {
+					break;
+				}
+			}
+		}
+	}
+	/*
+	// the same thing but with iterators. Gives an exception in Visual Studio :(
+	// remove heavily intersecting regions
     if (hands.size() > 1) {
         for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end()-1; ++it) {
             cv::Rect firstHand = (*it).handBox.boundingRect();
@@ -113,9 +143,7 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
                 cv::Rect smallestHand = (firstHand.area() < secondHand.area()) ? firstHand : secondHand;
 
                 // compare intersection sizes
-                //if (intersection.area() >= (smallestHand.area() * 0.5)) {
-                if (intersection.area() > 0 && hands.size() > 1) {
-                    
+                if (intersection.area() > 0 && hands.size() > 1) {                    
                     // remove the largest one
                     if ((firstHand.area() > secondHand.area()))
                         it = hands.erase(it);
@@ -130,8 +158,8 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
                 break;
         }
     }
-    
-
+    */
+	// remove hands with bounding boxes, that go beyond the image borders
     for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end(); ++it) {
         Hand temp = *it;
         
@@ -153,11 +181,7 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
             break;
     }
 	
-	// TODO: detect faces only in pedestrian ROIs
-	// or downsize the image first (or both?)
-
 	// now check if new hands were added and then delete face regions
-//    startClock = clock();
 	if (newHandsAdded && hands.size() > 0) {
 		std::vector<cv::Rect> faces;
 
@@ -194,7 +218,6 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 					cv::Rect intersection = (*it).handBox.boundingRect() & (*fc);
 
 					// check if the intersection area too big
-					//if (intersection.area() >= ((*fc).area() * 0.5)) {
 					if (intersection.area() > 0) {
 						it = hands.erase(it);
 
@@ -207,7 +230,6 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 			}
 		}
 	}
- //   fout << clock() - startClock << "; ";
 	
 	// replace the frame with a mask if needed
 	if (showMask) {
@@ -223,26 +245,23 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
     catch (...) {
         std::cout << "Some kind of exception caught!" << std::endl;
     }
-    
- //   fout << std::endl;
 }
 
 // draw everything on frame (hands, fingers, etc.)
 void FrameProcessor::drawFrame(cv::Mat& frame) {
 	// iterate through our vector of hands
     int clr = 0;
+
 	for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end(); ++it) {
-		// draw track lines
-		/*
-		if ((*it).Tracker.kalmTrack.size() >= 2) {
-			for (int i = 0; i < (*it).Tracker.kalmTrack.size() - 1; i++) {
-				cv::line(frame, (*it).Tracker.kalmTrack[i], (*it).Tracker.kalmTrack[i + 1], fpColors[clr], 2);
-			}
-		}
-		*/
 		// put a rectangle|ellepse on the image
-		cv::ellipse(frame, (*it).handBox, fpColors[clr], 2);
-        //cv::rectangle(frame, (*it).roiRectange, fpColors[clr], 2);
+		if (showBoundingBox) {
+			cv::ellipse(frame, (*it).handBox, fpColors[clr], 2);
+		}
+
+		// show the contours
+		if (showContour && !(*it).Parameters.handContour.empty()) {
+			cv::drawContours(frame, (*it).Parameters.handContour, 0, fpColors[clr]);
+		}
         clr++;
 	}
 
@@ -269,7 +288,6 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 	for (int i = 0; i < strings.size(); i++) {
         cv::putText(frame, strings[i], cv::Point(20, (i + 1) * 35), CV_FONT_HERSHEY_PLAIN, 3, cv::Scalar(0, 0, 255), 3);
 	}	
-
 }
 
 // change skin segmentation method
@@ -294,4 +312,14 @@ void FrameProcessor::changeSkinMethod() {
 // toggle show boolean skin-mask
 void FrameProcessor::toggleShowMask() {
 	showMask = !showMask;
+}
+
+// toggle show hand contours
+void FrameProcessor::toggleShowContour() {
+	showContour = !showContour;
+}
+
+// toggle showing the bounding box
+void FrameProcessor::toggleShowBoundingBox() {
+	showBoundingBox = !showBoundingBox;
 }

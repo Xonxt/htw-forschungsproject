@@ -36,6 +36,13 @@ public:
 	// toggle show boolean skin-mask
 	void toggleShowMask();
 
+	// toggle showing the hand contours
+	void toggleShowContour();
+
+	// toggle showing the bounding box
+	void toggleShowBoundingBox();
+
+
 private:
 	// Tool for detecting every hand (open palm!) in the image
 	HandDetector handDetector;
@@ -48,10 +55,11 @@ private:
 
 	// show backprojection mask or not?
 	bool showMask;
-    
-    // time measure
-//    clock_t startClock,finishClock;
-//    double timeCount;
-//    std::ofstream fout;
+
+	// show the contour?
+	bool showContour;
+
+	// show the bounding box (or bounding ellipse)?
+	bool showBoundingBox;
 };
 

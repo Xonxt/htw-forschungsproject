@@ -37,20 +37,18 @@ using namespace std;
 // construct a filename based on the current time and supplied extension (with a ".")
 std::string generateFileName(const char* ext) {
 	std::ostringstream ost;
-/*
-	// Visual studio
+	
+	char timeString[12];
+	time_t now = time(0);
+	strftime(timeString, sizeof(timeString), "%H-%M-%S", localtime(&now));		
+
+	/* // this is better for Visual Studio, otherwise use "_CRT_SECURE_NO_WARNINGS"
 	char timeString[12];
 	time_t now = time(0);
 	struct tm _Tm;
 	localtime_s(&_Tm, &now);
 	strftime(timeString, sizeof(timeString), "%H-%M-%S", &_Tm);
-*/
-	
-	// Code::Blocks and XCode
-	char timeString[12];
-	time_t now = time(0);
-	strftime(timeString, sizeof(timeString), "%H-%M-%S", localtime(&now));		
-
+	*/
 	ost << timeString;
 
 	if (ext[0] != '.')
@@ -63,11 +61,11 @@ std::string generateFileName(const char* ext) {
 
 int main(int argc, char* argv[])
 {
-	/* open capture */
+	// open capture
 	VideoCapture capture;
 
 	if (VIDEO_FILE) { // from video file        
-		capture = VideoCapture(VideoFile[MAC_VIDEO_FILE_MVI5513MOV]);
+		capture = VideoCapture(VideoFile[VIDEO_FILE_MVI5513MOV]);
 	}
 	else { // or from webcam
 		capture = VideoCapture(0);
@@ -129,6 +127,8 @@ int main(int argc, char* argv[])
 	cout << "'m'\tdisplay backprojection mask" << endl;
 	cout << "'s'\tchange skin segmentation method" << endl;
     cout << "'p'\tpause or resume" << endl;
+	cout << "'b'\tshow/hide the bounding box" << endl;
+	cout << "'c'\tshow/hide the contour" << endl;
 
 	// infinite loop for the video stream
 	while (true) {		
@@ -190,6 +190,12 @@ int main(int argc, char* argv[])
 			case 'p':   // pause/resume
                 pause = !pause;
                 break;
+			case 'c':
+				frameProcessor.toggleShowContour(); // show contour
+				break;
+			case 'b':
+				frameProcessor.toggleShowBoundingBox(); // show bounding box
+				break;
             }
             
 		}

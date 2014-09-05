@@ -3,16 +3,13 @@
 
 
 Tracker::Tracker() {
-	fout.open("tracker_time.csv", std::ios::trunc | std::ios::out);
-	fout << "skin; blobs; camshift" << std::endl;
 }
 
 //initialize the tracker
 bool Tracker::initialize() {
 	bool result = true;
 	
-	skinSegmMethod = SKIN_SEGMENT_HSV;
-    
+	skinSegmMethod = SKIN_SEGMENT_HSV;    
     somethingIsTracked = false;
 
 	return result;
@@ -26,10 +23,8 @@ void Tracker::trackHands(const cv::Mat inputFrame, std::vector<Hand>& hands) {
     // nothing is tracked yet
     somethingIsTracked = false;
 
-	//startClock = clock();
 	// convert the image to HSV
 	cv::cvtColor(image, hsv, cv::COLOR_BGR2HSV);
-	//fout << clock() - startClock << "; ";
 
 	// clear the backproj mask
 	backprojection = cv::Mat::zeros(hsv.rows, hsv.cols, CV_8U);
@@ -37,33 +32,31 @@ void Tracker::trackHands(const cv::Mat inputFrame, std::vector<Hand>& hands) {
 
 	// iterate through all hands
 	for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end(); ++it) {
-		startClock = clock();
 		// extract the boolean mask
         cv::Mat smallMask;
-        //mask = cv::Mat::zeros(image.rows, image.cols, CV_8U);
         mask = cv::Mat(image.rows, image.cols, CV_8U);
+		mask = cv::Mat::zeros(image.rows, image.cols, CV_8U);
 		skinDetector.extrackskinMask(cv::Mat(image, (*it).roiRectange), smallMask, skinSegmMethod);
-		fout << clock() - startClock << "; ";
 
-		startClock = clock();
-		// filter ot the small blobs
+		// filter out the small blobs
 		removeSmallBlobs(smallMask, 100);
-		fout << clock() - startClock << "; ";
         
+		// upscale the mask to original resolution
         if (smallMask.rows < image.rows && smallMask.cols < image.cols) {
             smallMask.copyTo(mask((*it).roiRectange));
         }
         else
             smallMask.copyTo(mask);
 
-		startClock = clock();
 		// locate the new position for the hand:
 		bool result = getNewPosition(*it);
-		fout << clock() - startClock << "; " << std::endl;
 
 		// if the tracking was unsuccessful, remove the hand
 		if (!result) {
 			hands.erase(it);
+		}
+		else { // if successful, extract contour!
+			extractContour(*it);
 		}
 	}
 }
@@ -165,7 +158,35 @@ bool Tracker::getNewPosition(Hand& hand) {
 
 // extract hand contour from the mask
 void Tracker::extractContour(Hand& hand) {
+	// a vector of vectors of points, containing all the contours in the image
+	std::vector< std::vector<cv::Point> > contours;
 
+	// a vector of contour hierarchy
+	std::vector<cv::Vec4i> hierarchy;
+
+	// attempt to extract the contours in the image
+	try {
+		findContours(cv::Mat(mask, hand.handBox.boundingRect()), contours, hierarchy, 
+					 CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE, hand.handBox.boundingRect().tl());
+
+		// if any contours found
+		if (!contours.empty()) {
+			// look for the largest contour
+			int maxArea = -1, indx = 0;
+			for (int i = 0; i<contours.size(); i++) {
+				if (cv::contourArea(contours[i]) > maxArea) {
+					maxArea = cv::contourArea(contours[i]);
+					indx = i;
+				}
+			}
+			hand.Parameters.handContour = contours[indx];
+		}
+
+	} // end-try
+	catch (cv::Exception& ex) {
+		std::cout << "Exception caught while extracting a contour: " << std::endl << ex.what() << std::endl;
+		hand.Parameters.handContour.clear();
+	}
 }
 
 // change the skin segmentation method

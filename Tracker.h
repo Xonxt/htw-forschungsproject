@@ -4,11 +4,6 @@
 #include "Hand.h"
 #include "SkinDetector.h"
 
-#include <time.h>
-#include <ctime>
-
-#include <fstream>
-
 class Tracker {
 public:
 	Tracker();
@@ -59,9 +54,5 @@ private:
     
     // something is being tracked
     bool somethingIsTracked;
-
-	// TEMPORARY
-	std::ofstream fout;
-	clock_t startClock;
 };
 
