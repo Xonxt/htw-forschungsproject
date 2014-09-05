@@ -47,7 +47,7 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 	std::vector<cv::Rect> pedestrians;
 
 	// first track the present hands in the frame
-    
+    // TODO: see if it can be made faster?
     startClock = clock();
 	try {
 		handTracker.trackHands(frame, hands);
@@ -71,7 +71,6 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 
 	// add new hands to the tracking list,
 	// but remove those already being tracked
-    startClock = clock();
 	for (std::vector<Hand>::iterator it = detectedHands.begin(); it != detectedHands.end(); ++it) {
 		// take the temporary hand
 		Hand tempHand = *it;
@@ -97,10 +96,8 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 			newHandsAdded = true;
 		}
 	}
-    fout << clock() - startClock << "; ";
 
 	// now remove heavily intersecting regions
-    startClock = clock();
     if (hands.size() > 1) {
         for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end()-1; ++it) {
             cv::Rect firstHand = (*it).handBox.boundingRect();
@@ -127,18 +124,14 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
                     
                     if (it2 == hands.end() || it == hands.end())
                         break;
-                    
-                  //  hands.erase((firstHand.area() > secondHand.area()) ? it : it2);
                 }
             }
             if (it == hands.end() || hands.size() < 2)
                 break;
         }
     }
-    fout << clock() - startClock << "; ";
     
-    // remove strange regions
-    startClock = clock();
+
     for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end(); ++it) {
         Hand temp = *it;
         
@@ -159,37 +152,63 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
         if (it == hands.end())
             break;
     }
-    fout << clock() - startClock << "; ";
+	
+	// TODO: detect faces only in pedestrian ROIs
+	// or downsize the image first (or both?)
 
 	// now check if new hands were added and then delete face regions
     startClock = clock();
 	if (newHandsAdded && hands.size() > 0) {
 		std::vector<cv::Rect> faces;
 
-		// look for faces in the frame
-		faceCascade.detectMultiScale(frame, faces, 1.1, 2, CV_HAAR_FIND_BIGGEST_OBJECT);
+		faces.clear();
 
-		// iterate through hands
-		for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end(); ++it) {
-			// iterate through faces:
-			for (std::vector<cv::Rect>::iterator fc = faces.begin(); fc != faces.end(); ++fc) {
-				cv::Rect intersection = (*it).handBox.boundingRect() & (*fc);
+		// iterate through pedestrians:
+		for (std::vector<cv::Rect>::iterator pd = pedestrians.begin(); pd != pedestrians.end(); ++pd) {
+			// cut out a part of the image
+			cv::Mat cutOut = cv::Mat(frame, *pd);
 
-				// check if the intersection area too big
-				//if (intersection.area() >= ((*fc).area() * 0.5)) {
-                if (intersection.area() > 0) {
-					it = hands.erase(it);
-                    
-                    if (it == hands.end())
-                        break;
-				}
+			// prepare a temporary storage for faces
+			std::vector<cv::Rect> tempFaces;
+
+			// look for faces in the cutout
+			faceCascade.detectMultiScale(cutOut, tempFaces, 1.1, 3, CV_HAAR_FIND_BIGGEST_OBJECT);
+
+			// append the located faces to the Faces vector
+			for (std::vector<cv::Rect>::iterator fc2 = tempFaces.begin(); fc2 != tempFaces.end(); ++fc2) {
+				cv::Rect face = *fc2;
+
+				// apply shift
+				face += (*pd).tl();
+
+				// add the face to the vector
+				faces.push_back(face);
 			}
-            if (it == hands.end())
-                break;
+		}
+
+		if (faces.size() > 0) {
+			// iterate through hands
+			for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end(); ++it) {
+				// iterate through faces:
+				for (std::vector<cv::Rect>::iterator fc = faces.begin(); fc != faces.end(); ++fc) {
+					cv::Rect intersection = (*it).handBox.boundingRect() & (*fc);
+
+					// check if the intersection area too big
+					//if (intersection.area() >= ((*fc).area() * 0.5)) {
+					if (intersection.area() > 0) {
+						it = hands.erase(it);
+
+						if (it == hands.end())
+							break;
+					}
+				}
+				if (it == hands.end())
+					break;
+			}
 		}
 	}
     fout << clock() - startClock << "; ";
-
+	
 	// replace the frame with a mask if needed
 	if (showMask) {
 		handTracker.getSkinMask(frame);

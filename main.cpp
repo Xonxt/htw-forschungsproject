@@ -1,5 +1,6 @@
-// ConsoleApplication2.cpp: определяет точку входа для консольного приложения.
-//
+// Forschungsproject (teil 2) at HTW Berlin
+// Recognition of short-time micro-gestures from a single-PoV video stream
+// (c) Nikita "Xonxt" Kovalenko, 2013-2014, Berlin
 
 #include "stdafx.h"
 #include "FrameProcessor.h"
@@ -13,7 +14,7 @@
 #define VIDEO_FILE true
 
 // should I record the video too?
-#define RECORD_VIDEO false
+#define RECORD_VIDEO true
 
 const char* VideoFile[] = { "D:\\temp\\FP\\HFD\\MVI_5513.MOV", 
 							"D:\\temp\\FP\\HFD\\00237.MTS", 
@@ -48,8 +49,7 @@ std::string generateFileName(const char* ext) {
 	// Code::Blocks and XCode
 	char timeString[12];
 	time_t now = time(0);
-	strftime(timeString, sizeof(timeString), "%H-%M-%S", localtime(&now));	
-	
+	strftime(timeString, sizeof(timeString), "%H-%M-%S", localtime(&now));		
 
 	ost << timeString;
 
@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
 	VideoCapture capture;
 
 	if (VIDEO_FILE) { // from video file        
-		capture = VideoCapture(VideoFile[MAC_VIDEO_FILE_MVI5513MOV]);
+		capture = VideoCapture(VideoFile[VIDEO_FILE_MVI5513MOV]);
 	}
 	else { // or from webcam
 		capture = VideoCapture(0);
@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
 
 	// check of opened successfully?
 	if (!capture.isOpened()) {
-		cout << "Failed to open video device!" << endl;
+		cout << "Failed to open video capture!" << endl;
 		return -1;
 	}
 
@@ -93,8 +93,7 @@ int main(int argc, char* argv[])
 		outputVideo.open(generateFileName(".avi"), -1, capture.get(CV_CAP_PROP_FPS), S, true);
 
 		if (!outputVideo.isOpened()) {
-			cout << "Could not open the output video for write: " << endl;
-			//return -1;
+			cout << "Could not open the output video for write. " << endl;
 		}
 	}
 
@@ -124,13 +123,12 @@ int main(int argc, char* argv[])
     bool pause = false;
 
 	// display a menu
-	std::cout << "Use the following keys for result" << std::endl << std::endl;
-	std::cout << "'ESC'\texit application" << std::endl;
-	std::cout << "'SPACE'\tsave screenshot" << std::endl;
-	std::cout << "'m'\tdisplay backprojection mask" << std::endl;
-	std::cout << "'s'\tchange skin segmentation method" << std::endl;
-    std::cout << "'p'\tpause or resume" << std::endl;
-
+	cout << "Use the following keys for result" << endl << endl;
+	cout << "'ESC'\texit application" << endl;
+	cout << "'SPACE'\tsave screenshot" << endl;
+	cout << "'m'\tdisplay backprojection mask" << endl;
+	cout << "'s'\tchange skin segmentation method" << endl;
+    cout << "'p'\tpause or resume" << endl;
 
 	// infinite loop for the video stream
 	while (true) {		
@@ -174,7 +172,7 @@ int main(int argc, char* argv[])
 
 		// which key?
 		if (char(key) == 27) {		// 'Esc'
-			// exit loop
+			// exit loop			
 			break;
 		}
 		else if (char(key) == 32) { // 'Spacebar'
@@ -196,6 +194,9 @@ int main(int argc, char* argv[])
             
 		}
 	}
+
+	// close all windows
+	destroyAllWindows();
 
 	// release the video writer
     if (RECORD_VIDEO)
