@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
 	VideoCapture capture;
 
 	if (VIDEO_FILE) { // from video file        
-		capture = VideoCapture(VideoFile[MAC_VIDEO_FILE_MVI5513MOV]);
+		capture = VideoCapture(VideoFile[VIDEO_FILE_MVI5513MOV]);
 	}
 	else { // or from webcam
 		capture = VideoCapture(0);

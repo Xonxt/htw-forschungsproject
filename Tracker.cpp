@@ -3,7 +3,8 @@
 
 
 Tracker::Tracker() {
-
+	fout.open("tracker_time.csv", std::ios::trunc | std::ios::out);
+	fout << "skin; blobs; camshift" << std::endl;
 }
 
 //initialize the tracker
@@ -25,8 +26,10 @@ void Tracker::trackHands(const cv::Mat inputFrame, std::vector<Hand>& hands) {
     // nothing is tracked yet
     somethingIsTracked = false;
 
+	//startClock = clock();
 	// convert the image to HSV
 	cv::cvtColor(image, hsv, cv::COLOR_BGR2HSV);
+	//fout << clock() - startClock << "; ";
 
 	// clear the backproj mask
 	backprojection = cv::Mat::zeros(hsv.rows, hsv.cols, CV_8U);
@@ -34,19 +37,25 @@ void Tracker::trackHands(const cv::Mat inputFrame, std::vector<Hand>& hands) {
 
 	// iterate through all hands
 	for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end(); ++it) {
+		startClock = clock();
 		// extract the boolean mask
 		skinDetector.extrackskinMask(image, mask, skinSegmMethod);
+		fout << clock() - startClock << "; ";
 
 		// delete everything outside the ROI
 		cv::Mat rectMask = cv::Mat::zeros(mask.rows, mask.cols, CV_8U);
 		cv::rectangle(rectMask, (*it).roiRectange, cv::Scalar(255), CV_FILLED);
 		mask &= rectMask;
 
+		startClock = clock();
 		// filter ot the small blobs
 		removeSmallBlobs(mask, 100);
+		fout << clock() - startClock << "; ";
 
+		startClock = clock();
 		// locate the new position for the hand:
 		bool result = getNewPosition(*it);
+		fout << clock() - startClock << "; " << std::endl;
 
 		// if the tracking was unsuccessful, remove the hand
 		if (!result) {
