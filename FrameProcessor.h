@@ -50,8 +50,8 @@ private:
 	bool showMask;
     
     // time measure
-    clock_t startClock,finishClock;
-    double timeCount;
-    std::ofstream fout;
+//    clock_t startClock,finishClock;
+//    double timeCount;
+//    std::ofstream fout;
 };
 

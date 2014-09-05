@@ -7,7 +7,7 @@ FrameProcessor::FrameProcessor()
 }
 
 FrameProcessor::~FrameProcessor() {
-    fout.close();
+//    fout.close();
 }
 
 // initialize the processor
@@ -31,8 +31,8 @@ bool FrameProcessor::initialize() {
 	if (!(result &= faceCascade.load(FACE_DETECTOR_XML)))
 		std::cout << "\tError initializing face detector cascade!" << std::endl;
     
-    fout.open("time.txt", std::ios::out | std::ios::trunc);
-    fout << "track; detect; detect+track; intersect; strange; face; " << std::endl;
+//    fout.open("time.txt", std::ios::out | std::ios::trunc);
+//    fout << "track; detect; detect+track; intersect; strange; face; " << std::endl;
 
 	return result;
 }
@@ -48,7 +48,7 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 
 	// first track the present hands in the frame
     // TODO: see if it can be made faster?
-    startClock = clock();
+//    startClock = clock();
 	try {
 		handTracker.trackHands(frame, hands);
 	}
@@ -59,12 +59,12 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 		std::cout << "Some other kind of exception caught" << std::endl;
 	}
     //finishClock = clock();
-    fout << clock() - startClock << "; ";
+//    fout << clock() - startClock << "; ";
     
 	// now detect (new) hands in the frame
-    startClock = clock();
+//    startClock = clock();
 	handDetector.detectHands(frame, detectedHands, pedestrians);
-    fout << clock() - startClock << "; ";
+//    fout << clock() - startClock << "; ";
     
 	// were any new hands added?
 	bool newHandsAdded = false;
@@ -157,7 +157,7 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 	// or downsize the image first (or both?)
 
 	// now check if new hands were added and then delete face regions
-    startClock = clock();
+//    startClock = clock();
 	if (newHandsAdded && hands.size() > 0) {
 		std::vector<cv::Rect> faces;
 
@@ -207,7 +207,7 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 			}
 		}
 	}
-    fout << clock() - startClock << "; ";
+ //   fout << clock() - startClock << "; ";
 	
 	// replace the frame with a mask if needed
 	if (showMask) {
@@ -224,7 +224,7 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
         std::cout << "Some kind of exception caught!" << std::endl;
     }
     
-    fout << std::endl;
+ //   fout << std::endl;
 }
 
 // draw everything on frame (hands, fingers, etc.)
