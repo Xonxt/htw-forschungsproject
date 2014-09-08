@@ -1,8 +1,9 @@
 #include "stdafx.h"
 #include "FrameProcessor.h"
 
-FrameProcessor::FrameProcessor()
+FrameProcessor::FrameProcessor(bool webCam)
 {
+	isWebCam = webCam;
 	hands.clear();
 }
 
@@ -26,7 +27,7 @@ bool FrameProcessor::initialize() {
 	// clear the hands list
 	hands.clear();
 
-	if (!(result &= handDetector.initialize())) {
+	if (!(result &= handDetector.initialize(isWebCam))) {
 		std::cout << "Error initializing Hand Detector object" << std::endl;
 	}
 
@@ -259,7 +260,7 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 		}
 
 		// show the contours
-		if (showContour && !(*it).Parameters.handContour.empty()) {
+		if (showContour && (*it).Parameters.handContour.size() > 0) {
 			cv::drawContours(frame, (*it).Parameters.handContour, 0, fpColors[clr]);
 		}
         clr++;

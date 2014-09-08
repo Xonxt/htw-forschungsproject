@@ -15,7 +15,7 @@
 class FrameProcessor
 {
 public:
-	FrameProcessor();
+	FrameProcessor(bool webCam = false);
     ~FrameProcessor();
 
 	// initizlize the processor
@@ -61,5 +61,8 @@ private:
 
 	// show the bounding box (or bounding ellipse)?
 	bool showBoundingBox;
+
+	// is a webcam?
+	bool isWebCam;
 };
 

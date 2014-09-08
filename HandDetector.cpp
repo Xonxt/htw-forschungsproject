@@ -3,14 +3,16 @@
 
 
 HandDetector::HandDetector()
-{
+{	
 	frameNumber = 0;
 }
 
 
 // initialize detectot
-bool HandDetector::initialize() {
+bool HandDetector::initialize(bool webCam) {
 	bool result = true;
+
+	noPedestrians = false;
 
 	if (!(result &= handCascade.load(HAND_DETECTOR_XML)))
 		std::cout << "\tError initializing hand detector cascade!" << std::endl;
@@ -22,6 +24,8 @@ bool HandDetector::initialize() {
 		std::cout << "\tError initializing hog pedestrian detector: " << e.what() << std::endl;
 		result &= false;
 	}
+
+	isWebCam = webCam;
 	
 	return result;
 }
@@ -42,13 +46,19 @@ void HandDetector::detectHands(const cv::Mat frame, std::vector<Hand>& hands, st
 	// pedestrians will be detected only every N drames
 	if ((frameNumber++ % PEDESTRIANS_SKIP_FRAMES) == 0) {
 		pedestrians.clear();
-		pedestrianDetector.detectMultiScale(frameResized, pedestrians);
+		// run pedestrian detector only if it's not a web cam
+		// otherwise the entire frame is processed
+		if (!isWebCam)
+			pedestrianDetector.detectMultiScale(frameResized, pedestrians);
 
 		if (pedestrians.empty()) {
 			// if no pedestrians detected, process the entire image next
+			noPedestrians = true;
 			pedestrians.push_back(cv::Rect(0, 0, frameWidth, frameHeight));
 		}
 		else {
+			noPedestrians = false;
+
 			for (int i = 0; i < pedestrians.size(); i++) {
 				// if pedestrians detected, rescale each ROI back to original image size
 				pedestrians[i].x *= (frameWidth / RESIZE_WIDTH);
@@ -93,7 +103,7 @@ void HandDetector::detectHands(const cv::Mat frame, std::vector<Hand>& hands, st
 		std::vector<cv::Rect> handRects;
 
 		// cut out the ROI from the original frame
-		cv::Mat frameCrop = cv::Mat(frame, pedestrians[i]);
+		cv::Mat frameCrop = cv::Mat((isWebCam || noPedestrians) ? frameResized : frame, pedestrians[i]);
 
 		// look for hand objects in the frame
 		handCascade.detectMultiScale(frameCrop, handRects, 1.05, 6, CV_HAAR_FIND_BIGGEST_OBJECT);

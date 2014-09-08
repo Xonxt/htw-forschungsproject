@@ -9,9 +9,9 @@
 #include <sstream>
 #include <time.h>
 
-// set 'true' if you're loading a video file
-// or 'false' if you use a capture devide (web-cam)
-#define VIDEO_FILE true
+// set 'false' if you're loading a video file
+// or 'true' if you use a capture devide (web-cam)
+#define IS_WEB_CAM false
 
 // should I record the video too?
 #define RECORD_VIDEO false
@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
 	// open capture
 	VideoCapture capture;
 
-	if (VIDEO_FILE) { // from video file        
+	if (!IS_WEB_CAM) { // from video file        
 		capture = VideoCapture(VideoFile[VIDEO_FILE_MVI5513MOV]);
 	}
 	else { // or from webcam
@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
 	}
 
 	// create Frame Processor object
-	FrameProcessor frameProcessor;
+	FrameProcessor frameProcessor(IS_WEB_CAM);
 
 	// initizlize frame processor
 	if (!frameProcessor.initialize()) {
@@ -150,7 +150,7 @@ int main(int argc, char* argv[])
 			}
 
 			// mirror, if from webcam:
-			if (!VIDEO_FILE) {
+			if (IS_WEB_CAM) {
 				Mat _frame;
 				flip(frame, _frame, 1);
 				_frame.copyTo(frame);

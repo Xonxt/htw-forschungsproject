@@ -53,7 +53,7 @@ void Tracker::trackHands(const cv::Mat inputFrame, std::vector<Hand>& hands) {
 
 		// if the tracking was unsuccessful, remove the hand
 		if (!result) {
-			hands.erase(it);
+			it = hands.erase(it);
 		}
 		else { // if successful, extract contour!
 			extractContour(*it);

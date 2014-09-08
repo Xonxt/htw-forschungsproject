@@ -17,7 +17,7 @@ public:
 	HandDetector();
 
 	// initialize detectot
-	bool initialize();
+	bool initialize(bool webCam = false);
 
 	// detect all hands in frame
 	void detectHands(const cv::Mat frame, std::vector<Hand>& hands, std::vector<cv::Rect>& rois);
@@ -43,5 +43,11 @@ private:
 	
 	// a list of pedestrians in frame
 	std::vector<cv::Rect> pedestrians;
+
+	// no pedestriands in frame
+	bool noPedestrians;
+
+	// is a web cam?
+	bool isWebCam;
 };
 
