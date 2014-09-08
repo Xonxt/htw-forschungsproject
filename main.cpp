@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
 	Mat frame, stillFrame;
 
 	// should we skip some frames?
-	int skipFrames = 0;
+	int skipFrames = 70;
 
 	// current frame number
 	int frameNumber = 0;

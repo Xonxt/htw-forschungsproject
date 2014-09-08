@@ -166,8 +166,13 @@ void Tracker::extractContour(Hand& hand) {
 
 	// attempt to extract the contours in the image
 	try {
-		findContours(cv::Mat(mask, hand.handBox.boundingRect()), contours, hierarchy, 
-					 CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE, hand.handBox.boundingRect().tl());
+        // icrease the size of the bbox by 25%;
+        cv::RotatedRect handBox = hand.handBox;
+        handBox.size.width *= 1.25;
+        handBox.size.height *= 1.25;
+        
+		findContours(cv::Mat(mask, handBox.boundingRect()), contours, hierarchy,
+					 CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE, handBox.boundingRect().tl());
 
 		// if any contours found
 		if (!contours.empty()) {

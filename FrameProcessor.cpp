@@ -261,7 +261,9 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 
 		// show the contours
 		if (showContour && (*it).Parameters.handContour.size() > 0) {
-			cv::drawContours(frame, (*it).Parameters.handContour, 0, fpColors[clr]);
+            std::vector<std::vector<cv::Point> > contour;
+            contour.push_back((*it).Parameters.handContour);
+			cv::drawContours(frame, contour, 0, fpColors[clr], 2);
 		}
         clr++;
 	}

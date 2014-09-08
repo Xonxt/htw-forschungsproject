@@ -103,18 +103,30 @@ void HandDetector::detectHands(const cv::Mat frame, std::vector<Hand>& hands, st
 		std::vector<cv::Rect> handRects;
 
 		// cut out the ROI from the original frame
-		cv::Mat frameCrop = cv::Mat((isWebCam || noPedestrians) ? frameResized : frame, pedestrians[i]);
+        cv::Mat frameCrop = (isWebCam || noPedestrians) ? frameResized : cv::Mat(frame, pedestrians[i]);
+	//	cv::Mat frameCrop = cv::Mat((isWebCam || noPedestrians) ? frameResized : frame, pedestrians[i]);
 
 		// look for hand objects in the frame
 		handCascade.detectMultiScale(frameCrop, handRects, 1.05, 6, CV_HAAR_FIND_BIGGEST_OBJECT);
 
 		// iterate through located objects
 		for (int j = 0; j < handRects.size(); j++) {
+            // a temporary rect
+            cv::Rect rect = handRects[i];
+            
 			// create temporary Hand object
 			Hand tempHand;
             
+            // if it was a webcam:
+            if (isWebCam) {
+                rect.x *= (frameWidth / RESIZE_WIDTH);
+				rect.y *= (frameHeight / RESIZE_HEIGHT);
+				rect.height *= (frameHeight / RESIZE_HEIGHT);
+				rect.width *= (frameWidth / RESIZE_WIDTH);
+            }
+            
 			//convert the rect into hand
-			rect2Hand(handRects[j], tempHand, pedestrians[i].tl());
+			rect2Hand(rect, tempHand, pedestrians[i].tl());
 
 			// assign the hands ROI (the pedestrian rectange)
 			tempHand.roiRectange = pedestrians[i];
