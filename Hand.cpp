@@ -68,11 +68,13 @@ void Hand::initTracker() {
 	Tracker.kalmTrack.push_back(cv::Point(handBox.center.x, handBox.center.y));
 }
 
-bool Hand::isEqual(double a, double b) {
+// Determine if two floating point values are ~equal, with a threshold
+bool Hand::isEqual(const double a, const double b) {
 	return fabs(a - b) <= FingerParameters.equalThreshold;
 }
 
-double Hand::getPointsAangle(std::vector<cv::Point>& contour, int pt, int r) {
+// get the angle between two points in a contour
+double Hand::getPointsAangle(std::vector<cv::Point>& contour, const int pt, const int r) {
 	int size = contour.size();
 	cv::Point p0 = (pt>0) ? contour[pt%size] : contour[size - 1 + pt];
 	cv::Point p1 = contour[(pt + r) % size];
@@ -85,7 +87,8 @@ double Hand::getPointsAangle(std::vector<cv::Point>& contour, int pt, int r) {
 	return (ux*vx + uy*vy) / sqrt((ux*ux + uy*uy)*(vx*vx + vy*vy));
 }
 
-signed int Hand::getRotation(std::vector<cv::Point>& contour, int pt, int r) {
+// get the rotation between two points of the contour	
+signed int Hand::getRotation(std::vector<cv::Point>& contour, const int pt, const int r) {
 	int size = contour.size();
 	cv::Point p0 = (pt>0) ? contour[pt%size] : contour[size - 1 + pt];
 	cv::Point p1 = contour[(pt + r) % size];
@@ -101,6 +104,7 @@ signed int Hand::getRotation(std::vector<cv::Point>& contour, int pt, int r) {
 	return res;
 }
 
+// extract the fingertips by processing the contour
 int Hand::extractFingers() {
 	int countFingers = 0;
 	Parameters.fingers.clear();

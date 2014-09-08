@@ -1,9 +1,11 @@
 #include "stdafx.h"
 
+// get the distance between two cv::Point points
 double getDistance(const cv::Point pt1, const cv::Point pt2) {
 	return (sqrt(pow(pt1.x - pt2.x, 2) + pow(pt1.y - pt2.y, 2)));
 }
 
+// get the angle of a vector, from pt1 to pt2
 double getAngle(const cv::Point pt1, const cv::Point pt2) {
 	double alpha; // result
 
@@ -40,19 +42,20 @@ double getAngle(const cv::Point pt1, const cv::Point pt2) {
 	return correctAngle(alpha);
 }
 
+// correct the angle to a proper Descartes (0..360) orientation
 double correctAngle(double alpha) {
 	double angle = alpha;
 
-	if (isInRange(alpha, 90, 180)) {        // 1st quadrant
+	if (isInRange(alpha, 90, 180)) {		// 1st quadrant
 		angle -= 90;
 	}
-	else if (isInRange(alpha, -90, -180)) { // 2nd quadrant
+	else if (isInRange(alpha, -90, -180)) {	// 2nd quadrant
 		angle = (180 - abs(alpha)) + 90;
 	}
-	else if (isInRange(alpha, -0, -90)) {    // 3rd quadrant
+	else if (isInRange(alpha, -0, -90)) {	// 3rd quadrant
 		angle = 180 + (90 - abs(alpha));
 	}
-	else if (isInRange(alpha, 0, 90)) {      // 4th quadrant
+	else if (isInRange(alpha, 0, 90)) {		// 4th quadrant
 		angle = 270 + abs(alpha);
 		if (angle >= 360)
 			angle = 0;
@@ -61,6 +64,7 @@ double correctAngle(double alpha) {
 	return (angle);
 }
 
+// check if the a value lies between two constrains
 bool isInRange(const double value, const double A, const double B) {
 	if (value >= fmin(A, B) && value <= fmax(A, B))
 		return true;

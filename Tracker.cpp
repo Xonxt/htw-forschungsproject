@@ -94,6 +94,9 @@ bool Tracker::getNewPosition(Hand& hand) {
 		hand.Tracker.isTracked = true;
 	}
 
+	// remember the old center position
+	cv::Point oldCenter = hand.handBox.center;
+
 	// calculate the back projection
 	cv::Mat backproj;
 	cv::calcBackProject(&hsv, 1, channels, hand.Tracker.hist, backproj, ranges, 1, true);
