@@ -277,7 +277,7 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 				//inner
 				cv::circle(frame, (*fg).coordinates, radius, fpColors[clr], -1);
 				// outer
-				cv::circle(frame, (*fg).coordinates, radius+2, fpColors[clr], 2);
+				cv::circle(frame, (*fg).coordinates, radius*1.5, fpColors[clr], 2);
 			}
 		}
 

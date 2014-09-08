@@ -3,6 +3,10 @@
 
 Hand::Hand() {
 	// new hand created!
+    FingerParameters.cosThreshold = 0.5;
+    FingerParameters.equalThreshold = 1e-7;
+    FingerParameters.r = 40;
+    FingerParameters.step = 16;
 }
 
 Hand::~Hand() {
@@ -103,11 +107,6 @@ int Hand::extractFingers() {
 
 	if (Parameters.handContour.size() <= 0)
 		return -1;
-
-	int width = handBox.boundingRect().width;
-	int height = handBox.boundingRect().height;
-
-	// param.step = (int) ceil(min(width, height) * 0.05);
 
 	for (int j = 0; j < Parameters.handContour.size(); j += FingerParameters.step) {
 		double cos0 = getPointsAangle(Parameters.handContour, j, FingerParameters.r);
