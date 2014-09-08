@@ -15,11 +15,11 @@
 class FrameProcessor
 {
 public:
-	FrameProcessor(bool webCam = false);
+	FrameProcessor();
     ~FrameProcessor();
 
 	// initizlize the processor
-	bool initialize();
+	bool initialize(bool isWebCam = false);
 
 	// the list of detected hands
 	std::vector<Hand> hands;

@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "FrameProcessor.h"
 
-FrameProcessor::FrameProcessor(bool webCam)
+FrameProcessor::FrameProcessor()
 {
-	isWebCam = webCam;
+	//isWebCam = webCam;
 	hands.clear();
 }
 
@@ -12,7 +12,7 @@ FrameProcessor::~FrameProcessor() {
 }
 
 // initialize the processor
-bool FrameProcessor::initialize() {
+bool FrameProcessor::initialize(bool isWebCam) {
 	bool result = true;
 
 	// don't show mask at first

@@ -11,7 +11,7 @@
 
 // set 'false' if you're loading a video file
 // or 'true' if you use a capture devide (web-cam)
-#define IS_WEB_CAM false
+#define IS_WEB_CAM true
 
 // should I record the video too?
 #define RECORD_VIDEO false
@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
 {
 	// open capture
 	VideoCapture capture;
-
+	
 	if (!IS_WEB_CAM) { // from video file        
 		capture = VideoCapture(VideoFile[VIDEO_FILE_MVI5513MOV]);
 	}
@@ -96,10 +96,10 @@ int main(int argc, char* argv[])
 	}
 
 	// create Frame Processor object
-	FrameProcessor frameProcessor(IS_WEB_CAM);
+	FrameProcessor frameProcessor;
 
 	// initizlize frame processor
-	if (!frameProcessor.initialize()) {
+	if (!frameProcessor.initialize(IS_WEB_CAM)) {
 		cout << "Failed to initialize Frame Processor!" << endl;
 		return -2;
 	}
@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
 	Mat frame, stillFrame;
 
 	// should we skip some frames?
-	int skipFrames = 70;
+	int skipFrames = 0;
 
 	// current frame number
 	int frameNumber = 0;
