@@ -42,6 +42,8 @@ public:
 	// toggle showing the bounding box
 	void toggleShowBoundingBox();
 
+	// toggle showing fingertips as small circles
+	void toggleShowFingers();
 
 private:
 	// Tool for detecting every hand (open palm!) in the image
@@ -61,6 +63,9 @@ private:
 
 	// show the bounding box (or bounding ellipse)?
 	bool showBoundingBox;
+
+	// bool show fingertips?
+	bool showFingers;
 
 	// is a webcam?
 	bool isWebCam;

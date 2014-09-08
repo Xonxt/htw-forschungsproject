@@ -2,6 +2,8 @@
 
 #include "stdafx.h"
 
+#include "Finger.h"
+
 class Hand
 {
 public:
@@ -12,7 +14,11 @@ public:
 	// init the tracker
 	void initTracker();
 
+	// assign new location to the hand
 	void assignNewLocation(const cv::RotatedRect& newBbox);
+
+	// process the hand contour and extract fingers. Returns the amount of fingers
+	int extractFingers();
 
 	// the hand's bounding box
 	cv::RotatedRect handBox;
@@ -30,6 +36,8 @@ public:
 		MovementDirection moveDirection;
 		// the hand contour
 		std::vector<cv::Point> handContour;
+		// list of fingertips
+		std::vector<Finger> fingers;
 	} Parameters;
 
 	// all the tracking information
@@ -60,6 +68,17 @@ public:
 
 	} Tracker;
 
+private:
 
+	bool isEqual(double a, double b);
+	double getPointsAangle(std::vector<cv::Point>& contour, int pt, int r);
+	signed int getRotation(std::vector<cv::Point>& contour, int pt, int r);
+
+	struct {
+		int r;
+		int step;
+		double cosThreshold;
+		double equalThreshold;
+	} FingerParameters;
 };
 

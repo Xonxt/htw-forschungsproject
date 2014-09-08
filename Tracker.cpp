@@ -55,8 +55,11 @@ void Tracker::trackHands(const cv::Mat inputFrame, std::vector<Hand>& hands) {
 		if (!result) {
 			it = hands.erase(it);
 		}
-		else { // if successful, extract contour!
+		else { // if successful, 
+			//extract hand contour
 			extractContour(*it);
+			// extract the finger-tips
+			(*it).extractFingers();
 		}
 	}
 }
@@ -73,9 +76,10 @@ bool Tracker::getNewPosition(Hand& hand) {
 
 	float h_range[] = { 0, 179 };
 	float s_range[] = { 0, 255 };
-	const float* ranges[] = { h_range, s_range };
+	float v_range[] = { 0, 255 };
+	const float* ranges[] = { h_range, s_range, v_range };
 
-	int channels[] = { 0, 1 };
+	int channels[] = { 0, 1, 2 };
 
 	// if the hand wasn't tracked yet, calculate histograms
 	if (!hand.Tracker.isTracked) {

@@ -24,6 +24,9 @@ bool FrameProcessor::initialize(bool isWebCam) {
 	// show bounding box at the beginning
 	showBoundingBox = true;
 
+	// fingers are not shown at first
+	showFingers = false;
+
 	// clear the hands list
 	hands.clear();
 
@@ -260,11 +263,24 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 		}
 
 		// show the contours
-		if (showContour && (*it).Parameters.handContour.size() > 0) {
+		if (showContour && !(*it).Parameters.handContour.empty()) {
             std::vector<std::vector<cv::Point> > contour;
             contour.push_back((*it).Parameters.handContour);
 			cv::drawContours(frame, contour, 0, fpColors[clr], 2);
 		}
+
+		// show fingertips
+		if (showFingers && !(*it).Parameters.fingers.empty()) {
+			int radius = floor((((*it).handBox.size.height + (*it).handBox.size.width) / 2) * 0.025);
+
+			for (std::vector<Finger>::iterator fg = (*it).Parameters.fingers.begin(); fg != (*it).Parameters.fingers.end(); ++fg) {
+				//inner
+				cv::circle(frame, (*fg).coordinates, radius, fpColors[clr], -1);
+				// outer
+				cv::circle(frame, (*fg).coordinates, radius+2, fpColors[clr], 2);
+			}
+		}
+
         clr++;
 	}
 
@@ -325,4 +341,8 @@ void FrameProcessor::toggleShowContour() {
 // toggle showing the bounding box
 void FrameProcessor::toggleShowBoundingBox() {
 	showBoundingBox = !showBoundingBox;
+}
+
+void FrameProcessor::toggleShowFingers() {
+	showFingers = !showFingers;
 }

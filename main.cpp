@@ -129,6 +129,7 @@ int main(int argc, char* argv[])
     cout << "'p'\tpause or resume" << endl;
 	cout << "'b'\tshow/hide the bounding box" << endl;
 	cout << "'c'\tshow/hide the contour" << endl;
+	cout << "'f'\tshow/hide the fingertips" << endl;
 
 	// infinite loop for the video stream
 	while (true) {		
@@ -195,6 +196,9 @@ int main(int argc, char* argv[])
 				break;
 			case 'b':
 				frameProcessor.toggleShowBoundingBox(); // show bounding box
+				break;
+			case 'f':
+				frameProcessor.toggleShowFingers();
 				break;
             }
             

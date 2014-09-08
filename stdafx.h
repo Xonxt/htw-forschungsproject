@@ -3,11 +3,14 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <iostream>
+#include <math.h>
 
 #include "opencv2/objdetect/objdetect.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/video/tracking.hpp"
+
+#define PI 3.1415926535897932
 
 // define a few colors
 #define FP_COLOR_RED cv::Scalar(0,0,255)
@@ -75,3 +78,11 @@ struct HsvBounds {
 					S_MIN(-1), S_MAX(-1),
 					V_MIN(-1), V_MAX(-1) {};
 };
+
+double getDistance(const cv::Point pt1, const cv::Point pt2);
+
+double getAngle(const cv::Point pt1, const cv::Point pt2);
+
+bool isInRange(const double value, const double A, const double B);
+
+double correctAngle(double alpha);

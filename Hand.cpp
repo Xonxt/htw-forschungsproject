@@ -63,3 +63,77 @@ void Hand::initTracker() {
 	Tracker.kalmTrack.clear();
 	Tracker.kalmTrack.push_back(cv::Point(handBox.center.x, handBox.center.y));
 }
+
+bool Hand::isEqual(double a, double b) {
+	return fabs(a - b) <= FingerParameters.equalThreshold;
+}
+
+double Hand::getPointsAangle(std::vector<cv::Point>& contour, int pt, int r) {
+	int size = contour.size();
+	cv::Point p0 = (pt>0) ? contour[pt%size] : contour[size - 1 + pt];
+	cv::Point p1 = contour[(pt + r) % size];
+	cv::Point p2 = (pt>r) ? contour[pt - r] : contour[size - 1 - r];
+
+	double ux = p0.x - p1.x;
+	double uy = p0.y - p1.y;
+	double vx = p0.x - p2.x;
+	double vy = p0.y - p2.y;
+	return (ux*vx + uy*vy) / sqrt((ux*ux + uy*uy)*(vx*vx + vy*vy));
+}
+
+signed int Hand::getRotation(std::vector<cv::Point>& contour, int pt, int r) {
+	int size = contour.size();
+	cv::Point p0 = (pt>0) ? contour[pt%size] : contour[size - 1 + pt];
+	cv::Point p1 = contour[(pt + r) % size];
+	cv::Point p2 = (pt>r) ? contour[pt - r] : contour[size - 1 - r];
+
+	double ux = p0.x - p1.x;
+	double uy = p0.y - p1.y;
+	double vx = p0.x - p2.x;
+	double vy = p0.y - p2.y;
+
+	signed int res = (ux*vy - vx*uy);
+
+	return res;
+}
+
+int Hand::extractFingers() {
+	int countFingers = 0;
+	Parameters.fingers.clear();
+
+	if (Parameters.handContour.size() <= 0)
+		return -1;
+
+	int width = handBox.boundingRect().width;
+	int height = handBox.boundingRect().height;
+
+	// param.step = (int) ceil(min(width, height) * 0.05);
+
+	for (int j = 0; j < Parameters.handContour.size(); j += FingerParameters.step) {
+		double cos0 = getPointsAangle(Parameters.handContour, j, FingerParameters.r);
+
+		if ((cos0 > 0.5) && (j + FingerParameters.step < Parameters.handContour.size())) {
+			double cos1 = getPointsAangle(Parameters.handContour, j - FingerParameters.step, FingerParameters.r);
+			double cos2 = getPointsAangle(Parameters.handContour, j + FingerParameters.step, FingerParameters.r);
+			double maxCos = std::max(std::max(cos0, cos1), cos2);
+			bool equal = isEqual(maxCos, cos0);
+			signed int z = getRotation(Parameters.handContour, j, FingerParameters.r);
+
+			if (equal == 1 && z < 0) {
+				// < init finger >
+				Finger finger;
+				finger.coordinates = Parameters.handContour[j];
+				finger.Angles.orientationAngle = getAngle(handBox.center, finger.coordinates);
+
+				finger.length = getDistance(finger.coordinates, handBox.center);
+				// </ init finger>
+
+				Parameters.fingers.push_back(finger);
+
+				if (++countFingers >= 5)
+					break;
+			}
+		}
+	}
+	return countFingers;
+}
