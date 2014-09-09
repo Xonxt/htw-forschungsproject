@@ -93,17 +93,5 @@ struct HsvBounds {
 					V_MIN(-1), V_MAX(-1) {};
 };
 
-// get the distance between two cv::Point points
-double getDistance(const cv::Point pt1, const cv::Point pt2);
-
-// get the angle of a vector, from pt1 to pt2
-double getAngle(const cv::Point pt1, const cv::Point pt2);
-
-// check if the a value lies between two constrains
-bool isInRange(const double value, const double A, const double B);
-
-// correct the angle to a proper Descartes (0..360) orientation
-double correctAngle(double alpha);
-
 // crop a rectangle from an image with no problems
 void cropRoi(const cv::Mat image, cv::Mat& roi, cv::Rect& rect);

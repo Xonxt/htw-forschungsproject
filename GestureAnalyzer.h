@@ -1,6 +1,12 @@
 #pragma once
 #include "Hand.h"
 
+// anglws
+#define NW 135
+#define NE 45
+#define SE 315
+#define SW 225
+
 class GestureAnalyzer {
 public:
 	GestureAnalyzer();
@@ -21,6 +27,18 @@ private:
 
 	// get the rotation between two points of the contour
 	signed int getRotation(std::vector<cv::Point>& contour, const int pt, const int r);
+
+	// get the angle of a vector, from pt1 to pt2
+	double getAngle(const cv::Point pt1, const cv::Point pt2);
+
+	// check if the a value lies between two constrains
+	bool isInRange(const double value, const double A, const double B);
+
+	// correct the angle to a proper Descartes (0..360) orientation
+	double correctAngle(double alpha);
+
+	// get the distance between two cv::Point points
+	double getDistance(const cv::Point pt1, const cv::Point pt2);
 
 	// the parameters, used for finger-tip extraction
 	struct {
