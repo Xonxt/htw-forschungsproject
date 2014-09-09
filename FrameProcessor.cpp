@@ -38,6 +38,9 @@ bool FrameProcessor::initialize(bool isWebCam) {
 		std::cout << "Error initializing the Hand Tracker!" << std::endl;
 	}
 
+	if (isWebCam)
+		handTracker.changeSkinMethod(SKIN_SEGMENT_YCRCB);
+
 	if (!(result &= faceCascade.load(FACE_DETECTOR_XML)))
 		std::cout << "\tError initializing face detector cascade!" << std::endl;
 

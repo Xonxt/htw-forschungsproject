@@ -40,6 +40,9 @@ void Tracker::trackHands(const cv::Mat inputFrame, std::vector<Hand>& hands) {
 
 		// filter out the small blobs
 		removeSmallBlobs(smallMask, 100);
+
+		// do the morphology
+		bwMorph(smallMask, cv::MORPH_CLOSE, cv::MORPH_ELLIPSE, 1);
         
 		// upscale the mask to original resolution
         if (smallMask.rows < image.rows && smallMask.cols < image.cols) {
@@ -177,9 +180,11 @@ void Tracker::extractContour(Hand& hand) {
         cv::RotatedRect handBox = hand.handBox;
         handBox.size.width *= 1.25;
         handBox.size.height *= 1.25;
+
+		cv::Mat crop;
+		cropRoi(mask, crop, handBox.boundingRect());
         
-		findContours(cv::Mat(mask, handBox.boundingRect()), contours, hierarchy,
-					 CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE, handBox.boundingRect().tl());
+		findContours(crop, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE, handBox.boundingRect().tl());
 
 		// if any contours found
 		if (!contours.empty()) {
@@ -227,12 +232,9 @@ void Tracker::removeSmallBlobs(cv::Mat& inputImage, const double blobSize) {
 		return;
 	}
 
-	cv::Scalar black = CV_RGB(0, 0, 0);
-	cv::Scalar white = CV_RGB(255, 255, 255);
-
 	// Find all contours
 	std::vector<std::vector<cv::Point> > contours;
-	cv::findContours(inputImage.clone(), contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
+	cv::findContours(inputImage.clone(), contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE, cv::Point(0, 0));
 
 	for (int i = 0; i < contours.size(); i++) {
 		// Calculate contour area
@@ -241,9 +243,15 @@ void Tracker::removeSmallBlobs(cv::Mat& inputImage, const double blobSize) {
 		// Remove small objects by drawing the contour with black color
 		if (area >= 0) {
 			if (area <= blobSize)
-				cv::drawContours(inputImage, contours, i, black, -1);
+				cv::drawContours(inputImage, contours, i, FP_COLOR_BLACK, -1);
 			else
-				cv::drawContours(inputImage, contours, i, white, -1);
+				cv::drawContours(inputImage, contours, i, FP_COLOR_WHITE, -1);
 		}
 	}
+}
+
+void Tracker::bwMorph(cv::Mat& inputImage, const int operation, const int mShape, const int mSize) {
+	cv::Mat element = cv::getStructuringElement(mShape, cv::Size(2 * mSize + 1, 2 * mSize + 1),
+												cv::Point(mSize, mSize));
+	cv::morphologyEx(inputImage, inputImage, operation, element);
 }

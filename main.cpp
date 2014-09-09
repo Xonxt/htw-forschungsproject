@@ -146,7 +146,7 @@ int main(int argc, char* argv[])
 		if (!frame.empty()) {
 
 			// skip?
-			if (++frameNumber <= skipFrames) {
+			if (++frameNumber <= skipFrames && !IS_WEB_CAM) {
 				continue;
 			}
 

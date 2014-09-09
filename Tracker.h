@@ -34,6 +34,17 @@ private:
 	// filter out the blobs smaller than a threshold
 	void removeSmallBlobs(cv::Mat& inputImage, const double blobSize);
 
+	/*
+	perform a morphological operation of type 'operation', with a structural element 'mShape' of size 'mSize'
+	where operations are: 
+	MORPH_OPEN - an opening operation
+	MORPH_CLOSE - a closing operation
+	MORPH_GRADIENT - a morphological gradient
+	MORPH_TOPHAT - “top hat”
+	MORPH_BLACKHAT - “black hat”
+	*/
+	void bwMorph(cv::Mat& inputImage, const int operation, const int mShape, const int mSize);
+
 	// the skin detector/segmentation tool
 	SkinDetector skinDetector;
 
