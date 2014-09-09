@@ -4,6 +4,7 @@
 #include "Hand.h"
 #include "HandDetector.h"
 #include "Tracker.h"
+#include "GestureAnalyzer.h"
 
 #include <time.h>
 #include <ctime>
@@ -46,6 +47,9 @@ public:
 	void toggleShowFingers();
 
 private:
+	// detect and track hands in the frame
+	void detectAndTrack(const cv::Mat& frame);
+
 	// Tool for detecting every hand (open palm!) in the image
 	HandDetector handDetector;
 
@@ -54,6 +58,9 @@ private:
 
 	// Tool fot tracking of hands
 	Tracker handTracker;
+
+	// The gesture analyzer
+	GestureAnalyzer gestureAnalyzer;
 
 	// show backprojection mask or not?
 	bool showMask;

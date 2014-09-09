@@ -61,8 +61,6 @@ void Tracker::trackHands(const cv::Mat inputFrame, std::vector<Hand>& hands) {
 		else { // if successful, 
 			//extract hand contour
 			extractContour(*it);
-			// extract the finger-tips
-			(*it).extractFingers();
 		}
 	}
 }
@@ -179,7 +177,7 @@ void Tracker::extractContour(Hand& hand) {
         // icrease the size of the bbox by 25%;
         cv::RotatedRect handBox = hand.handBox;
         handBox.size.width *= 1.25;
-        handBox.size.height *= 1.25;
+        handBox.size.height *= 1.15;
 
 		cv::Mat crop;
 		cropRoi(mask, crop, handBox.boundingRect());

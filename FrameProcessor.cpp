@@ -49,9 +49,36 @@ bool FrameProcessor::initialize(bool isWebCam) {
 
 // process frame, find hands, detect gestures
 void FrameProcessor::processFrame(cv::Mat& frame) {
+
+	// perform hand detection and tracking in the frame
+	detectAndTrack(frame);
+
+	// analyze the hands, the contours, the parameters
+	for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end(); ++it) {
+		gestureAnalyzer.analyzeHand(*it);
+	}
+	
+	// replace the frame with a mask if needed
+	if (showMask) {
+		handTracker.getSkinMask(frame);
+	}
+
+	// draw the pretty stuff on the frame
+    try {
+        drawFrame(frame);
+    } catch (cv::Exception ex) {
+        std::cout << "OpenCV Exception caught: " << ex.what() << std::endl;
+    }
+    catch (...) {
+        std::cout << "Some kind of exception caught!" << std::endl;
+    }
+}
+
+// detect and track hands in the frame
+void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 	// create the hands vector
 	std::vector<Hand> detectedHands;
-	detectedHands.clear();    
+	detectedHands.clear();
 
 	// a list of pedestrian ROIs
 	std::vector<cv::Rect> pedestrians;
@@ -66,10 +93,10 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 	catch (...) {
 		std::cout << "Some other kind of exception caught" << std::endl;
 	}
-    
+
 	// now detect (new) hands in the frame
 	handDetector.detectHands(frame, detectedHands, pedestrians);
-    
+
 	// were any new hands added?
 	bool newHandsAdded = false;
 
@@ -125,7 +152,7 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 					}
 					N--;
 				}
-				
+
 				if (N < 2 || i == N || j == N) {
 					break;
 				}
@@ -135,59 +162,59 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 	/*
 	// the same thing but with iterators. Gives an exception in Visual Studio :(
 	// remove heavily intersecting regions
-    if (hands.size() > 1) {
-        for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end()-1; ++it) {
-            cv::Rect firstHand = (*it).handBox.boundingRect();
+	if (hands.size() > 1) {
+		for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end() - 1; ++it) {
+			cv::Rect firstHand = (*it).handBox.boundingRect();
 
-            // iterate once again:
-            for (std::vector<Hand>::iterator it2 = (it + 1); it2 != hands.end() && hands.size() > 1; ++it2) {
-                cv::Rect secondHand = (*it2).handBox.boundingRect();
+			// iterate once again:
+			for (std::vector<Hand>::iterator it2 = (it + 1); it2 != hands.end() && hands.size() > 1; ++it2) {
+				cv::Rect secondHand = (*it2).handBox.boundingRect();
 
-                // intersection
-                cv::Rect intersection = firstHand & secondHand;
+				// intersection
+				cv::Rect intersection = firstHand & secondHand;
 
-                // take the smallest hand
-                cv::Rect smallestHand = (firstHand.area() < secondHand.area()) ? firstHand : secondHand;
+				// take the smallest hand
+				cv::Rect smallestHand = (firstHand.area() < secondHand.area()) ? firstHand : secondHand;
 
-                // compare intersection sizes
-                if (intersection.area() > 0 && hands.size() > 1) {                    
-                    // remove the largest one
-                    if ((firstHand.area() > secondHand.area()))
-                        it = hands.erase(it);
-                    else
-                        it2 = hands.erase(it2);
-                    
-                    if (it2 == hands.end() || it == hands.end())
-                        break;
-                }
-            }
-            if (it == hands.end() || hands.size() < 2)
-                break;
-        }
-    }
-    */
+				// compare intersection sizes
+				if (intersection.area() > 0 && hands.size() > 1) {
+					// remove the largest one
+					if ((firstHand.area() > secondHand.area()))
+						it = hands.erase(it);
+					else
+						it2 = hands.erase(it2);
+
+					if (it2 == hands.end() || it == hands.end())
+						break;
+				}
+			}
+			if (it == hands.end() || hands.size() < 2)
+				break;
+		}
+	}
+	*/
 	// remove hands with bounding boxes, that go beyond the image borders
-    for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end(); ++it) {
-        Hand temp = *it;
-        
-        bool remove = false;
-        
-        if (temp.handBox.center.x <= 0 || temp.handBox.center.y <= 0)
-            remove = true;
-        
-        if (temp.handBox.size.height <= 0 || temp.handBox.size.height >= temp.roiRectange.height || temp.handBox.size.height == NAN)
-            remove = true;
-        
-        if (temp.handBox.size.width <= 0 || temp.handBox.size.width >= temp.roiRectange.width || temp.handBox.size.width == NAN)
-            remove = true;
-        
-        if (remove)
-            it = hands.erase(it);
-        
-        if (it == hands.end())
-            break;
-    }
-	
+	for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end(); ++it) {
+		Hand temp = *it;
+
+		bool remove = false;
+
+		if (temp.handBox.center.x <= 0 || temp.handBox.center.y <= 0)
+			remove = true;
+
+		if (temp.handBox.size.height <= 0 || temp.handBox.size.height >= temp.roiRectange.height || temp.handBox.size.height == NAN)
+			remove = true;
+
+		if (temp.handBox.size.width <= 0 || temp.handBox.size.width >= temp.roiRectange.width || temp.handBox.size.width == NAN)
+			remove = true;
+
+		if (remove)
+			it = hands.erase(it);
+
+		if (it == hands.end())
+			break;
+	}
+
 	// now check if new hands were added and then delete face regions
 	if (newHandsAdded && hands.size() > 0) {
 		std::vector<cv::Rect> faces;
@@ -237,21 +264,6 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 			}
 		}
 	}
-	
-	// replace the frame with a mask if needed
-	if (showMask) {
-		handTracker.getSkinMask(frame);
-	}
-
-	// draw the AR-things on the frame
-    try {
-        drawFrame(frame);
-    } catch (cv::Exception ex) {
-        std::cout << "OpenCV Exception caught: " << ex.what() << std::endl;
-    }
-    catch (...) {
-        std::cout << "Some kind of exception caught!" << std::endl;
-    }
 }
 
 // draw everything on frame (hands, fingers, etc.)
