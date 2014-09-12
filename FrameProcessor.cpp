@@ -124,7 +124,7 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 			cv::Rect intersection = tempHand.handBox.boundingRect() & (*it2).handBox.boundingRect();
 			if (intersection.area() >= (tempHand.handBox.boundingRect().area() * 0.75)) {
 				// then this hand is already being tracked, correct position
-				(*it2).assignNewLocation(tempHand.handBox);
+				(*it2).assignNewLocation(tempHand);
 				sameHand = true;
 				break;
 			}
@@ -284,6 +284,11 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 		// put a rectangle|ellepse on the image
 		if (showBoundingBox) {
 			cv::ellipse(frame, (*it).handBox, fpColors[clr], 2);
+		}
+
+		// show track
+		for (int i = 0; i < (*it).Tracker.kalmTrack.size() - 1; i++) {
+			cv::line(frame, (*it).Tracker.kalmTrack[i], (*it).Tracker.kalmTrack[i + 1], fpColors[clr], 2);
 		}
 
 		// show the contours

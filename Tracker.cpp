@@ -97,10 +97,7 @@ bool Tracker::getNewPosition(Hand& hand) {
 
 		// set the hand to 'being tracked'
 		hand.Tracker.isTracked = true;
-	}
-
-	// remember the old center position
-	cv::Point oldCenter = hand.handBox.center;
+	}	
 
 	// calculate the back projection
 	cv::Mat backproj;
@@ -140,7 +137,8 @@ bool Tracker::getNewPosition(Hand& hand) {
 	cv::Mat estimated = hand.Tracker.KalmanTracker.KF.correct(hand.Tracker.KalmanTracker.measurement);
 	cv::Point statePt(estimated.at<float>(0), estimated.at<float>(1));
 
-	hand.Tracker.kalmTrack.push_back(statePt);
+	if (statePt.x != 0 && statePt.y != 0)
+		hand.Tracker.kalmTrack.push_back(statePt);
 
 	// if the tracking was unsuccessful, assign position by Kalman Filter
 	if (badTracking) {
@@ -157,7 +155,13 @@ bool Tracker::getNewPosition(Hand& hand) {
 			hand.Tracker.isKalman = true;
 		}
 
-		trackWindow = trackBox.boundingRect();		
+		//trackWindow = trackBox.boundingRect();		
+	}
+
+	if (hand.Tracker.kalmTrack.size() > 2) {
+		cv::Point2f pt(hand.Tracker.kalmTrack[hand.Tracker.kalmTrack.size()-1]);
+		cv::RotatedRect tempRect(pt, cv::Size2f(hand.detectionBox.size()), 0);
+		trackWindow = tempRect.boundingRect();
 	}
 
 	// assign new positions for 

@@ -19,13 +19,16 @@ public:
 	void initTracker();
 
 	// assign new location to the hand
-	void assignNewLocation(const cv::RotatedRect& newBbox);
+	void assignNewLocation(const Hand newHand);
 
 	// TEMPORARY: return a vector of strings of hand properties
 	void toStringVector(std::vector<std::string>& strings); 
 
 	// the hand's bounding box
 	cv::RotatedRect handBox;
+
+	// TEMP: the hand's trackbox
+	cv::Rect detectionBox;
 
 	// the hands ROI
 	cv::Rect roiRectange;

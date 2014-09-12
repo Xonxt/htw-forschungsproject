@@ -171,6 +171,9 @@ void HandDetector::rect2Hand(const cv::Rect inputRect, Hand& outputHand, const c
 	// set the hand bounding box
 	hand.handBox = bbox;
 
+	// detection box
+	hand.detectionBox = inputRect;
+
 	// init trackers
 	hand.initTracker();
 
