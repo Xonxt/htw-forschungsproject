@@ -17,6 +17,9 @@ public:
 	// assign new location to the hand
 	void assignNewLocation(const cv::RotatedRect& newBbox);
 
+	// TEMPORARY: return a vector of strings of hand properties
+	void toStringVector(std::vector<std::string>& strings); 
+
 	// the hand's bounding box
 	cv::RotatedRect handBox;
 

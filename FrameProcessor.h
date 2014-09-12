@@ -46,6 +46,9 @@ public:
 	// toggle showing fingertips as small circles
 	void toggleShowFingers();
 
+	// toggle showing information about the hand
+	void toggleShowHandText();
+
 private:
 	// detect and track hands in the frame
 	void detectAndTrack(const cv::Mat& frame);
@@ -76,5 +79,8 @@ private:
 
 	// is a webcam?
 	bool isWebCam;
+
+	// show hand-text?
+	bool showHandText;
 };
 

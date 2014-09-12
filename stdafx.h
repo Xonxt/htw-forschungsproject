@@ -40,6 +40,8 @@ enum MovementDirection {
 	MOVEMENT_RIGHT
 };
 
+const std::string DirectionStrings[] = { "UP", "DOWN", "LEFT", "RIGHT" };
+
 // array of colors
 const cv::Scalar fpColors[] = { cv::Scalar(0,0,255), cv::Scalar(0,255,0), cv::Scalar(255,0,0), 
 								cv::Scalar(255,0,255), cv::Scalar(255,255,0), cv::Scalar(0,255,255), 

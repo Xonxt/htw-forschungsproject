@@ -27,6 +27,9 @@ bool FrameProcessor::initialize(bool isWebCam) {
 	// fingers are not shown at first
 	showFingers = false;
 
+	// the hand text is not shown at the beginning
+	showHandText = false;
+
 	// clear the hands list
 	hands.clear();
 
@@ -298,10 +301,22 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 			}
 		}
 
+		// show hand text information
+		if (showHandText) {
+			std::vector<std::string> strings;
+			(*it).toStringVector(strings);
+
+			// iterate through the strings vector
+			for (int i = 0; i < strings.size(); i++) {
+				cv::Point textPoint((*it).handBox.boundingRect().br().x, (*it).handBox.boundingRect().tl().y);
+				cv::putText(frame, strings[i], textPoint + cv::Point(0, i * 20), CV_FONT_HERSHEY_PLAIN, 2, fpColors[clr], 2);
+			}
+		}
+
         clr++;
 	}
 
-	// display text
+	// display system information text
 	std::vector<std::string> strings;
 	
 	if (showMask)
@@ -362,4 +377,9 @@ void FrameProcessor::toggleShowBoundingBox() {
 
 void FrameProcessor::toggleShowFingers() {
 	showFingers = !showFingers;
+}
+
+// toggle showing information about the hand
+void FrameProcessor::toggleShowHandText() {
+	showHandText = !showHandText;
 }

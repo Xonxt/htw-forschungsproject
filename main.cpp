@@ -11,7 +11,7 @@
 
 // set 'false' if you're loading a video file
 // or 'true' if you use a capture devide (web-cam)
-#define IS_WEB_CAM true
+#define IS_WEB_CAM false
 
 // should I record the video too?
 #define RECORD_VIDEO false
@@ -25,10 +25,10 @@ const char* VideoFile[] = { "D:\\temp\\FP\\HFD\\MVI_5513.MOV",
 
 enum VideoFileNames {
 	VIDEO_FILE_MVI5513MOV = 0,
-	VIDEO_FILE_00237MTS = 1,
-	VIDEO_FILE_00238MTS = 2,
-	VIDEO_FILE_00239MTS = 3,
-    MAC_VIDEO_FILE_MVI5513MOV = 4
+	VIDEO_FILE_00237MTS,
+	VIDEO_FILE_00238MTS,
+	VIDEO_FILE_00239MTS,
+    MAC_VIDEO_FILE_MVI5513MOV
 };
 
 using namespace cv;
@@ -42,13 +42,6 @@ std::string generateFileName(const char* ext) {
 	time_t now = time(0);
 	strftime(timeString, sizeof(timeString), "%H-%M-%S", localtime(&now));		
 
-	/* // this is better for Visual Studio, otherwise use "_CRT_SECURE_NO_WARNINGS"
-	char timeString[12];
-	time_t now = time(0);
-	struct tm _Tm;
-	localtime_s(&_Tm, &now);
-	strftime(timeString, sizeof(timeString), "%H-%M-%S", &_Tm);
-	*/
 	ost << timeString;
 
 	if (ext[0] != '.')
@@ -59,13 +52,26 @@ std::string generateFileName(const char* ext) {
 	return ost.str();
 }
 
+// check if file exists
+bool fexists(const char *filename) {
+	ifstream ifile(filename);
+
+	if (!ifile) 
+		return false;	
+	else
+		return true;
+}
+
 int main(int argc, char* argv[])
 {
 	// open capture
 	VideoCapture capture;
 	
-	if (!IS_WEB_CAM) { // from video file        
-		capture = VideoCapture(VideoFile[VIDEO_FILE_MVI5513MOV]);
+	if (!IS_WEB_CAM) { // from video file   
+		if (fexists(VideoFile[VIDEO_FILE_MVI5513MOV]))
+			capture = VideoCapture(VideoFile[VIDEO_FILE_MVI5513MOV]);
+		else
+			capture = VideoCapture(VideoFile[MAC_VIDEO_FILE_MVI5513MOV]);
 	}
 	else { // or from webcam
 		capture = VideoCapture(0);
@@ -87,7 +93,6 @@ int main(int argc, char* argv[])
 		
 
 		// construct a video file name
-
 		outputVideo.open(generateFileName(".avi"), -1, capture.get(CV_CAP_PROP_FPS), S, true);
 
 		if (!outputVideo.isOpened()) {
@@ -124,6 +129,7 @@ int main(int argc, char* argv[])
 	cout << "Use the following keys for result" << endl << endl;
 	cout << "'ESC'\texit application" << endl;
 	cout << "'SPACE'\tsave screenshot" << endl;
+	cout << "'t'\tdisplay hand information" << endl;
 	cout << "'m'\tdisplay backprojection mask" << endl;
 	cout << "'s'\tchange skin segmentation method" << endl;
     cout << "'p'\tpause or resume" << endl;
@@ -157,9 +163,10 @@ int main(int argc, char* argv[])
 				_frame.copyTo(frame);
 			}
 
+			// process the frame, find and track hands, detect gestures
 			frameProcessor.processFrame(frame);
 
-			// show the frame
+			// display the frame
 			imshow("video", frame);
 
 			// write the frame into video
@@ -198,7 +205,10 @@ int main(int argc, char* argv[])
 				frameProcessor.toggleShowBoundingBox(); // show bounding box
 				break;
 			case 'f':
-				frameProcessor.toggleShowFingers();
+				frameProcessor.toggleShowFingers();	// show fingertips
+				break;
+			case 't':
+				frameProcessor.toggleShowHandText(); // show hand information
 				break;
             }
             

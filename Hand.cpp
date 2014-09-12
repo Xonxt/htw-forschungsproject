@@ -10,6 +10,25 @@ Hand::~Hand() {
     Tracker.KalmanTracker.KF.~KalmanFilter();
 }
 
+// TEMPORARY: return a vector of strings of hand properties
+void Hand::toStringVector(std::vector<std::string>& strings) {
+	strings.clear();
+
+	std::ostringstream ost;
+	
+	ost << "vel: " << Parameters.moveSpeed;
+	strings.push_back(ost.str()); ost.str(""); ost.clear();
+
+	ost << "ang: " << Parameters.moveAngle;
+	strings.push_back(ost.str()); ost.str(""); ost.clear();
+
+	ost << "dir: " << DirectionStrings[Parameters.moveDirection];
+	strings.push_back(ost.str()); ost.str(""); ost.clear();
+	
+	ost << "fng: " << Parameters.fingers.size();
+	strings.push_back(ost.str()); ost.str(""); ost.clear();
+}
+
 void Hand::assignNewLocation(const cv::RotatedRect& newBbox) {
 	handBox = newBbox;
 
