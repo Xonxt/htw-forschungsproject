@@ -1,3 +1,7 @@
+// Forschungsproject (teil 2) at HTW Berlin
+// Recognition of short-time micro-gestures from a single-PoV video stream
+// (c) Nikita "Xonxt" Kovalenko, 2013-2014, Berlin
+
 #pragma once
 
 #define HAND_DETECTOR_XML "hogcascade_righthand_v3.0.xml"

@@ -62,6 +62,19 @@ bool fexists(const char *filename) {
 		return true;
 }
 
+/*
+// basically you need only this:
+
+VideoCapture capture(0);
+FrameProcessor frameProcessor;
+cv::Mat frame;
+while(true) {
+	frameProcessor.processFrame(frame);
+	imshow(frame);
+}
+
+// everything else is just prettying it up
+*/
 int main(int argc, char* argv[])
 {
 	// open capture
