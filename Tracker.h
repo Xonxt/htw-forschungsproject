@@ -48,6 +48,9 @@ private:
 	MORPH_BLACKHAT - “black hat”
 	*/
 	void bwMorph(cv::Mat& inputImage, const int operation, const int mShape, const int mSize);
+    
+    // crop roi
+    void cropRoi(const cv::Mat image, cv::Mat& roi, cv::Rect& rect);
 
 	// the skin detector/segmentation tool
 	SkinDetector skinDetector;

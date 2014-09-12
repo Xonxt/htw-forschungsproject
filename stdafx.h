@@ -41,10 +41,11 @@ enum MovementDirection {
 	MOVEMENT_UP = 0,
 	MOVEMENT_DOWN,
 	MOVEMENT_LEFT,
-	MOVEMENT_RIGHT
+	MOVEMENT_RIGHT,
+    MOVEMENT_NONE
 };
 
-const std::string DirectionStrings[] = { "UP", "DOWN", "LEFT", "RIGHT" };
+const std::string DirectionStrings[] = { "UP", "DOWN", "LEFT", "RIGHT", " "};
 
 // array of colors
 const cv::Scalar fpColors[] = { cv::Scalar(0,0,255), cv::Scalar(0,255,0), cv::Scalar(255,0,0), 
@@ -100,4 +101,4 @@ struct HsvBounds {
 };
 
 // crop a rectangle from an image with no problems
-void cropRoi(const cv::Mat image, cv::Mat& roi, cv::Rect& rect);
+//void cropRoi(const cv::Mat image, cv::Mat& roi, cv::Rect& rect);

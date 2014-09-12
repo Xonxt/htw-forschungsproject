@@ -7,6 +7,10 @@
 
 Hand::Hand() {
 	// new hand created!
+    Parameters.moveAngle = NAN;
+    Parameters.moveDirection = MOVEMENT_NONE;
+    Parameters.moveSpeed = -1;
+    
 }
 
 Hand::~Hand() {

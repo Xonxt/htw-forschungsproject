@@ -5,6 +5,7 @@
 #include "stdafx.h"
 
 // crop a rectangle from an image with no problems
+/*
 void cropRoi(const cv::Mat inputImage, cv::Mat& outputCrop, cv::Rect& roiRectangle) {
 	cv::Rect roiRect;
 
@@ -26,3 +27,4 @@ void cropRoi(const cv::Mat inputImage, cv::Mat& outputCrop, cv::Rect& roiRectang
 
 	roiRectangle = roiRect;
 }
+*/
