@@ -1,6 +1,4 @@
-#include "stdafx.h"
 #include "Gesture.h"
-
 
 Gesture::Gesture() {
 	varDirection = Variable<MovementDirection>(5, 5, 3, "var:Direction");
