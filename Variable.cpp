@@ -10,7 +10,11 @@ Variable::Variable() {
 	valSize = -1;
 	varName = "none";
 
+<<<<<<< HEAD
 	//clearScores();
+=======
+	clearScores();
+>>>>>>> bbca9e7a1617e50115a5d2eeeacb534e97e1b32f
 }
 
 // overloaded constructor
@@ -68,3 +72,7 @@ void Variable::assignScores() {
 		scores[(int)val]++;
 	}
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> bbca9e7a1617e50115a5d2eeeacb534e97e1b32f
