@@ -155,15 +155,17 @@ bool Tracker::getNewPosition(Hand& hand) {
 			hand.Tracker.isKalman = true;
 		}
 
-		//trackWindow = trackBox.boundingRect();		
+		trackWindow = trackBox.boundingRect();
 	}
-
+/*
 	if (hand.Tracker.kalmTrack.size() > 2) {
-		cv::Point2f pt(hand.Tracker.kalmTrack[hand.Tracker.kalmTrack.size()-1]);
-		cv::RotatedRect tempRect(pt, cv::Size2f(hand.detectionBox.size()), 0);
+        cv::Point _pt = hand.Tracker.kalmTrack[hand.Tracker.kalmTrack.size()-1];
+        cv::Point2f pt(_pt.x, _pt.y);
+        
+		cv::RotatedRect tempRect(pt, cv::Size2f(hand.detectionBox.width*1.25, hand.detectionBox.width*1.25), 0);
 		trackWindow = tempRect.boundingRect();
 	}
-
+*/
 	// assign new positions for 
 	hand.Tracker.trackWindow = trackWindow;
 	hand.handBox = trackBox;
