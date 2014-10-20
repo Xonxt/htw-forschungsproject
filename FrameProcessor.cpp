@@ -127,7 +127,7 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 			cv::Rect intersection = tempHand.handBox.boundingRect() & (*it2).handBox.boundingRect();
 			if (intersection.area() >= (tempHand.handBox.boundingRect().area() * 0.75)) {
 				// then this hand is already being tracked, correct position
-				(*it2).assignNewLocation(tempHand);
+				//(*it2).assignNewLocation(tempHand);
 				sameHand = true;
 				break;
 			}
@@ -253,17 +253,14 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 	for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end(); ++it) {
 		// put a rectangle|ellipse on the image
 		if (showBoundingBox) {
-			cv::ellipse(frame, (*it).handBox, fpColors[clr], 2);
-			//cv::rectangle(frame, (*it).handBox.boundingRect(), fpColors[clr], 2);
+            if (!(*it).Tracker.isKalman)
+                cv::ellipse(frame, (*it).handBox, fpColors[clr], 2);
+            else
+                cv::rectangle(frame, (*it).handBox.boundingRect(), fpColors[clr], 2);
 		}
 
 		// show the ROIs
 		//cv::rectangle(frame, (*it).roiRectange, fpColors[clr], 2);
-
-		//// show track
-		//for (int i = 0; i < (*it).Tracker.kalmTrack.size() - 1; i++) {
-		//	cv::line(frame, (*it).Tracker.kalmTrack[i], (*it).Tracker.kalmTrack[i + 1], fpColors[clr], 2);
-		//}
 
 		// show the contours
 		if (showContour && !(*it).Parameters.handContour.empty()) {
@@ -297,15 +294,14 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 		}
 		*/
         
-        std::ostringstream ost;
-        ost << (*it).Parameters.moveSpeed;
-        cv::Point textPoint((*it).handBox.boundingRect().br().x, (*it).handBox.boundingRect().tl().y);
-        cv::putText(frame, ost.str(), textPoint + cv::Point(0, 20), CV_FONT_HERSHEY_PLAIN, 2, fpColors[clr], 2);
-
 		// SHOW GESTURE NAME
         if (showInformation)
             if ((*it).handGesture.getGestureType() != GESTURE_NONE) {
-                cv::putText(frame, (*it).handGesture.getGestureName(), (*it).roiRectange.tl(), CV_FONT_HERSHEY_PLAIN, 3, fpColors[clr], 3);
+                cv::Point textPoint((*it).handBox.boundingRect().br().x, (*it).handBox.boundingRect().tl().y);
+                cv::putText(frame, (*it).handGesture.getGestureName(), textPoint + cv::Point(0, 0), CV_FONT_HERSHEY_PLAIN, 2, fpColors[clr], 2);
+                std::ostringstream ost;
+                ost << (*it).Parameters.moveSpeed;
+                cv::putText(frame, ost.str(), textPoint + cv::Point(0, 20), CV_FONT_HERSHEY_PLAIN, 2, fpColors[clr], 2);
             }
 
         clr++;

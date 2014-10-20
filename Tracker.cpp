@@ -119,6 +119,7 @@ bool Tracker::getNewPosition(Hand& hand) {
 	// check the track window
 	if (trackWindow.area() <= 1) {
 		badTracking = true;
+        hand.Tracker.isKalman = true;
 	}
 
 	// predict the location with KalmanFilter
@@ -166,7 +167,9 @@ bool Tracker::getNewPosition(Hand& hand) {
 		trackWindow = tempRect.boundingRect();
 	}
 */
-	// assign new positions for 
+	// assign new positions for
+    trackBox.size.height *= 1.15;
+    trackBox.size.width *= 1.15;
 	hand.Tracker.trackWindow = trackWindow;
 	hand.handBox = trackBox;
 

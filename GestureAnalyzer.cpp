@@ -44,7 +44,7 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 
 	// set finger angles:
 	if (hand.Parameters.fingers.size() == 2) {
-		if (hand.Parameters.fingers[0].Angles.angle2next <= 35) {
+		if (hand.Parameters.fingers[0].Angles.angle2next <= 30) {
 			hand.handGesture.varAngle.addValue(ANGLE_CLOSE);
 		}
 		else {
@@ -55,10 +55,6 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 		hand.handGesture.varAngle.addValue(ANGLE_NONE);
 
 	// calculate movement speed
-	/*float dx, dy;
-	dx = hand.Tracker.KalmanTracker.KF.statePost.at<float>(2);
-	dy = hand.Tracker.KalmanTracker.KF.statePost.at<float>(3);
-	hand.Parameters.moveSpeed = sqrt(pow(dx, 2) + pow(dy, 2));*/
     if (hand.Tracker.camsTrack.size() > 1) {
         hand.Parameters.moveSpeed = getDistance(hand.Tracker.camsTrack[hand.Tracker.camsTrack.size()-1],
                                                 hand.Tracker.camsTrack[hand.Tracker.camsTrack.size()-2]);
@@ -125,7 +121,7 @@ bool GestureAnalyzer::isEqual(const double a, const double b) {
 
 // get the angle between two points in a contour
 double GestureAnalyzer::getPointsAangle(std::vector<cv::Point>& contour, const int pt, const int r) {
-	int size = contour.size();
+	int size = (int)contour.size();
 	cv::Point p0 = (pt > 0) ? contour[pt % size] : contour[size - 1 + pt];
 	cv::Point p1 = contour[(pt + r) % size];
 	cv::Point p2 = (pt > r) ? contour[pt - r] : contour[size - 1 - r];
@@ -139,7 +135,7 @@ double GestureAnalyzer::getPointsAangle(std::vector<cv::Point>& contour, const i
 
 // get the rotation between two points of the contour	
 signed int GestureAnalyzer::getRotation(std::vector<cv::Point>& contour, const int pt, const int r) {
-	int size = contour.size();
+	int size = (int)contour.size();
 	cv::Point p0 = (pt > 0) ? contour[pt % size] : contour[size - 1 + pt];
 	cv::Point p1 = contour[(pt + r) % size];
 	cv::Point p2 = (pt > r) ? contour[pt - r] : contour[size - 1 - r];
