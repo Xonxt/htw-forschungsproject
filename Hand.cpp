@@ -8,7 +8,6 @@
 Hand::Hand() {
 	// new hand created!
     Parameters.moveAngle = NAN;
-    Parameters.moveDirection = MOVEMENT_NONE;
     Parameters.moveSpeed = -1;
     
 }
@@ -16,25 +15,6 @@ Hand::Hand() {
 Hand::~Hand() {
     //Tracker.hist.release();
     Tracker.KalmanTracker.KF.~KalmanFilter();
-}
-
-// TEMPORARY: return a vector of strings of hand properties
-void Hand::toStringVector(std::vector<std::string>& strings) {
-	strings.clear();
-
-	std::ostringstream ost;
-	
-	ost << "vel: " << Parameters.moveSpeed;
-	strings.push_back(ost.str()); ost.str(""); ost.clear();
-
-	ost << "ang: " << Parameters.moveAngle;
-	strings.push_back(ost.str()); ost.str(""); ost.clear();
-
-	ost << "dir: " << DirectionStrings[Parameters.moveDirection];
-	strings.push_back(ost.str()); ost.str(""); ost.clear();
-	
-	ost << "fng: " << Parameters.fingers.size();
-	strings.push_back(ost.str()); ost.str(""); ost.clear();
 }
 
 void Hand::assignNewLocation(const Hand newHand) {
@@ -85,11 +65,10 @@ void Hand::initTracker() {
     Tracker.KalmanTracker.KF.statePre.at<float>(4) = 0;
     Tracker.KalmanTracker.KF.statePre.at<float>(5) = 0;
     
-  //  cv::setIdentity(Tracker.KalmanTracker.KF.transitionMatrix);
     cv::setIdentity(Tracker.KalmanTracker.KF.measurementMatrix);
     cv::setIdentity(Tracker.KalmanTracker.KF.processNoiseCov, cv::Scalar::all(1e-2));
     cv::setIdentity(Tracker.KalmanTracker.KF.measurementNoiseCov, cv::Scalar::all(1e-2));
-    cv::setIdentity(Tracker.KalmanTracker.KF.errorCovPost, cv::Scalar::all(.01));
+    cv::setIdentity(Tracker.KalmanTracker.KF.errorCovPost, cv::Scalar::all(.1));
     
 	Tracker.isKalman = false;
 
