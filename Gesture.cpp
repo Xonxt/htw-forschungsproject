@@ -2,10 +2,10 @@
 #include "Gesture.h"
 
 Gesture::Gesture() {
-	varDirection = Variable(5, 5, 3, "var:Direction");
+	varDirection = Variable(10, 5, 6, "var:Direction");
 	varSpeed = Variable(4, 3, 2, "var:Speed");
-	varFingers = Variable(3, 6, 2, "var:Fingers");
-	varAngle = Variable(3, 3, 2, "var:Angle");
+	varFingers = Variable(5, 6, 3, "var:Fingers");
+	varAngle = Variable(3, 3, 3, "var:Angle");
 }
 
 Gesture::~Gesture() {

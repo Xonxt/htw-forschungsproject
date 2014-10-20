@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
 	
 	if (!IS_WEB_CAM) { // from video file   
 		if (fexists(VideoFile[VIDEO_FILE_MVI5513MOV]))
-			capture = VideoCapture(VideoFile[VIDEO_FILE_MVI5513MOV]);
+			capture = VideoCapture(VideoFile[VIDEO_FILE_00237MTS]);
 		else
 			capture = VideoCapture(VideoFile[MAC_VIDEO_FILE_00239MTS]);
 	}
