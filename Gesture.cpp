@@ -1,15 +1,15 @@
+#include "stdafx.h"
 #include "Gesture.h"
 
 Gesture::Gesture() {
-	varDirection = Variable<MovementDirection>(5, 5, 3, "var:Direction");
-	varSpeed = Variable<MovementSpeed>(4, 3, 2, "var:Speed");
-	varFingers = Variable<FingerCount>(3, 6, 2, "var:Fingers");
-	varAngle = Variable<FingersAngle>(3, 3, 2, "var:Angle");
+	varDirection = Variable(5, 5, 3, "var:Direction");
+	varSpeed = Variable(4, 3, 2, "var:Speed");
+	varFingers = Variable(3, 6, 2, "var:Fingers");
+	varAngle = Variable(3, 3, 2, "var:Angle");
 }
 
 Gesture::~Gesture() {
 }
-
 
 // get the gesture type as an enum
 HandGesture Gesture::getGestureType() {
@@ -81,7 +81,8 @@ HandGesture Gesture::getGestureType() {
 // get the gesture as a text
 const char* Gesture::getGestureName() {
 	if (gestureType != GESTURE_NONE) {
-		return GestureNames[gestureType];
+		//return GestureNames[gestureType];
+		return GestureNames[gestureType].c_str();
 	}
 	else
 		return "No gesture";		
