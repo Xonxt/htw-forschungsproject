@@ -120,6 +120,7 @@ bool Tracker::getNewPosition(Hand& hand) {
 	if (trackWindow.area() <= 1) {
 		badTracking = true;
         hand.Tracker.isKalman = true;
+		return false;
 	}
 
 	// predict the location with KalmanFilter
@@ -132,6 +133,8 @@ bool Tracker::getNewPosition(Hand& hand) {
 	
 		hand.Tracker.KalmanTracker.measurement(0) = trackBox.center.x;
 		hand.Tracker.KalmanTracker.measurement(1) = trackBox.center.y;
+
+		hand.Tracker.camsTrack.push_back(cv::Point(trackBox.center.x, trackBox.center.y));
 	}
 
 	// estimate the new position of the hand
@@ -174,6 +177,7 @@ bool Tracker::getNewPosition(Hand& hand) {
 	hand.handBox = trackBox;
 
     somethingIsTracked = true;
+
 	return true;
 }
 
@@ -231,7 +235,7 @@ SkinSegmMethod Tracker::getSkinMethod() {
 // retrieve the skin mask for debugging purposes
 void Tracker::getSkinMask(cv::Mat& outputSkinMask) {
     if (somethingIsTracked)
-        cv::cvtColor(backprojection, outputSkinMask, cv::COLOR_GRAY2BGR);
+        cv::cvtColor(mask, outputSkinMask, cv::COLOR_GRAY2BGR);
     else
         image.copyTo(outputSkinMask);
 }

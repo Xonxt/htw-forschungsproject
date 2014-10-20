@@ -11,7 +11,7 @@
 
 // set 'false' if you're loading a video file
 // or 'true' if you use a capture devide (web-cam)
-#define IS_WEB_CAM true
+#define IS_WEB_CAM false
 
 // should I record the video too?
 #define RECORD_VIDEO false
@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
 	
 	if (!IS_WEB_CAM) { // from video file   
 		if (fexists(VideoFile[VIDEO_FILE_MVI5513MOV]))
-			capture = VideoCapture(VideoFile[VIDEO_FILE_00237MTS]);
+			capture = VideoCapture(VideoFile[VIDEO_FILE_MVI5513MOV]);
 		else
 			capture = VideoCapture(VideoFile[MAC_VIDEO_FILE_MVI5513MOV]);
 	}

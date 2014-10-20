@@ -9,8 +9,8 @@
 GestureAnalyzer::GestureAnalyzer() {
 	FingerParameters.cosThreshold = 0.5;
 	FingerParameters.equalThreshold = 1e-7;
-	FingerParameters.r = 40;
-	FingerParameters.step = 16;
+	FingerParameters.r = 10; // 40;
+	FingerParameters.step = 4; // 16;
 }
 
 
@@ -102,8 +102,7 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 		}
 		else
 			hand.handGesture.varDirection.addValue(MOVEMENT_NONE);
-	}
-    
+	}    
     
     // clear the tracks
     if (hand.Tracker.kalmTrack.size() > 5) {

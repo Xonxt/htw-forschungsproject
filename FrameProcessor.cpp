@@ -280,19 +280,13 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 				cv::circle(frame, (*fg).coordinates, radius*1.5, fpColors[clr], 2);
 			}
 		}
-		/*
-		// show hand text information
-		if (showHandText) {
-			std::vector<std::string> strings;
-			(*it).toStringVector(strings);
-
-			// iterate through the strings vector
-			for (int i = 0; i < strings.size(); i++) {
-				cv::Point textPoint((*it).handBox.boundingRect().br().x, (*it).handBox.boundingRect().tl().y);
-				cv::putText(frame, strings[i], textPoint + cv::Point(0, i * 20), CV_FONT_HERSHEY_PLAIN, 2, fpColors[clr], 2);
+		
+		// show the track line
+		if ((*it).Tracker.camsTrack.size() > 1) {
+			for (int i = 0; i < (*it).Tracker.camsTrack.size() - 1; i++) {
+				cv::line(frame, (*it).Tracker.camsTrack[i], (*it).Tracker.camsTrack[i + 1], fpColors[clr], 2);
 			}
 		}
-		*/
         
 		// SHOW GESTURE NAME
         if (showInformation)
