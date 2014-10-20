@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
 		if (fexists(VideoFile[VIDEO_FILE_MVI5513MOV]))
 			capture = VideoCapture(VideoFile[VIDEO_FILE_MVI5513MOV]);
 		else
-			capture = VideoCapture(VideoFile[MAC_VIDEO_FILE_MVI5513MOV]);
+			capture = VideoCapture(VideoFile[MAC_VIDEO_FILE_00239MTS]);
 	}
 	else { // or from webcam
 		capture = VideoCapture(0);

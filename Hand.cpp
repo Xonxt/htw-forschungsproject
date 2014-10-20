@@ -9,7 +9,6 @@ Hand::Hand() {
 	// new hand created!
     Parameters.moveAngle = NAN;
     Parameters.moveSpeed = -1;
-    
 }
 
 Hand::~Hand() {
@@ -30,6 +29,8 @@ void Hand::assignNewLocation(const Hand newHand) {
 
 	// estimate the new position of the hand
 	cv::Mat estimated = Tracker.KalmanTracker.KF.correct(Tracker.KalmanTracker.measurement);
+    
+    Tracker.camsTrack.push_back(cv::Point(handBox.center.x, handBox.center.y));
 }
 
 void Hand::initTracker() {
@@ -74,4 +75,7 @@ void Hand::initTracker() {
 
 	Tracker.kalmTrack.clear();
 	Tracker.kalmTrack.push_back(cv::Point(handBox.center.x, handBox.center.y));
+    
+    Tracker.camsTrack.clear();
+    Tracker.camsTrack.push_back(cv::Point(handBox.center.x, handBox.center.y));
 }

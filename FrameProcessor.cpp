@@ -35,7 +35,7 @@ bool FrameProcessor::initialize(bool isWebCam) {
 	showHandText = false;
 
 	// showing text information
-	showInformation = false;
+	showInformation = true;
 
 	// clear the hands list
 	hands.clear();
@@ -171,40 +171,7 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 			}
 		}
 	}
-	/*
-	// the same thing but with iterators. Gives an exception in Visual Studio :(
-	// remove heavily intersecting regions
-	if (hands.size() > 1) {
-		for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end() - 1; ++it) {
-			cv::Rect firstHand = (*it).handBox.boundingRect();
 
-			// iterate once again:
-			for (std::vector<Hand>::iterator it2 = (it + 1); it2 != hands.end() && hands.size() > 1; ++it2) {
-				cv::Rect secondHand = (*it2).handBox.boundingRect();
-
-				// intersection
-				cv::Rect intersection = firstHand & secondHand;
-
-				// take the smallest hand
-				cv::Rect smallestHand = (firstHand.area() < secondHand.area()) ? firstHand : secondHand;
-
-				// compare intersection sizes
-				if (intersection.area() > 0 && hands.size() > 1) {
-					// remove the largest one
-					if ((firstHand.area() > secondHand.area()))
-						it = hands.erase(it);
-					else
-						it2 = hands.erase(it2);
-
-					if (it2 == hands.end() || it == hands.end())
-						break;
-				}
-			}
-			if (it == hands.end() || hands.size() < 2)
-				break;
-		}
-	}
-	*/
 	// remove hands with bounding boxes, that go beyond the image borders
 	for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end(); ++it) {
 		Hand temp = *it;
@@ -286,8 +253,8 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 	for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end(); ++it) {
 		// put a rectangle|ellipse on the image
 		if (showBoundingBox) {
-			//cv::ellipse(frame, (*it).handBox, fpColors[clr], 2);
-			cv::rectangle(frame, (*it).handBox.boundingRect(), fpColors[clr], 2);
+			cv::ellipse(frame, (*it).handBox, fpColors[clr], 2);
+			//cv::rectangle(frame, (*it).handBox.boundingRect(), fpColors[clr], 2);
 		}
 
 		// show the ROIs
@@ -329,11 +296,17 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 			}
 		}
 		*/
+        
+        std::ostringstream ost;
+        ost << (*it).Parameters.moveSpeed;
+        cv::Point textPoint((*it).handBox.boundingRect().br().x, (*it).handBox.boundingRect().tl().y);
+        cv::putText(frame, ost.str(), textPoint + cv::Point(0, 20), CV_FONT_HERSHEY_PLAIN, 2, fpColors[clr], 2);
 
 		// SHOW GESTURE NAME
-		if ((*it).handGesture.getGestureType() != GESTURE_NONE) {
-			cv::putText(frame, (*it).handGesture.getGestureName(), (*it).roiRectange.tl(), CV_FONT_HERSHEY_PLAIN, 3, fpColors[clr], 3);
-		}
+        if (showInformation)
+            if ((*it).handGesture.getGestureType() != GESTURE_NONE) {
+                cv::putText(frame, (*it).handGesture.getGestureName(), (*it).roiRectange.tl(), CV_FONT_HERSHEY_PLAIN, 3, fpColors[clr], 3);
+            }
 
         clr++;
 	}

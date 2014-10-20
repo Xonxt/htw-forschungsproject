@@ -15,10 +15,10 @@ public:
 	const char* getGestureName();
 
 	// variabales
-	Variable<MovementDirection> varDirection;
-	Variable<MovementSpeed> varSpeed;
-	Variable<FingerCount> varFingers;
-	Variable<FingersAngle> varAngle;
+	Variable varDirection;
+	Variable varSpeed;
+	Variable varFingers;
+	Variable varAngle;
 
 private:
 	HandGesture gestureType;

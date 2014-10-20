@@ -55,17 +55,26 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 		hand.handGesture.varAngle.addValue(ANGLE_NONE);
 
 	// calculate movement speed
-	float dx, dy;
+	/*float dx, dy;
 	dx = hand.Tracker.KalmanTracker.KF.statePost.at<float>(2);
 	dy = hand.Tracker.KalmanTracker.KF.statePost.at<float>(3);
-	hand.Parameters.moveSpeed = sqrt(pow(dx, 2) + pow(dy, 2));
-	hand.Parameters.moveSpeed /= MAX(hand.handBox.size.width, hand.handBox.size.height);
+	hand.Parameters.moveSpeed = sqrt(pow(dx, 2) + pow(dy, 2));*/
+    if (hand.Tracker.camsTrack.size() > 1) {
+        hand.Parameters.moveSpeed = getDistance(hand.Tracker.camsTrack[hand.Tracker.camsTrack.size()-1],
+                                                hand.Tracker.camsTrack[hand.Tracker.camsTrack.size()-2]);
+        hand.Parameters.moveSpeed = fabs(hand.Parameters.moveSpeed);
+        
+        hand.Parameters.moveSpeed /= MAX(hand.handBox.size.width, hand.handBox.size.height);
+    }
+	else {
+        hand.Parameters.moveSpeed = 0;
+    }
 
 	// set movement speed type
-	if (hand.Parameters.moveSpeed < 0.1) {
+	if (hand.Parameters.moveSpeed < 0.05) {
 		hand.handGesture.varSpeed.addValue(SPEED_NONE);
 	}
-	else if (isInRange(hand.Parameters.moveSpeed, 0.1, 0.7)) {
+	else if (isInRange(hand.Parameters.moveSpeed, 0.05, 0.2)) {
 		hand.handGesture.varSpeed.addValue(SPEED_SLOW);
 	}
 	else {
@@ -98,6 +107,15 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 		else
 			hand.handGesture.varDirection.addValue(MOVEMENT_NONE);
 	}
+    
+    
+    // clear the tracks
+    if (hand.Tracker.kalmTrack.size() > 5) {
+        hand.Tracker.kalmTrack.erase(hand.Tracker.kalmTrack.begin());
+    }
+    if (hand.Tracker.camsTrack.size() > 5) {
+        hand.Tracker.camsTrack.erase(hand.Tracker.camsTrack.begin());
+    }
 }
 
 // Determine if two floating point values are ~equal, with a threshold

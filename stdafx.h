@@ -74,7 +74,7 @@ enum HandGesture {
 	GESTURE_SWIPE_RIGHT = 12,	
 };
 
-const char* GestureNames[] = {"Fist", "One finger", "Two fingers", "Three fingers", "Four fingers", "Five fingers",
+const std::string GestureNames[] = {"Fist", "One finger", "Two fingers", "Three fingers", "Four fingers", "Five fingers",
 							  "Victory sign", "Spock", "Thumbs up", "Swipe up", "Swipe down", "Swipe left", "Swipe right"};
 
 // movement speed
@@ -90,8 +90,6 @@ enum FingersAngle {
 	ANGLE_FAR,
 	ANGLE_NONE
 };
-
-const std::string DirectionStrings[] = { "UP", "DOWN", "LEFT", "RIGHT", " "};
 
 // array of colors
 const cv::Scalar fpColors[] = { cv::Scalar(0,0,255), cv::Scalar(0,255,0), cv::Scalar(255,0,0), 
