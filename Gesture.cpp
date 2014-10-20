@@ -30,7 +30,7 @@ HandGesture Gesture::getGestureType() {
 		gestureType = (val <= 12) ? (HandGesture)val : GESTURE_NONE;
 	}
 
-	/*
+/*
 	if (varSpeed.getValue() == SPEED_NONE) { 
 		switch (varFingers.getValue()) {
 		case FINGERS_ZERO:
@@ -75,8 +75,8 @@ HandGesture Gesture::getGestureType() {
 		default:
 			gestureType = GESTURE_NONE;
 		}
-	}*/
-
+	}
+*/
 	return gestureType;
 }
 
