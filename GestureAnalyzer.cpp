@@ -20,12 +20,57 @@ GestureAnalyzer::~GestureAnalyzer() {
 void GestureAnalyzer::analyzeHand(Hand& hand) {
 	// process the contour and extract fingers
 	extractFingers(hand);
+	
+	// add amount of fingers
+	switch (hand.Parameters.fingers.size()) {
+	case 0:
+		hand.handGesture.varFingers.addValue(FINGERS_ZERO);
+		break;
+	case 1:
+		hand.handGesture.varFingers.addValue(FINGERS_ONE);
+		break;
+	case 2:
+		hand.handGesture.varFingers.addValue(FINGERS_TWO);
+		break;
+	case 3:
+		hand.handGesture.varFingers.addValue(FINGERS_THREE);
+		break;
+	case 4:
+		hand.handGesture.varFingers.addValue(FINGERS_FOUR);
+		break;
+	default:
+		hand.handGesture.varFingers.addValue(FINGERS_FIVE);
+	}
+
+	// set finger angles:
+	if (hand.Parameters.fingers.size() == 2) {
+		if (hand.Parameters.fingers[0].Angles.angle2next <= 35) {
+			hand.handGesture.varAngle.addValue(ANGLE_CLOSE);
+		}
+		else {
+			hand.handGesture.varAngle.addValue(ANGLE_FAR);
+		}
+	}
+	else
+		hand.handGesture.varAngle.addValue(ANGLE_NONE);
 
 	// calculate movement speed
 	float dx, dy;
 	dx = hand.Tracker.KalmanTracker.KF.statePost.at<float>(2);
 	dy = hand.Tracker.KalmanTracker.KF.statePost.at<float>(3);
 	hand.Parameters.moveSpeed = sqrt(pow(dx, 2) + pow(dy, 2));
+	hand.Parameters.moveSpeed /= MAX(hand.handBox.size.width, hand.handBox.size.height);
+
+	// set movement speed type
+	if (hand.Parameters.moveSpeed < 0.1) {
+		hand.handGesture.varSpeed.addValue(SPEED_NONE);
+	}
+	else if (isInRange(hand.Parameters.moveSpeed, 0.1, 0.7)) {
+		hand.handGesture.varSpeed.addValue(SPEED_SLOW);
+	}
+	else {
+		hand.handGesture.varSpeed.addValue(SPEED_FAST);
+	}
 
 	// calculate movement direction
 	long int N = hand.Tracker.kalmTrack.size();
@@ -35,20 +80,25 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 		hand.Parameters.moveAngle = angle;
 
 		if (isInRange(angle, NE + 1, NW - 1)) {
-			hand.Parameters.moveDirection = MOVEMENT_UP;
+			//hand.Parameters.moveDirection = MOVEMENT_UP;
+			hand.handGesture.varDirection.addValue(MOVEMENT_UP);
 		}
 		else if (isInRange(angle, NW + 1, SW - 1)) {
-			hand.Parameters.moveDirection = MOVEMENT_RIGHT;
+			//hand.Parameters.moveDirection = MOVEMENT_RIGHT;
+			hand.handGesture.varDirection.addValue(MOVEMENT_RIGHT);
 		}
 		else if (isInRange(angle, SW + 1, SE - 1)) {
-			hand.Parameters.moveDirection = MOVEMENT_DOWN;
+			//hand.Parameters.moveDirection = MOVEMENT_DOWN;
+			hand.handGesture.varDirection.addValue(MOVEMENT_DOWN);
 		}
 		else if (isInRange(angle, 0, SE + 1) || isInRange(angle, 0, NE - 1)) {
-			hand.Parameters.moveDirection = MOVEMENT_LEFT;
+			//hand.Parameters.moveDirection = MOVEMENT_LEFT;
+			hand.handGesture.varDirection.addValue(MOVEMENT_LEFT);
 		}
+		else
+			hand.handGesture.varDirection.addValue(MOVEMENT_NONE);
 	}
 }
-
 
 // Determine if two floating point values are ~equal, with a threshold
 bool GestureAnalyzer::isEqual(const double a, const double b) {
@@ -111,6 +161,10 @@ int GestureAnalyzer::extractFingers(Hand& hand) {
 				finger.Angles.orientationAngle = getAngle(hand.handBox.center, finger.coordinates);
 				finger.length = getDistance(finger.coordinates, hand.handBox.center);
 				// </ init finger>
+				if (hand.Parameters.fingers.size() > 1) {
+					hand.Parameters.fingers[hand.Parameters.fingers.size() - 1].Angles.angle2next =
+						fabs(hand.Parameters.fingers[hand.Parameters.fingers.size() - 1].Angles.orientationAngle - finger.Angles.orientationAngle);
+				}
 
 				hand.Parameters.fingers.push_back(finger);
 

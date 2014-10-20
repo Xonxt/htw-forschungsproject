@@ -20,9 +20,6 @@ public:
 	bool outstretched;
 
 	struct {
-		// the angle from this finger to the previous one
-		double angle2prev;
-
 		// the angle from this finger to the next one
 		double angle2next;
 

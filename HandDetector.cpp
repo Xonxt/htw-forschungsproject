@@ -107,7 +107,7 @@ void HandDetector::detectHands(const cv::Mat frame, std::vector<Hand>& hands, st
 		std::vector<cv::Rect> handRects;
 
 		// cut out the ROI from the original frame
-        cv::Mat frameCrop = (isWebCam || noPedestrians) ? frameResized : cv::Mat(frame, pedestrians[i]);
+		cv::Mat frameCrop = (isWebCam || noPedestrians) ? frameResized : cv::Mat(frame, pedestrians[i]);
 	//	cv::Mat frameCrop = cv::Mat((isWebCam || noPedestrians) ? frameResized : frame, pedestrians[i]);
 
 		// look for hand objects in the frame

@@ -34,6 +34,9 @@ bool FrameProcessor::initialize(bool isWebCam) {
 	// the hand text is not shown at the beginning
 	showHandText = false;
 
+	// showing text information
+	showInformation = false;
+
 	// clear the hands list
 	hands.clear();
 
@@ -281,15 +284,19 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
     int clr = 0;
 
 	for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end(); ++it) {
-		// put a rectangle|ellepse on the image
+		// put a rectangle|ellipse on the image
 		if (showBoundingBox) {
-			cv::ellipse(frame, (*it).handBox, fpColors[clr], 2);
+			//cv::ellipse(frame, (*it).handBox, fpColors[clr], 2);
+			cv::rectangle(frame, (*it).handBox.boundingRect(), fpColors[clr], 2);
 		}
 
-		// show track
-		for (int i = 0; i < (*it).Tracker.kalmTrack.size() - 1; i++) {
-			cv::line(frame, (*it).Tracker.kalmTrack[i], (*it).Tracker.kalmTrack[i + 1], fpColors[clr], 2);
-		}
+		// show the ROIs
+		//cv::rectangle(frame, (*it).roiRectange, fpColors[clr], 2);
+
+		//// show track
+		//for (int i = 0; i < (*it).Tracker.kalmTrack.size() - 1; i++) {
+		//	cv::line(frame, (*it).Tracker.kalmTrack[i], (*it).Tracker.kalmTrack[i + 1], fpColors[clr], 2);
+		//}
 
 		// show the contours
 		if (showContour && !(*it).Parameters.handContour.empty()) {
@@ -309,7 +316,7 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 				cv::circle(frame, (*fg).coordinates, radius*1.5, fpColors[clr], 2);
 			}
 		}
-
+		/*
 		// show hand text information
 		if (showHandText) {
 			std::vector<std::string> strings;
@@ -321,6 +328,12 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 				cv::putText(frame, strings[i], textPoint + cv::Point(0, i * 20), CV_FONT_HERSHEY_PLAIN, 2, fpColors[clr], 2);
 			}
 		}
+		*/
+
+		// SHOW GESTURE NAME
+		if ((*it).handGesture.getGestureType() != GESTURE_NONE) {
+			cv::putText(frame, (*it).handGesture.getGestureName(), (*it).roiRectange.tl(), CV_FONT_HERSHEY_PLAIN, 3, fpColors[clr], 3);
+		}
 
         clr++;
 	}
@@ -330,6 +343,12 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 	
 	if (showMask)
 		strings.push_back("showing mask");
+
+	if (showContour)
+		strings.push_back("showing contour");
+
+	if (showFingers)
+		strings.push_back("showing fingertips");
 
 	switch (handTracker.getSkinMethod()) {
 	case SKIN_SEGMENT_ADAPTIVE:
@@ -345,9 +364,11 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 		break;
 	}
 
-	for (int i = 0; i < strings.size(); i++) {
-        cv::putText(frame, strings[i], cv::Point(20, (i + 1) * 35), CV_FONT_HERSHEY_PLAIN, 3, cv::Scalar(0, 0, 255), 3);
-	}	
+	if (showInformation) {
+		for (int i = 0; i < strings.size(); i++) {
+			cv::putText(frame, strings[i], cv::Point(20, (i + 1) * 35), CV_FONT_HERSHEY_PLAIN, 3, cv::Scalar(0, 0, 255), 3);
+		}
+	}
 }
 
 // change skin segmentation method
@@ -391,4 +412,9 @@ void FrameProcessor::toggleShowFingers() {
 // toggle showing information about the hand
 void FrameProcessor::toggleShowHandText() {
 	showHandText = !showHandText;
+}
+
+// toggle showing on-screen display information
+void FrameProcessor::toggleShowInformation() {
+	showInformation = !showInformation;
 }

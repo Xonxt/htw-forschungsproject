@@ -46,7 +46,7 @@ void Tracker::trackHands(const cv::Mat inputFrame, std::vector<Hand>& hands) {
 		removeSmallBlobs(smallMask, 100);
 
 		// do the morphology
-		bwMorph(smallMask, cv::MORPH_CLOSE, cv::MORPH_ELLIPSE, 1);
+		//bwMorph(smallMask, cv::MORPH_CLOSE, cv::MORPH_ELLIPSE, 1);
         
 		// upscale the mask to original resolution
         if (smallMask.rows < image.rows && smallMask.cols < image.cols) {

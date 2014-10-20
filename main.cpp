@@ -20,7 +20,10 @@ const char* VideoFile[] = { "D:\\temp\\FP\\HFD\\MVI_5513.MOV",
 							"D:\\temp\\FP\\HFD\\00237.MTS", 
 							"D:\\temp\\FP\\HFD\\00238.MTS", 
 							"D:\\temp\\FP\\HFD\\00239.MTS",
-                            "/Users/nikita/Movies/MVI_5513.MOV"
+                            "/Users/nikita/Movies/MVI_5513.MOV",
+							"/Users/nikita/Movies/00237.MTS",
+							"/Users/nikita/Movies/00238.MTS",
+							"/Users/nikita/Movies/00239.MTS"
 };
 
 enum VideoFileNames {
@@ -28,7 +31,10 @@ enum VideoFileNames {
 	VIDEO_FILE_00237MTS,
 	VIDEO_FILE_00238MTS,
 	VIDEO_FILE_00239MTS,
-    MAC_VIDEO_FILE_MVI5513MOV
+    MAC_VIDEO_FILE_MVI5513MOV,
+	MAC_VIDEO_FILE_00237MTS,
+	MAC_VIDEO_FILE_00238MTS,
+	MAC_VIDEO_FILE_00239MTS
 };
 
 using namespace cv;
@@ -75,6 +81,7 @@ while(true) {
 
 // everything else is just prettying it up
 */
+
 int main(int argc, char* argv[])
 {
 	// open capture
@@ -142,6 +149,7 @@ int main(int argc, char* argv[])
 	cout << "Use the following keys for result" << endl << endl;
 	cout << "'ESC'\texit application" << endl;
 	cout << "'SPACE'\tsave screenshot" << endl;
+	cout << "'i'\tshow/hide system information" << endl;
 	cout << "'t'\tdisplay hand information" << endl;
 	cout << "'m'\tdisplay backprojection mask" << endl;
 	cout << "'s'\tchange skin segmentation method" << endl;
@@ -222,6 +230,9 @@ int main(int argc, char* argv[])
 				break;
 			case 't':
 				frameProcessor.toggleShowHandText(); // show hand information
+				break;
+			case 'i':
+				frameProcessor.toggleShowInformation(); // show system information
 				break;
             }
             

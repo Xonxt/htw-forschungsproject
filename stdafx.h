@@ -36,6 +36,7 @@ enum SkinSegmMethod {
 	SKIN_SEGMENT_HSV = 2
 };
 
+/* possible event types */
 // hand movement directions
 enum MovementDirection {
 	MOVEMENT_UP = 0,
@@ -45,13 +46,58 @@ enum MovementDirection {
     MOVEMENT_NONE
 };
 
+// amount of fingers
+enum FingerCount {
+	FINGERS_ZERO = 0,
+	FINGERS_ONE,
+	FINGERS_TWO,
+	FINGERS_THREE,
+	FINGERS_FOUR,
+	FINGERS_FIVE
+};
+
+// a list of hand-postures
+enum HandGesture {
+	GESTURE_NONE = -1,
+	GESTURE_POSTURE_FIST = 0,
+	GESTURE_POSTURE_ONE = 1,
+	GESTURE_POSTURE_TWO = 2,
+	GESTURE_POSTURE_THREE = 3,
+	GESTURE_POSTURE_FOUR = 4,
+	GESTURE_POSTURE_FIVE = 5,
+	GESTURE_POSTURE_V = 6,
+	GESTURE_POSTURE_SPOCK = 7,
+	GESTURE_POSTURE_THUMBS_UP = 8,
+	GESTURE_SWIPE_UP = 9,
+	GESTURE_SWIPE_DOWN = 10,
+	GESTURE_SWIPE_LEFT = 11,
+	GESTURE_SWIPE_RIGHT = 12,	
+};
+
+const char* GestureNames[] = {"Fist", "One finger", "Two fingers", "Three fingers", "Four fingers", "Five fingers",
+							  "Victory sign", "Spock", "Thumbs up", "Swipe up", "Swipe down", "Swipe left", "Swipe right"};
+
+// movement speed
+enum MovementSpeed {
+	SPEED_NONE = 0,
+	SPEED_SLOW,
+	SPEED_FAST
+};
+
+// finger angle
+enum FingersAngle {
+	ANGLE_CLOSE = 0,
+	ANGLE_FAR,
+	ANGLE_NONE
+};
+
 const std::string DirectionStrings[] = { "UP", "DOWN", "LEFT", "RIGHT", " "};
 
 // array of colors
 const cv::Scalar fpColors[] = { cv::Scalar(0,0,255), cv::Scalar(0,255,0), cv::Scalar(255,0,0), 
 								cv::Scalar(255,0,255), cv::Scalar(255,255,0), cv::Scalar(0,255,255), 
 								cv::Scalar(0,128,0), cv::Scalar(255,128,128), cv::Scalar(255,128,255), 
-								cv::Scalar(255,255,255)};
+								cv::Scalar(255,255,255) };
 
 // access colors with these names
 enum Colors {
@@ -67,18 +113,7 @@ enum Colors {
     COLOR_WHITE
 };
 
-// a list of hand-postures
-enum HandPostures {
-	HAND_POSTURE_ONE = 0,
-	HAND_POSTURE_TWO,
-	HAND_POSTURE_V,
-	HAND_POSTURE_THREE,
-	HAND_POSTURE_SPOCK,
-	HAND_POSTURE_FOUR,
-	HAND_POSTURE_FIVE,
-	HAND_POSTURE_THUMBS_UP,
-	HAND_POSTURE_FIST
-};
+
 
 struct YCbCrBounds {
 	int Y_MIN,  Y_MAX;

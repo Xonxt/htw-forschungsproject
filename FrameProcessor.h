@@ -53,6 +53,9 @@ public:
 	// toggle showing information about the hand
 	void toggleShowHandText();
 
+	// toggle showing on-screen display information
+	void toggleShowInformation();
+
 private:
 	// detect and track hands in the frame
 	void detectAndTrack(const cv::Mat& frame);
@@ -86,5 +89,8 @@ private:
 
 	// show hand-text?
 	bool showHandText;
+
+	// show text information
+	bool showInformation;
 };
 
