@@ -171,8 +171,8 @@ bool Tracker::getNewPosition(Hand& hand) {
 	}
 */
 	// assign new positions for
-    trackBox.size.height *= 1.15;
-    trackBox.size.width *= 1.15;
+    //trackBox.size.height *= 1.15;
+    //trackBox.size.width *= 1.15;
 	hand.Tracker.trackWindow = trackWindow;
 	hand.handBox = trackBox;
 
@@ -193,7 +193,7 @@ void Tracker::extractContour(Hand& hand) {
 	try {
         // icrease the size of the bbox by 25%;
         cv::RotatedRect handBox = hand.handBox;
-        handBox.size.width *= 1.25;
+        handBox.size.width *= 1.3;
         handBox.size.height *= 1.15;
         cv::Rect handBoxRect = handBox.boundingRect();
 
@@ -235,7 +235,7 @@ SkinSegmMethod Tracker::getSkinMethod() {
 // retrieve the skin mask for debugging purposes
 void Tracker::getSkinMask(cv::Mat& outputSkinMask) {
     if (somethingIsTracked)
-        cv::cvtColor(mask, outputSkinMask, cv::COLOR_GRAY2BGR);
+        cv::cvtColor(backprojection, outputSkinMask, cv::COLOR_GRAY2BGR);
     else
         image.copyTo(outputSkinMask);
 }

@@ -74,8 +74,8 @@ enum HandGesture {
 	GESTURE_SWIPE_RIGHT = 12,	
 };
 
-const std::string GestureNames[] = {"Fist", "One finger", "Two fingers", "Three fingers", "Four fingers", "Five fingers",
-							  "Victory sign", "Spock", "Thumbs up", "Swipe up", "Swipe down", "Swipe left", "Swipe right"};
+const std::string GestureNames[] = { "FIST", "ONE FINGER", "TWO FINGERS", "THREE FINGERS", "FOUR FINGERS", "FIVE FINGERS",
+"VICTORY SIGN", "SPOCK", "THUMBS UP", "SWIPE UP", "SWIPE DOWN", "SWIPE LEFT", "SWIPE RIGHT" };
 
 // movement speed
 enum MovementSpeed {

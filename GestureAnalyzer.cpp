@@ -105,10 +105,10 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 	}    
     
     // clear the tracks
-    if (hand.Tracker.kalmTrack.size() > 5) {
+    if (hand.Tracker.kalmTrack.size() > 8) {
         hand.Tracker.kalmTrack.erase(hand.Tracker.kalmTrack.begin());
     }
-    if (hand.Tracker.camsTrack.size() > 5) {
+    if (hand.Tracker.camsTrack.size() > 8) {
         hand.Tracker.camsTrack.erase(hand.Tracker.camsTrack.begin());
     }
 }

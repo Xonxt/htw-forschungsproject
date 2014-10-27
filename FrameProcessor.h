@@ -60,6 +60,15 @@ private:
 	// detect and track hands in the frame
 	void detectAndTrack(const cv::Mat& frame);
 
+	// a function to draw a darkened rectangle
+	void drawRectangle(cv::Mat& frame, const cv::Rect rectangle);
+
+	// draw a text on the image, making in glowy and pretty
+	void drawGlowText(cv::Mat& frame, const cv::Point point, const std::string& text);
+
+	// draw pretty hand rectangle
+	void drawHandRectangle(cv::Mat& frame, cv::RotatedRect rectangle);
+
 	// Tool for detecting every hand (open palm!) in the image
 	HandDetector handDetector;
 
