@@ -7,7 +7,7 @@
 #include <sstream>
 
 Tracker::Tracker() {
-	k = 0;
+    k = 0;
 }
 
 //initialize the tracker
@@ -157,14 +157,16 @@ bool Tracker::getNewPosition(Hand& hand) {
 	somethingIsTracked = true;
 
 	// write
-	/*std::ostringstream ofs;
-	k++;	
-	ofs << "backproj_" << k << ".jpg";
-	cv::imwrite(ofs.str(), backprojection);
-	ofs.flush();
-	ofs.str("");
-	ofs << "mask_" << k << ".jpg";
-	cv::imwrite(ofs.str(), mask);*/
+//	std::ostringstream ofs;
+	k++;
+//	ofs << "backproj_" << k << ".jpg";
+//	cv::imwrite(ofs.str(), backprojection);
+//	ofs.flush();
+//	ofs.str("");
+//    cv::Mat sdf;
+//    cv::cvtColor(mask, sdf, cv::COLOR_GRAY2BGR);
+//	ofs << "mask_" << k << ".jpg";
+//	cv::imwrite(ofs.str(), sdf);
 
 	return true;
 }
@@ -238,10 +240,9 @@ SkinSegmMethod Tracker::getSkinMethod() {
 // retrieve the skin mask for debugging purposes
 void Tracker::getSkinMask(cv::Mat& outputSkinMask) {
 	if (somethingIsTracked)
-		cv::cvtColor(backprojection, outputSkinMask, cv::COLOR_GRAY2BGR);
-	else {
-		image.copyTo(outputSkinMask);
-	}
+            cv::cvtColor(backprojection, outputSkinMask, cv::COLOR_GRAY2BGR);
+        else
+            image.copyTo(outputSkinMask);    
 }
 
 // filter out the blobs smaller than a threshold

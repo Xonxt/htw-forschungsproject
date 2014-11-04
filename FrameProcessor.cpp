@@ -71,20 +71,20 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 	}
 
 	// replace the frame with a mask if needed
-	if (showMask) {
+	if (showMask > 0) {
 		handTracker.getSkinMask(frame);
 	}
 
 	// draw the pretty stuff on the frame
-//	try {
+	try {
 		drawFrame(frame);
-//	}
-	//catch (cv::Exception ex) {
-//		std::cout << "OpenCV Exception caught while drawing: " << ex.what() << std::endl;
-//	}
-	//catch (...) {
-//		std::cout << "Some kind of exception caught while drawing!" << std::endl;
-//	}
+	}
+	catch (cv::Exception ex) {
+		std::cout << "OpenCV Exception caught while drawing: " << ex.what() << std::endl;
+	}
+	catch (...) {
+		std::cout << "Some kind of exception caught while drawing!" << std::endl;
+	}
 }
 
 // detect and track hands in the frame
@@ -304,7 +304,8 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 	}
 
 	// add glowy effect
-	drawGlowyHands(frame, hands);
+    if (showMask == 0)
+        drawGlowyHands(frame, hands);
 
 	// display system information text
 	std::vector<std::string> strings;
@@ -415,7 +416,7 @@ void FrameProcessor::drawRectangle(cv::Mat& frame, const cv::Rect rectangle) {
 }
 
 // draw a text on the image, making in glowy and pretty
-void FrameProcessor::drawGlowText(cv::Mat& frame, const cv::Point point, const std::string& text) {
+void FrameProcessor::drawGlowText(cv::Mat& frame, cv::Point& point, const std::string& text) {
 	cv::Size size(text.length() * 25 + 30, 30 + 30);
 	cv::Mat image = cv::Mat(size, CV_8U);
 	image = cv::Mat::zeros(size, CV_8U);
@@ -428,8 +429,14 @@ void FrameProcessor::drawGlowText(cv::Mat& frame, const cv::Point point, const s
 	//size.width *= 0.8;
 
 	cv::resize(image, image, size);
+    
+    cv::Rect roi = cv::Rect(point.x, point.y, size.width, size.height);
+    if (roi.x + roi.width >= frame.cols)
+        roi.x -= ((roi.x + roi.width) - frame.cols);
+    if (roi.y + roi.height >= frame.rows)
+        roi.y -= ((roi.y + roi.height) - frame.rows);
 
-	cv::Mat imageRoi = frame(cv::Rect(point.x, point.y, size.width, size.height));
+	cv::Mat imageRoi = frame(roi);
 	cv::addWeighted(imageRoi, 1.0, image, 1.0, 0, imageRoi);
 }
 
@@ -464,7 +471,7 @@ void FrameProcessor::drawGlowyHands(cv::Mat& frame, const std::vector<Hand> hand
 	}
 
 	//cv::Mat imageRoi = frame(cv::Rect(0, 0, frame.cols, frame.rows));
-	cv::addWeighted(frame, 1.0, image, 0.5, 0, frame);	
+	cv::addWeighted(frame, 1.0, image, 0.75, 0, frame);
 }
 
 void FrameProcessor::bwMorph(cv::Mat& inputImage, const int operation, const int mShape, const int mSize) {

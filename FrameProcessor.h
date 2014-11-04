@@ -65,7 +65,7 @@ private:
 	void drawRectangle(cv::Mat& frame, const cv::Rect rectangle);
 
 	// draw a text on the image, making in glowy and pretty
-	void drawGlowText(cv::Mat& frame, const cv::Point point, const std::string& text);
+	void drawGlowText(cv::Mat& frame, cv::Point& point, const std::string& text);
 
 	// draw pretty hand rectangle
 	void drawGlowyHands(cv::Mat& frame, const std::vector<Hand> hands);

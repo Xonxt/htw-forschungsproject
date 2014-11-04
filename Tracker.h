@@ -28,7 +28,7 @@ public:
 	void getSkinMask(cv::Mat& outputSkinMask);
 
 private:
-	int k;
+    int k;
 
 	// locate new hand position
 	bool getNewPosition(Hand& hand);
