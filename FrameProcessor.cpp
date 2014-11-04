@@ -69,21 +69,22 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 	for (std::vector<Hand>::iterator it = hands.begin(); it != hands.end(); ++it) {
 		gestureAnalyzer.analyzeHand(*it);
 	}
-	
+
 	// replace the frame with a mask if needed
 	if (showMask) {
 		handTracker.getSkinMask(frame);
 	}
 
 	// draw the pretty stuff on the frame
-    try {
-        drawFrame(frame);
-    } catch (cv::Exception ex) {
-        std::cout << "OpenCV Exception caught: " << ex.what() << std::endl;
-    }
-    catch (...) {
-        std::cout << "Some kind of exception caught!" << std::endl;
-    }
+//	try {
+		drawFrame(frame);
+//	}
+	//catch (cv::Exception ex) {
+//		std::cout << "OpenCV Exception caught while drawing: " << ex.what() << std::endl;
+//	}
+	//catch (...) {
+//		std::cout << "Some kind of exception caught while drawing!" << std::endl;
+//	}
 }
 
 // detect and track hands in the frame
@@ -127,7 +128,7 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 			cv::Rect intersection = tempHand.handBox.boundingRect() & (*it2).handBox.boundingRect();
 			if (intersection.area() >= (tempHand.handBox.boundingRect().area() * 0.75)) {
 				// then this hand is already being tracked, correct position
-				//(*it2).assignNewLocation(tempHand);
+				(*it2).assignNewLocation(tempHand);
 				sameHand = true;
 				break;
 			}
@@ -248,15 +249,17 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 // draw everything on frame (hands, fingers, etc.)
 void FrameProcessor::drawFrame(cv::Mat& frame) {
 	// iterate through our vector of hands
-    int clr = 0;
+	int clr = 0;
 
 	for (Hand hand : hands) {
 		// put a rectangle|ellipse on the image
 		if (showBoundingBox) {
-            if (!hand.Tracker.isKalman)
+			if (!hand.Tracker.isKalman)
 				cv::ellipse(frame, hand.handBox, FP_COLOR_WHITE, 2);
-            else
+			else
 				cv::rectangle(frame, hand.handBox.boundingRect(), FP_COLOR_WHITE, 2);
+
+			//cv::rectangle(frame, hand.Tracker.trackWindow, FP_COLOR_GREEN, 2);
 		}
 
 		// show the ROIs
@@ -264,7 +267,7 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 
 		// show the contours
 		if (showContour && !hand.Parameters.handContour.empty()) {
-            std::vector<std::vector<cv::Point> > contour;
+			std::vector<std::vector<cv::Point> > contour;
 			contour.push_back(hand.Parameters.handContour);
 			cv::drawContours(frame, contour, 0, FP_COLOR_WHITE, 2);
 		}
@@ -280,28 +283,32 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 				cv::circle(frame, (*fg).coordinates, radius*1.5, FP_COLOR_WHITE, 2);
 			}
 		}
-		
+
 		// show the track line
 		if (hand.Tracker.camsTrack.size() > 1) {
 			for (int i = 0; i < hand.Tracker.camsTrack.size() - 1; i++) {
 				cv::line(frame, hand.Tracker.camsTrack[i], hand.Tracker.camsTrack[i + 1], FP_COLOR_WHITE, 2);
 			}
 		}
-        
+
 		// SHOW GESTURE NAME
-        if (showInformation)
-		if (hand.handGesture.getGestureType() != GESTURE_NONE) {
-			cv::Point textPoint(hand.handBox.boundingRect().br().x, hand.handBox.boundingRect().tl().y);
+		if (showInformation) {
+			if (hand.handGesture.getGestureType() != GESTURE_NONE) {
+				cv::Point textPoint(hand.handBox.boundingRect().br().x, hand.handBox.boundingRect().tl().y);
 				//cv::putText(frame, (*it).handGesture.getGestureName(), textPoint, CV_FONT_HERSHEY_PLAIN, 2, FP_COLOR_WHITE, 2);
-			drawGlowText(frame, textPoint, hand.handGesture.getGestureName());
-            }
-			
-        clr++;
+				drawGlowText(frame, textPoint, hand.handGesture.getGestureName());
+				}
+		}
+
+		clr++;
 	}
+
+	// add glowy effect
+	drawGlowyHands(frame, hands);
 
 	// display system information text
 	std::vector<std::string> strings;
-	
+
 	if (showMask)
 		strings.push_back("showing mask");
 
@@ -332,11 +339,11 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 			if (str.length() > maxlen)
 				maxlen = str.length();
 		}
-		
-		drawRectangle(frame, cv::Rect(10, 10, maxlen*19, strings.size() * 25 + 25));
+
+		drawRectangle(frame, cv::Rect(10, 10, maxlen * 19, strings.size() * 25 + 25));
 		for (int i = 0; i < strings.size(); i++) {
 			cv::putText(frame, strings[i], cv::Point(20, 20 + (i + 1) * 25), CV_FONT_HERSHEY_PLAIN, 2, FP_COLOR_WHITE, 2);
-		}		
+		}
 	}
 }
 
@@ -413,11 +420,12 @@ void FrameProcessor::drawGlowText(cv::Mat& frame, const cv::Point point, const s
 	cv::Mat image = cv::Mat(size, CV_8U);
 	image = cv::Mat::zeros(size, CV_8U);
 	cv::cvtColor(image, image, cv::COLOR_GRAY2BGR);
-	cv::putText(image, text, cv::Point(15, 40), CV_FONT_HERSHEY_DUPLEX & CV_FONT_BOLD, 1.25, FP_COLOR_WHITE, 3);
+	cv::putText(image, text, cv::Point(15, 40), CV_FONT_HERSHEY_DUPLEX & CV_FONT_BOLD, 1.25, FP_COLOR_BLUE, 3);
+	bwMorph(image, cv::MORPH_DILATE, cv::MORPH_ELLIPSE, 3);
 	cv::blur(image, image, cv::Size(10, 10));
 	cv::putText(image, text, cv::Point(15, 40), CV_FONT_HERSHEY_DUPLEX & CV_FONT_BOLD, 1.25, FP_COLOR_WHITE, 3);
 
-	size.width *= 0.8;
+	//size.width *= 0.8;
 
 	cv::resize(image, image, size);
 
@@ -425,7 +433,42 @@ void FrameProcessor::drawGlowText(cv::Mat& frame, const cv::Point point, const s
 	cv::addWeighted(imageRoi, 1.0, image, 1.0, 0, imageRoi);
 }
 
-// draw a pretty hand rectangle
-void FrameProcessor::drawHandRectangle(cv::Mat& frame, cv::RotatedRect rectangle) {
+// draw a pretty hands
+void FrameProcessor::drawGlowyHands(cv::Mat& frame, const std::vector<Hand> hands) {
 
+	if (hands.empty())
+		return;
+
+	cv::Mat image = cv::Mat(frame);
+	image = cv::Mat::zeros(frame.size(), CV_8U);
+	cv::cvtColor(image, image, cv::COLOR_GRAY2BGR);
+
+	for (Hand hand : hands) {
+		if (!hand.Parameters.handContour.empty()) {
+			std::vector<std::vector<cv::Point> > contour;
+			contour.push_back(hand.Parameters.handContour);
+			cv::drawContours(image, contour, 0, FP_COLOR_GREEN, -1);
+		}
+	}
+
+	//bwMorph(image, cv::MORPH_DILATE, cv::MORPH_ELLIPSE, 5);
+
+	cv::blur(image, image, cv::Size(20, 20));
+
+	for (Hand hand : hands) {
+		if (!hand.Parameters.handContour.empty()) {
+			std::vector<std::vector<cv::Point> > contour;
+			contour.push_back(hand.Parameters.handContour);
+			cv::drawContours(image, contour, 0, FP_COLOR_BLACK, -1);
+		}
+	}
+
+	//cv::Mat imageRoi = frame(cv::Rect(0, 0, frame.cols, frame.rows));
+	cv::addWeighted(frame, 1.0, image, 0.5, 0, frame);	
+}
+
+void FrameProcessor::bwMorph(cv::Mat& inputImage, const int operation, const int mShape, const int mSize) {
+	cv::Mat element = cv::getStructuringElement(mShape, cv::Size(2 * mSize + 1, 2 * mSize + 1),
+		cv::Point(mSize, mSize));
+	cv::morphologyEx(inputImage, inputImage, operation, element);
 }

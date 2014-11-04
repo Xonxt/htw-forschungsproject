@@ -19,7 +19,7 @@
 // define a few colors
 #define FP_COLOR_RED cv::Scalar(0,0,255)
 #define FP_COLOR_GREEN cv::Scalar(0,255,0)
-#define FP_COLOR_BLUE cv::Scalar(255,0,255)
+#define FP_COLOR_BLUE cv::Scalar(255,0,0)
 #define FP_COLOR_PURPLE cv::Scalar(255,0,255)
 #define FP_COLOR_CYAN cv::Scalar(255,255,0)
 #define FP_COLOR_YELLOW cv::Scalar(0,255,255)

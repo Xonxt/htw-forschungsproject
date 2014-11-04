@@ -28,12 +28,17 @@ public:
 	void getSkinMask(cv::Mat& outputSkinMask);
 
 private:
+	int k;
 
 	// locate new hand position
 	bool getNewPosition(Hand& hand);
 
 	// extract hand contour from the mask
-	void extractContour(Hand& hand);
+	// return values:
+	// 0 : everything ok
+	// -1: false detection, delete hand
+	// -2: exception caught, return empty contour
+	int extractContour(Hand& hand);
 
 	// filter out the blobs smaller than a threshold
 	void removeSmallBlobs(cv::Mat& inputImage, const double blobSize);
@@ -49,8 +54,8 @@ private:
 	*/
 	void bwMorph(cv::Mat& inputImage, const int operation, const int mShape, const int mSize);
     
-    // crop roi
-    void cropRoi(const cv::Mat image, cv::Mat& roi, cv::Rect& rect);
+  // crop roi
+  void cropRoi(const cv::Mat image, cv::Mat& roi, cv::Rect& rect);
 
 	// the skin detector/segmentation tool
 	SkinDetector skinDetector;
@@ -70,7 +75,7 @@ private:
 	// the calculated back-projection
 	cv::Mat backprojection;
     
-    // something is being tracked
-    bool somethingIsTracked;
+  // something is being tracked
+  bool somethingIsTracked;
 };
 

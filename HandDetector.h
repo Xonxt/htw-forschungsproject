@@ -5,7 +5,7 @@
 #pragma once
 
 #define HAND_DETECTOR_XML "hogcascade_righthand_v3.0.xml"
-#define HAND_DETECTOR_BAD_XML "RightHandWnd_0.01.xml"
+#define HAND_DETECTOR_BAD_XML "hogcascade_righthand_default.xml"
 
 #define RESIZE_HEIGHT 240
 #define RESIZE_WIDTH  320
@@ -42,6 +42,7 @@ private:
 
 	// HOG pedestrian detector
 	cv::HOGDescriptor pedestrianDetector;
+	//cv::CascadeClassifier pedestrianDetector;
 
 	// current frame number
 	int frameNumber;

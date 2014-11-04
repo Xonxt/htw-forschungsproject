@@ -13,6 +13,7 @@
 #include <time.h>
 #include <ctime>
 
+#include <sstream>
 #include <fstream>
 
 #define FACE_DETECTOR_XML "lbpcascade_frontalface.xml"
@@ -67,7 +68,10 @@ private:
 	void drawGlowText(cv::Mat& frame, const cv::Point point, const std::string& text);
 
 	// draw pretty hand rectangle
-	void drawHandRectangle(cv::Mat& frame, cv::RotatedRect rectangle);
+	void drawGlowyHands(cv::Mat& frame, const std::vector<Hand> hands);
+
+	// perform morphological operation
+	void bwMorph(cv::Mat& inputImage, const int operation, const int mShape, const int mSize);
 
 	// Tool for detecting every hand (open palm!) in the image
 	HandDetector handDetector;

@@ -7,7 +7,7 @@
 
 
 HandDetector::HandDetector()
-{	
+{
 	frameNumber = 0;
 }
 
@@ -23,14 +23,15 @@ bool HandDetector::initialize(bool webCam) {
 
 	try {
 		pedestrianDetector.setSVMDetector(cv::HOGDescriptor::getDefaultPeopleDetector());
-	} 
+		//pedestrianDetector.load("hogcascade_pedestrians.xml");
+	}
 	catch (cv::Exception e) {
 		std::cout << "\tError initializing hog pedestrian detector: " << e.what() << std::endl;
 		result &= false;
 	}
 
 	isWebCam = webCam;
-	
+
 	return result;
 }
 
@@ -46,7 +47,7 @@ void HandDetector::detectHands(const cv::Mat frame, std::vector<Hand>& hands, st
 	// downsize the frame
 	cv::Mat frameResized;
 	cv::resize(frame, frameResized, cv::Size(RESIZE_WIDTH, RESIZE_HEIGHT));
-	
+
 	// pedestrians will be detected only every N drames
 	if ((frameNumber++ % PEDESTRIANS_SKIP_FRAMES) == 0) {
 		pedestrians.clear();
@@ -76,31 +77,31 @@ void HandDetector::detectHands(const cv::Mat frame, std::vector<Hand>& hands, st
 			}
 		}
 	}
-    
-    // remove pedestrian intersections
-    if (pedestrians.size() > 1) {
-        for (std::vector<cv::Rect>::iterator it = pedestrians.begin(); it != pedestrians.end()-1; ++it) {
-            cv::Rect first = *it;
-            
-            // iterate once again:
-            for (std::vector<cv::Rect>::iterator it2 = (it + 1); it2 != pedestrians.end(); ++it2) {
-                cv::Rect second = *it2;
-                
-                // intersection
-                cv::Rect intersection = first & second;
-                
-                // compare intersection sizes
-                if (intersection.area() >= (first.area() * 0.75)) {
-                    // remove the largest one
-                    pedestrians.erase(it2);                    
-                }
-            }
-        }
-    }
+
+	// remove pedestrian intersections
+	if (pedestrians.size() > 1) {
+		for (std::vector<cv::Rect>::iterator it = pedestrians.begin(); it != pedestrians.end() - 1; ++it) {
+			cv::Rect first = *it;
+
+			// iterate once again:
+			for (std::vector<cv::Rect>::iterator it2 = (it + 1); it2 != pedestrians.end(); ++it2) {
+				cv::Rect second = *it2;
+
+				// intersection
+				cv::Rect intersection = first & second;
+
+				// compare intersection sizes
+				if (intersection.area() >= (first.area() * 0.75)) {
+					// remove the largest one
+					pedestrians.erase(it2);
+				}
+			}
+		}
+	}
 
 	// return the pedestrians as ROIs
 	rois = pedestrians;
-	
+
 	// detect hands in ROIs
 	for (int i = 0; i < pedestrians.size(); i++) {
 		// prepare a temporary hand-Rects vector
@@ -108,27 +109,27 @@ void HandDetector::detectHands(const cv::Mat frame, std::vector<Hand>& hands, st
 
 		// cut out the ROI from the original frame
 		cv::Mat frameCrop = (isWebCam || noPedestrians) ? frameResized : cv::Mat(frame, pedestrians[i]);
-	//	cv::Mat frameCrop = cv::Mat((isWebCam || noPedestrians) ? frameResized : frame, pedestrians[i]);
+		//	cv::Mat frameCrop = cv::Mat((isWebCam || noPedestrians) ? frameResized : frame, pedestrians[i]);
 
 		// look for hand objects in the frame
 		handCascade.detectMultiScale(frameCrop, handRects, 1.05, 6, CV_HAAR_FIND_BIGGEST_OBJECT);
 
 		// iterate through located objects
 		for (int j = 0; j < handRects.size(); j++) {
-            // a temporary rect
-            cv::Rect rect = handRects[i];
-            
+			// a temporary rect
+			cv::Rect rect = handRects[i];
+
 			// create temporary Hand object
 			Hand tempHand;
-            
-            // if it was a webcam:
-            if (isWebCam) {
-                rect.x *= (frameWidth / RESIZE_WIDTH);
+
+			// if it was a webcam:
+			if (isWebCam) {
+				rect.x *= (frameWidth / RESIZE_WIDTH);
 				rect.y *= (frameHeight / RESIZE_HEIGHT);
 				rect.height *= (frameHeight / RESIZE_HEIGHT);
 				rect.width *= (frameWidth / RESIZE_WIDTH);
-            }
-            
+			}
+
 			//convert the rect into hand
 			rect2Hand(rect, tempHand, pedestrians[i].tl());
 
@@ -161,7 +162,7 @@ void HandDetector::rect2rotatedRect(const cv::Rect inputRect, cv::RotatedRect& o
 void HandDetector::rect2Hand(const cv::Rect inputRect, Hand& outputHand, const cv::Point shift) {
 	// create a Hand object
 	Hand hand;
-	
+
 	// create a RotatedRect bounding box
 	cv::RotatedRect bbox;
 

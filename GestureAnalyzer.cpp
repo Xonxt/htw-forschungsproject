@@ -103,14 +103,14 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 		else
 			hand.handGesture.varDirection.addValue(MOVEMENT_NONE);
 	}    
-    
+	/*
     // clear the tracks
     if (hand.Tracker.kalmTrack.size() > 8) {
         hand.Tracker.kalmTrack.erase(hand.Tracker.kalmTrack.begin());
     }
     if (hand.Tracker.camsTrack.size() > 8) {
         hand.Tracker.camsTrack.erase(hand.Tracker.camsTrack.begin());
-    }
+    }*/
 }
 
 // Determine if two floating point values are ~equal, with a threshold

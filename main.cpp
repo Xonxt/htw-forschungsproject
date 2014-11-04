@@ -11,19 +11,19 @@
 
 // set 'false' if you're loading a video file
 // or 'true' if you use a capture devide (web-cam)
-#define IS_WEB_CAM false
+#define IS_WEB_CAM true
 
 // should I record the video too?
 #define RECORD_VIDEO false
 
 const char* VideoFile[] = { "D:\\temp\\FP\\HFD\\MVI_5513.MOV", 
-							"D:\\temp\\FP\\HFD\\00237.MTS", 
-							"D:\\temp\\FP\\HFD\\00238.MTS", 
-							"D:\\temp\\FP\\HFD\\00239.MTS",
-                            "/Users/nikita/Movies/MVI_5513.MOV",
-							"/Users/nikita/Movies/00237.MTS",
-							"/Users/nikita/Movies/00238.MTS",
-							"/Users/nikita/Movies/00239.MTS"
+														"D:\\temp\\FP\\HFD\\00237.MTS", 
+														"D:\\temp\\FP\\HFD\\00238.MTS", 
+														"D:\\temp\\FP\\HFD\\00239.MTS",
+														"/Users/nikita/Movies/MVI_5513.MOV",
+														"/Users/nikita/Movies/00237.MTS",
+														"/Users/nikita/Movies/00238.MTS",
+														"/Users/nikita/Movies/00239.MTS"
 };
 
 enum VideoFileNames {
@@ -31,7 +31,7 @@ enum VideoFileNames {
 	VIDEO_FILE_00237MTS,
 	VIDEO_FILE_00238MTS,
 	VIDEO_FILE_00239MTS,
-    MAC_VIDEO_FILE_MVI5513MOV,
+  MAC_VIDEO_FILE_MVI5513MOV,
 	MAC_VIDEO_FILE_00237MTS,
 	MAC_VIDEO_FILE_00238MTS,
 	MAC_VIDEO_FILE_00239MTS
@@ -137,13 +137,13 @@ int main(int argc, char* argv[])
 	Mat frame, stillFrame;
 
 	// should we skip some frames?
-	int skipFrames = 70;
+	int skipFrames = 80;
 
 	// current frame number
 	int frameNumber = 0;
     
-    // pause or resume
-    bool pause = false;
+  // pause or resume
+  bool pause = false;
 
 	// display a menu
 	cout << "Use the following keys for result" << endl << endl;

@@ -22,6 +22,12 @@ public:
 	// assign new location to the hand
 	void assignNewLocation(const Hand newHand);
 
+	// add a new measurement for the Kalman tracker
+	void addKalmanMeasurement(const cv::Point coords);
+
+	// get the latest predicted position by the Kalman
+	cv::Point getLatestKalmanPrediction();
+
 	// the hand's bounding box
 	cv::RotatedRect handBox;
 
@@ -33,6 +39,8 @@ public:
 
 	// Hand gesture
 	Gesture handGesture;
+
+	float sizeDiff;
 
 	// the information for the gesture
 	struct HandInformation {
@@ -54,6 +62,9 @@ public:
 
 		// is the hand being tracked at the moment?
 		bool isTracked;
+
+		// how many frames till histogram recalculation
+		int trackedFrames;
 
 		// hand histogram
 		cv::Mat hist;
