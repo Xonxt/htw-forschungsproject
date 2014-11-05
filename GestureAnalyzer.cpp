@@ -9,8 +9,8 @@
 GestureAnalyzer::GestureAnalyzer() {
 	FingerParameters.cosThreshold = 0.5;
 	FingerParameters.equalThreshold = 1e-7;
-	FingerParameters.r = 10; // 40;
-	FingerParameters.step = 4; // 16;
+	FingerParameters.r = 40; // 40;
+	FingerParameters.step = 16; // 16;
 }
 
 
@@ -174,6 +174,7 @@ int GestureAnalyzer::extractFingers(Hand& hand) {
 				finger.Angles.orientationAngle = getAngle(hand.handBox.center, finger.coordinates);
 				finger.length = getDistance(finger.coordinates, hand.handBox.center);
 				// </ init finger>
+
 				if (hand.Parameters.fingers.size() > 1) {
 					hand.Parameters.fingers[hand.Parameters.fingers.size() - 1].Angles.angle2next =
 						fabs(hand.Parameters.fingers[hand.Parameters.fingers.size() - 1].Angles.orientationAngle - finger.Angles.orientationAngle);

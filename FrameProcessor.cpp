@@ -26,7 +26,7 @@ bool FrameProcessor::initialize(bool isWebCam) {
 	showContour = false;
 
 	// show bounding box at the beginning
-	showBoundingBox = true;
+	showBoundingBox = false;
 
 	// fingers are not shown at first
 	showFingers = false;
@@ -71,7 +71,7 @@ void FrameProcessor::processFrame(cv::Mat& frame) {
 	}
 
 	// replace the frame with a mask if needed
-	if (showMask > 0) {
+	if (showMask == true) {
 		handTracker.getSkinMask(frame);
 	}
 
@@ -274,20 +274,20 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 
 		// show fingertips
 		if (showFingers && !hand.Parameters.fingers.empty()) {
-			int radius = floor(((hand.handBox.size.height + hand.handBox.size.width) / 2) * 0.025);
+			int radius = floor(((hand.handBox.size.height + hand.handBox.size.width) / 2) * 0.05);
 
 			for (std::vector<Finger>::iterator fg = hand.Parameters.fingers.begin(); fg != hand.Parameters.fingers.end(); ++fg) {
 				//inner
-				cv::circle(frame, (*fg).coordinates, radius, FP_COLOR_WHITE, -1);
+				cv::circle(frame, (*fg).coordinates, radius*0.5, FP_COLOR_WHITE, -1);
 				// outer
-				cv::circle(frame, (*fg).coordinates, radius*1.5, FP_COLOR_WHITE, 2);
+				cv::circle(frame, (*fg).coordinates, radius*1.5, FP_COLOR_WHITE, 4);
 			}
 		}
 
 		// show the track line
 		if (hand.Tracker.camsTrack.size() > 1) {
 			for (int i = 0; i < hand.Tracker.camsTrack.size() - 1; i++) {
-				cv::line(frame, hand.Tracker.camsTrack[i], hand.Tracker.camsTrack[i + 1], FP_COLOR_WHITE, 2);
+				//cv::line(frame, hand.Tracker.camsTrack[i], hand.Tracker.camsTrack[i + 1], FP_COLOR_WHITE, 2);
 			}
 		}
 
@@ -297,15 +297,16 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 				cv::Point textPoint(hand.handBox.boundingRect().br().x, hand.handBox.boundingRect().tl().y);
 				//cv::putText(frame, (*it).handGesture.getGestureName(), textPoint, CV_FONT_HERSHEY_PLAIN, 2, FP_COLOR_WHITE, 2);
 				drawGlowText(frame, textPoint, hand.handGesture.getGestureName());
-				}
+			}
 		}
 
 		clr++;
 	}
 
 	// add glowy effect
-    if (showMask == 0)
-        drawGlowyHands(frame, hands);
+	if (!showMask) {
+		drawGlowyHands(frame, hands);
+	}
 
 	// display system information text
 	std::vector<std::string> strings;
@@ -429,12 +430,12 @@ void FrameProcessor::drawGlowText(cv::Mat& frame, cv::Point& point, const std::s
 	//size.width *= 0.8;
 
 	cv::resize(image, image, size);
-    
-    cv::Rect roi = cv::Rect(point.x, point.y, size.width, size.height);
-    if (roi.x + roi.width >= frame.cols)
-        roi.x -= ((roi.x + roi.width) - frame.cols);
-    if (roi.y + roi.height >= frame.rows)
-        roi.y -= ((roi.y + roi.height) - frame.rows);
+
+	cv::Rect roi = cv::Rect(point.x, point.y, size.width, size.height);
+	if (roi.x + roi.width >= frame.cols)
+		roi.x -= ((roi.x + roi.width) - frame.cols);
+	if (roi.y + roi.height >= frame.rows)
+		roi.y -= ((roi.y + roi.height) - frame.rows);
 
 	cv::Mat imageRoi = frame(roi);
 	cv::addWeighted(imageRoi, 1.0, image, 1.0, 0, imageRoi);

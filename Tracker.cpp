@@ -7,7 +7,7 @@
 #include <sstream>
 
 Tracker::Tracker() {
-    k = 0;
+	k = 0;
 }
 
 //initialize the tracker
@@ -86,17 +86,17 @@ bool Tracker::getNewPosition(Hand& hand) {
 
 	float h_range[] = { 0, 179 };
 	float s_range[] = { 0, 255 };
-//	float v_range[] = { 0, 255 };
-	const float* ranges[] = { h_range, s_range};
+	//	float v_range[] = { 0, 255 };
+	const float* ranges[] = { h_range, s_range };
 
-	int channels[] = { 0, 1};	
+	int channels[] = { 0, 1 };
 
 	// if the hand wasn't tracked yet, calculate histograms
 	if (!hand.Tracker.isTracked) {
 		cv::Mat roi(hsv, selection), maskroi(mask, selection);
 
 		// Get the Histogram and normalize it
-		calcHist(&roi, 1, channels, maskroi, hand.Tracker.hist, 2, histSize, ranges, true, false);		
+		calcHist(&roi, 1, channels, maskroi, hand.Tracker.hist, 2, histSize, ranges, true, false);
 		cv::normalize(hand.Tracker.hist, hand.Tracker.hist, 0, 255, cv::NORM_MINMAX, -1, cv::Mat());
 		// set the hand to 'being tracked'
 		hand.Tracker.isTracked = true;
@@ -132,7 +132,7 @@ bool Tracker::getNewPosition(Hand& hand) {
 	}
 	else {
 		hand.Tracker.KalmanTracker.measurement(0) = trackBox.center.x;
-		hand.Tracker.KalmanTracker.measurement(1) = trackBox.center.y;		
+		hand.Tracker.KalmanTracker.measurement(1) = trackBox.center.y;
 	}
 
 	// Kalman estimate
@@ -146,9 +146,9 @@ bool Tracker::getNewPosition(Hand& hand) {
 	hand.sizeDiff = sizeDiff;
 
 	// fix the trackbox using Kalman:
-//	trackBox.center.x = statePt.x;
-//	trackBox.center.y = statePt.y;
-//	trackBox.size = cv::Size2f(hand.detectionBox.width, hand.detectionBox.height);
+	//	trackBox.center.x = statePt.x;
+	//	trackBox.center.y = statePt.y;
+	//	trackBox.size = cv::Size2f(hand.detectionBox.width, hand.detectionBox.height);
 
 	// assign new values
 	hand.Tracker.trackWindow = trackWindow;
@@ -157,16 +157,16 @@ bool Tracker::getNewPosition(Hand& hand) {
 	somethingIsTracked = true;
 
 	// write
-//	std::ostringstream ofs;
+	//	std::ostringstream ofs;
 	k++;
-//	ofs << "backproj_" << k << ".jpg";
-//	cv::imwrite(ofs.str(), backprojection);
-//	ofs.flush();
-//	ofs.str("");
-//    cv::Mat sdf;
-//    cv::cvtColor(mask, sdf, cv::COLOR_GRAY2BGR);
-//	ofs << "mask_" << k << ".jpg";
-//	cv::imwrite(ofs.str(), sdf);
+	//	ofs << "backproj_" << k << ".jpg";
+	//	cv::imwrite(ofs.str(), backprojection);
+	//	ofs.flush();
+	//	ofs.str("");
+	//    cv::Mat sdf;
+	//    cv::cvtColor(mask, sdf, cv::COLOR_GRAY2BGR);
+	//	ofs << "mask_" << k << ".jpg";
+	//	cv::imwrite(ofs.str(), sdf);
 
 	return true;
 }
@@ -174,8 +174,9 @@ bool Tracker::getNewPosition(Hand& hand) {
 // extract hand contour from the mask
 int Tracker::extractContour(Hand& hand) {
 
-	if (hand.handBox.size.width <= 0 || hand.handBox.size.height <= 0)
+	if (hand.handBox.size.width <= 0 || hand.handBox.size.height <= 0) {
 		return -1;
+	}
 
 	// a vector of vectors of points, containing all the contours in the image
 	std::vector< std::vector<cv::Point> > contours;
@@ -185,16 +186,49 @@ int Tracker::extractContour(Hand& hand) {
 
 	// attempt to extract the contours in the image
 	try {
+		// try a different way to extract contours:
 
-		// icrease the size of the bbox by 25%;
 		cv::RotatedRect handBox = hand.handBox;
-		handBox.size.width *= 1.3;
-		handBox.size.height *= 1.2;
+		handBox.size.width *= 1.5;
+		handBox.size.height *= 2;
 		cv::Rect handBoxRect = handBox.boundingRect();
 
 		cv::Mat crop;
-		cropRoi(mask, crop, handBoxRect);
+		cropRoi(mask.clone(), crop, hand.handBox.boundingRect());
+
+		// check if there's enough color inside this region
+		float whiteRatio = (float)cv::countNonZero(crop) / (float)handBoxRect.area();
+
+		if (whiteRatio < 0.05) {
+			return -1;
+		}
+
+		cropRoi(mask.clone(), crop, handBoxRect);
+
+		findContours(crop, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE, handBox.boundingRect().tl());
+
+		if (!contours.empty()) {
+			for (int i = 0; i < contours.size(); i++) {
+				if (cv::pointPolygonTest(contours[i], hand.handBox.center, false) >= 0) {
+					hand.Parameters.handContour = contours[i];
+					break;
+				}
+			}
+		}
+		else {
+			return -1;
+		}
 		
+		/* // an old way to extract contour
+		// icrease the size of the bbox by 25%;
+		cv::RotatedRect handBox = hand.handBox;
+		handBox.size.width *= 1.3;
+		handBox.size.height *= 1.5;
+		cv::Rect handBoxRect = handBox.boundingRect();
+
+		cv::Mat crop;
+		cropRoi(mask.clone(), crop, handBoxRect);
+
 		// check if there's enough color inside this region
 		float whiteRatio = (float)cv::countNonZero(crop) / (float)handBoxRect.area();
 
@@ -216,6 +250,7 @@ int Tracker::extractContour(Hand& hand) {
 			}
 			hand.Parameters.handContour = contours[indx];
 		}
+		*/
 
 	} // end-try
 	catch (cv::Exception& ex) {
@@ -240,9 +275,9 @@ SkinSegmMethod Tracker::getSkinMethod() {
 // retrieve the skin mask for debugging purposes
 void Tracker::getSkinMask(cv::Mat& outputSkinMask) {
 	if (somethingIsTracked)
-            cv::cvtColor(backprojection, outputSkinMask, cv::COLOR_GRAY2BGR);
-        else
-            image.copyTo(outputSkinMask);    
+		cv::cvtColor(mask, outputSkinMask, cv::COLOR_GRAY2BGR);
+	else
+		image.copyTo(outputSkinMask);
 }
 
 // filter out the blobs smaller than a threshold
