@@ -14,7 +14,7 @@
 #define IS_WEB_CAM true
 
 // should I record the video too?
-#define RECORD_VIDEO false
+#define RECORD_VIDEO true
 
 const char* VideoFile[] = { "D:\\temp\\FP\\HFD\\MVI_5513.MOV", 
 														"D:\\temp\\FP\\HFD\\00237.MTS", 
@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
 		
 
 		// construct a video file name
-		outputVideo.open(generateFileName(".avi"), -1, capture.get(CV_CAP_PROP_FPS), S, true);
+		outputVideo.open(generateFileName(".avi"), CV_FOURCC('M','J','P','G'), 10, S, true);
 
 		if (!outputVideo.isOpened()) {
 			cout << "Could not open the output video for write. " << endl;

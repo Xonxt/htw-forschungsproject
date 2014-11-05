@@ -35,7 +35,7 @@ bool FrameProcessor::initialize(bool isWebCam) {
 	showHandText = false;
 
 	// showing text information
-	showInformation = true;
+	showInformation = false;
 
 	// clear the hands list
 	hands.clear();
@@ -49,7 +49,7 @@ bool FrameProcessor::initialize(bool isWebCam) {
 	}
 
 	if (isWebCam) {
-		handTracker.changeSkinMethod(SKIN_SEGMENT_YCRCB);
+	//	handTracker.changeSkinMethod(SKIN_SEGMENT_YCRCB);
 	}
 
 	if (!(result &= faceCascade.load(FACE_DETECTOR_XML))) {
@@ -461,7 +461,7 @@ void FrameProcessor::drawGlowyHands(cv::Mat& frame, const std::vector<Hand> hand
 
 	//bwMorph(image, cv::MORPH_DILATE, cv::MORPH_ELLIPSE, 5);
 
-	cv::blur(image, image, cv::Size(20, 20));
+	cv::blur(image, image, cv::Size(30, 30));
 
 	for (Hand hand : hands) {
 		if (!hand.Parameters.handContour.empty()) {
@@ -472,7 +472,7 @@ void FrameProcessor::drawGlowyHands(cv::Mat& frame, const std::vector<Hand> hand
 	}
 
 	//cv::Mat imageRoi = frame(cv::Rect(0, 0, frame.cols, frame.rows));
-	cv::addWeighted(frame, 1.0, image, 0.75, 0, frame);
+	cv::addWeighted(frame, 1.0, image, 0.55, 0, frame);
 }
 
 void FrameProcessor::bwMorph(cv::Mat& inputImage, const int operation, const int mShape, const int mSize) {

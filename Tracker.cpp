@@ -189,12 +189,10 @@ int Tracker::extractContour(Hand& hand) {
 		// try a different way to extract contours:
 
 		cv::RotatedRect handBox = hand.handBox;
-		handBox.size.width *= 1.5;
-		handBox.size.height *= 2;
 		cv::Rect handBoxRect = handBox.boundingRect();
 
 		cv::Mat crop;
-		cropRoi(mask.clone(), crop, hand.handBox.boundingRect());
+		cropRoi(mask.clone(), crop, handBoxRect);
 
 		// check if there's enough color inside this region
 		float whiteRatio = (float)cv::countNonZero(crop) / (float)handBoxRect.area();
@@ -202,6 +200,10 @@ int Tracker::extractContour(Hand& hand) {
 		if (whiteRatio < 0.05) {
 			return -1;
 		}
+        
+        handBox.size.width *= 1.5;
+		handBox.size.height *= 2;
+        handBoxRect = handBox.boundingRect();
 
 		cropRoi(mask.clone(), crop, handBoxRect);
 
