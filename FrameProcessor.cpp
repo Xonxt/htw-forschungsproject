@@ -49,7 +49,7 @@ bool FrameProcessor::initialize(bool isWebCam) {
 	}
 
 	if (isWebCam) {
-	//	handTracker.changeSkinMethod(SKIN_SEGMENT_YCRCB);
+		handTracker.changeSkinMethod(SKIN_SEGMENT_YCRCB);
 	}
 
 	if (!(result &= faceCascade.load(FACE_DETECTOR_XML))) {
@@ -144,9 +144,12 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 	// remove intersecting regions (if two hands located in one position)
 	if (hands.size() > 1) {
 		int N = hands.size();
-		for (int i = 0; i < N - 1 && N > 1; i++) {
+		for (int i = 0; i < N && N > 1; i++) {
 			cv::Rect firstHand = hands[i].handBox.boundingRect();
-			for (int j = i + 1; j < N && N > 1; j++) {
+			for (int j = 0; j < N && N > 1; j++) {
+                if (i == j) {
+                    continue;
+                }
 				cv::Rect secondHand = hands[j].handBox.boundingRect();
 				// intersection
 				cv::Rect intersection = firstHand & secondHand;
@@ -158,11 +161,12 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 				if (intersection.area() > 0 && hands.size() > 1) {
 					// remove the largest region
 					if ((firstHand.area() < secondHand.area())) {
-						hands.erase(hands.begin() + i--);
+                        hands.erase(hands.begin() + i--);
 					}
 					else {
-						hands.erase(hands.begin() + j--);
+                        hands.erase(hands.begin() + j--);
 					}
+                    std::cout << "hand removed because of intersection!" << std::endl;
 					N--;
 				}
 
@@ -188,8 +192,10 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 		if (temp.handBox.size.width <= 0 || temp.handBox.size.width >= temp.roiRectange.width || temp.handBox.size.width == NAN)
 			remove = true;
 
-		if (remove)
+		if (remove) {
 			it = hands.erase(it);
+            std::cout << "hand removed because it was out of borders!" << std::endl;
+        }
 
 		if (it == hands.end())
 			break;
@@ -234,6 +240,7 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 					// check if the intersection area too big
 					if (intersection.area() > 0) {
 						it = hands.erase(it);
+                        std::cout << "hand removed due to intersection with a face!" << std::endl;
 
 						if (it == hands.end())
 							break;

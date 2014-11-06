@@ -11,10 +11,10 @@
 
 // set 'false' if you're loading a video file
 // or 'true' if you use a capture devide (web-cam)
-#define IS_WEB_CAM true
+#define IS_WEB_CAM false
 
 // should I record the video too?
-#define RECORD_VIDEO true
+#define RECORD_VIDEO false
 
 const char* VideoFile[] = { "D:\\temp\\FP\\HFD\\MVI_5513.MOV", 
 														"D:\\temp\\FP\\HFD\\00237.MTS", 

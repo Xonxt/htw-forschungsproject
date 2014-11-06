@@ -63,12 +63,14 @@ void Tracker::trackHands(const cv::Mat inputFrame, std::vector<Hand>& hands) {
 		// if the tracking was unsuccessful, remove the hand
 		if (!result) {
 			hands.erase(hands.begin() + i);
+            
 		}
 		else { // if successful, 
 			//extract hand contour
 			if (extractContour(hands[i]) == -1) {
 				// if hand empty, remove it
 				hands.erase(hands.begin() + i);
+                std::cout << "hand removed during tracking due to missing contour!" << std::endl;
 			}
 		}
 	}
@@ -201,13 +203,13 @@ int Tracker::extractContour(Hand& hand) {
 			return -1;
 		}
         
-        handBox.size.width *= 1.5;
-		handBox.size.height *= 2;
+        handBox.size.width *= 2;
+		handBox.size.height *= 2.5;
         handBoxRect = handBox.boundingRect();
 
 		cropRoi(mask.clone(), crop, handBoxRect);
 
-		findContours(crop, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE, handBox.boundingRect().tl());
+		findContours(crop, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE, handBoxRect.tl());
 
 		if (!contours.empty()) {
 			for (int i = 0; i < contours.size(); i++) {
