@@ -147,9 +147,9 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 		for (int i = 0; i < N && N > 1; i++) {
 			cv::Rect firstHand = hands[i].handBox.boundingRect();
 			for (int j = 0; j < N && N > 1; j++) {
-                if (i == j) {
-                    continue;
-                }
+				if (i == j) {
+					continue;
+				}
 				cv::Rect secondHand = hands[j].handBox.boundingRect();
 				// intersection
 				cv::Rect intersection = firstHand & secondHand;
@@ -159,14 +159,22 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 
 				// compare intersection sizes
 				if (intersection.area() > 0 && hands.size() > 1) {
-					// remove the largest region
-					if ((firstHand.area() < secondHand.area())) {
-                        hands.erase(hands.begin() + i--);
+					if (hands[i].Parameters.handContour.empty() && !hands[j].Parameters.handContour.empty()) {
+						hands.erase(hands.begin() + j--);
+					}
+					else if (!hands[i].Parameters.handContour.empty() && hands[j].Parameters.handContour.empty()) {
+						hands.erase(hands.begin() + i--);
 					}
 					else {
-                        hands.erase(hands.begin() + j--);
+						// remove the largest region
+						if ((firstHand.area() < secondHand.area())) {
+							hands.erase(hands.begin() + i--);
+						}
+						else {
+							hands.erase(hands.begin() + j--);
+						}
 					}
-                    std::cout << "hand removed because of intersection!" << std::endl;
+					std::cout << "hand removed because of intersection!" << std::endl;
 					N--;
 				}
 
@@ -194,8 +202,8 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 
 		if (remove) {
 			it = hands.erase(it);
-            std::cout << "hand removed because it was out of borders!" << std::endl;
-        }
+			std::cout << "hand removed because it was out of borders!" << std::endl;
+		}
 
 		if (it == hands.end())
 			break;
@@ -240,7 +248,7 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 					// check if the intersection area too big
 					if (intersection.area() > 0) {
 						it = hands.erase(it);
-                        std::cout << "hand removed due to intersection with a face!" << std::endl;
+						std::cout << "hand removed due to intersection with a face!" << std::endl;
 
 						if (it == hands.end())
 							break;
@@ -292,9 +300,9 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 		}
 
 		// show the track line
-		if (hand.Tracker.camsTrack.size() > 1) {
-			for (int i = 0; i < hand.Tracker.camsTrack.size() - 1; i++) {
-				//cv::line(frame, hand.Tracker.camsTrack[i], hand.Tracker.camsTrack[i + 1], FP_COLOR_WHITE, 2);
+		if (hand.Tracker.kalmTrack.size() > 1) {
+			for (int i = 0; i < hand.Tracker.kalmTrack.size() - 1; i++) {
+				cv::line(frame, hand.Tracker.kalmTrack[i], hand.Tracker.kalmTrack[i + 1], FP_COLOR_WHITE, 2);
 			}
 		}
 
@@ -312,7 +320,7 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 
 	// add glowy effect
 	if (!showMask) {
-		drawGlowyHands(frame, hands);
+		//drawGlowyHands(frame, hands);
 	}
 
 	// display system information text

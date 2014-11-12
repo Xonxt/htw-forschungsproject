@@ -63,14 +63,14 @@ void Tracker::trackHands(const cv::Mat inputFrame, std::vector<Hand>& hands) {
 		// if the tracking was unsuccessful, remove the hand
 		if (!result) {
 			hands.erase(hands.begin() + i);
-            
+
 		}
 		else { // if successful, 
 			//extract hand contour
 			if (extractContour(hands[i]) == -1) {
 				// if hand empty, remove it
 				hands.erase(hands.begin() + i);
-                std::cout << "hand removed during tracking due to missing contour!" << std::endl;
+				std::cout << "hand removed during tracking due to missing contour!" << std::endl;
 			}
 		}
 	}
@@ -141,6 +141,7 @@ bool Tracker::getNewPosition(Hand& hand) {
 	cv::Mat estimated = hand.Tracker.KalmanTracker.KF.correct(hand.Tracker.KalmanTracker.measurement);
 	cv::Point statePt(estimated.at<float>(0), estimated.at<float>(1));
 	hand.Tracker.kalmTrack.push_back(statePt);
+	std::cout << "Kalman added: (" << statePt.x << ";" << statePt.y << ")" << std::endl;
 
 	// Try to forbid sudden HUGE changes in the window size
 	float size_A = trackBox.size.height, size_B = hand.detectionBox.height;
@@ -200,12 +201,12 @@ int Tracker::extractContour(Hand& hand) {
 		float whiteRatio = (float)cv::countNonZero(crop) / (float)handBoxRect.area();
 
 		if (whiteRatio < 0.05) {
-			return -1;
+			//return -1;
 		}
-        
-        handBox.size.width *= 2;
+
+		handBox.size.width *= 2;
 		handBox.size.height *= 2.5;
-        handBoxRect = handBox.boundingRect();
+		handBoxRect = handBox.boundingRect();
 
 		cropRoi(mask.clone(), crop, handBoxRect);
 
@@ -222,7 +223,7 @@ int Tracker::extractContour(Hand& hand) {
 		else {
 			return -1;
 		}
-		
+
 		/* // an old way to extract contour
 		// icrease the size of the bbox by 25%;
 		cv::RotatedRect handBox = hand.handBox;
@@ -237,22 +238,22 @@ int Tracker::extractContour(Hand& hand) {
 		float whiteRatio = (float)cv::countNonZero(crop) / (float)handBoxRect.area();
 
 		if (whiteRatio < 0.05) {
-			return -1;
+		return -1;
 		}
 
 		findContours(crop, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE, handBox.boundingRect().tl());
 
 		// if any contours found
 		if (!contours.empty()) {
-			// look for the largest contour
-			int maxArea = -1, indx = 0;
-			for (int i = 0; i < contours.size(); i++) {
-				if (cv::contourArea(contours[i]) > maxArea) {
-					maxArea = cv::contourArea(contours[i]);
-					indx = i;
-				}
-			}
-			hand.Parameters.handContour = contours[indx];
+		// look for the largest contour
+		int maxArea = -1, indx = 0;
+		for (int i = 0; i < contours.size(); i++) {
+		if (cv::contourArea(contours[i]) > maxArea) {
+		maxArea = cv::contourArea(contours[i]);
+		indx = i;
+		}
+		}
+		hand.Parameters.handContour = contours[indx];
 		}
 		*/
 
