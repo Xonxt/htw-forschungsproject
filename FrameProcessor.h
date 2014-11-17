@@ -70,6 +70,9 @@ private:
 	// draw pretty hand rectangle
 	void drawGlowyHands(cv::Mat& frame, const std::vector<Hand> hands);
 
+	// draw pretty glowy lines for the hands
+	void drawGlowyLines(cv::Mat& frame, const std::vector<Hand> hands);
+
 	// perform morphological operation
 	void bwMorph(cv::Mat& inputImage, const int operation, const int mShape, const int mSize);
 

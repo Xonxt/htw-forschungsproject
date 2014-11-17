@@ -141,7 +141,7 @@ bool Tracker::getNewPosition(Hand& hand) {
 	cv::Mat estimated = hand.Tracker.KalmanTracker.KF.correct(hand.Tracker.KalmanTracker.measurement);
 	cv::Point statePt(estimated.at<float>(0), estimated.at<float>(1));
 	hand.Tracker.kalmTrack.push_back(statePt);
-	std::cout << "Kalman added: (" << statePt.x << ";" << statePt.y << ")" << std::endl;
+	//std::cout << "Kalman added: (" << statePt.x << ";" << statePt.y << ")" << std::endl;
 
 	// Try to forbid sudden HUGE changes in the window size
 	float size_A = trackBox.size.height, size_B = hand.detectionBox.height;
@@ -201,7 +201,7 @@ int Tracker::extractContour(Hand& hand) {
 		float whiteRatio = (float)cv::countNonZero(crop) / (float)handBoxRect.area();
 
 		if (whiteRatio < 0.05) {
-			//return -1;
+			return -1;
 		}
 
 		handBox.size.width *= 2;

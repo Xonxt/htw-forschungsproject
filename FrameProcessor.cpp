@@ -302,7 +302,7 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 		// show the track line
 		if (hand.Tracker.kalmTrack.size() > 1) {
 			for (int i = 0; i < hand.Tracker.kalmTrack.size() - 1; i++) {
-				cv::line(frame, hand.Tracker.kalmTrack[i], hand.Tracker.kalmTrack[i + 1], FP_COLOR_WHITE, 2);
+				//cv::line(frame, hand.Tracker.kalmTrack[i], hand.Tracker.kalmTrack[i + 1], FP_COLOR_WHITE, 2);
 			}
 		}
 
@@ -322,6 +322,9 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 	if (!showMask) {
 		//drawGlowyHands(frame, hands);
 	}
+
+	// draw glowy lines
+	drawGlowyLines(frame, hands);
 
 	// display system information text
 	std::vector<std::string> strings;
@@ -488,6 +491,40 @@ void FrameProcessor::drawGlowyHands(cv::Mat& frame, const std::vector<Hand> hand
 
 	//cv::Mat imageRoi = frame(cv::Rect(0, 0, frame.cols, frame.rows));
 	cv::addWeighted(frame, 1.0, image, 0.55, 0, frame);
+}
+
+void FrameProcessor::drawGlowyLines(cv::Mat& frame, const std::vector<Hand> hands) {
+	if (hands.empty()) {
+		return;
+	}
+
+	cv::Mat image = cv::Mat(frame);
+	image = cv::Mat::zeros(frame.size(), CV_8U);
+	cv::cvtColor(image, image, cv::COLOR_GRAY2BGR);
+
+	for (Hand hand : hands) {
+		if (!hand.Tracker.kalmTrack.empty()) {
+			if (hand.Tracker.kalmTrack.size() > 3) {
+				for (int i = 2; i < hand.Tracker.kalmTrack.size() - 1; i++) {
+					cv::line(image, hand.Tracker.kalmTrack[i], hand.Tracker.kalmTrack[i + 1], FP_COLOR_GREEN, 3);
+				}
+			}
+		}
+	}
+
+	cv::blur(image, image, cv::Size(15, 15));
+
+	for (Hand hand : hands) {
+		if (!hand.Tracker.kalmTrack.empty()) {
+			if (hand.Tracker.kalmTrack.size() > 3) {
+				for (int i = 2; i < hand.Tracker.kalmTrack.size() - 1; i++) {
+					cv::line(image, hand.Tracker.kalmTrack[i], hand.Tracker.kalmTrack[i + 1], FP_COLOR_WHITE, 3);
+				}
+			}
+		}
+	}
+
+	cv::addWeighted(frame, 1.0, image, 0.9, 0, frame);
 }
 
 void FrameProcessor::bwMorph(cv::Mat& inputImage, const int operation, const int mShape, const int mSize) {

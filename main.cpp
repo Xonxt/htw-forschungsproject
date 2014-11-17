@@ -11,7 +11,7 @@
 
 // set 'false' if you're loading a video file
 // or 'true' if you use a capture devide (web-cam)
-#define IS_WEB_CAM false
+#define IS_WEB_CAM true
 
 // should I record the video too?
 #define RECORD_VIDEO false
