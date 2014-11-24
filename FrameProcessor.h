@@ -108,5 +108,8 @@ private:
 
 	// show text information
 	bool showInformation;
+
+	// frame number, to check for faces every N frames
+	int frameNum;
 };
 

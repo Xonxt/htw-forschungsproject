@@ -9,6 +9,8 @@ FrameProcessor::FrameProcessor()
 {
 	//isWebCam = webCam;
 	hands.clear();
+
+	frameNum = 0;
 }
 
 FrameProcessor::~FrameProcessor() {
@@ -222,7 +224,7 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 	}
 
 	// now check if new hands were added and then delete face regions
-	if (newHandsAdded && hands.size() > 0) {
+	if ((frameNum++ % 5) == 0 && hands.size() > 0) {
 		std::vector<cv::Rect> faces;
 
 		faces.clear();
