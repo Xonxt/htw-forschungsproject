@@ -14,7 +14,7 @@ class Hand
 public:
 	Hand();
     
-    ~Hand();
+   ~Hand();
 
 	// init the tracker
 	void initTracker();
@@ -27,6 +27,9 @@ public:
 
 	// get the latest predicted position by the Kalman
 	cv::Point getLatestKalmanPrediction();
+
+	// recalculate the hand's thresholding ranges:
+	void recalculateRange(const cv::Mat frame, SkinSegmMethod method);
 
 	// the hand's bounding box
 	cv::RotatedRect handBox;
@@ -41,6 +44,10 @@ public:
 	Gesture handGesture;
 
 	float sizeDiff;
+
+	// The hand's color ranges
+	struct YCbCrBounds YCbCr;
+	struct HsvBounds   HSV;
 
 	// the information for the gesture
 	struct HandInformation {

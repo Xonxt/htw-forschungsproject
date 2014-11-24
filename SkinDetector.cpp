@@ -28,17 +28,17 @@ SkinDetector::SkinDetector() {
 }
 
 // extract the skin mask
-void SkinDetector::extrackskinMask(const cv::Mat inputFrame, cv::Mat& outputMask, SkinSegmMethod method) {
+void SkinDetector::extrackskinMask(const cv::Mat inputFrame, cv::Mat& outputMask, const Hand hand, SkinSegmMethod method) {
 	// get the skin detection method and extract mask
 	switch (method) {
 	case SKIN_SEGMENT_ADAPTIVE:
 		getSkinAdaptiveDetector(inputFrame, outputMask);
 		break;
 	case SKIN_SEGMENT_HSV:
-		getSkinHsv(inputFrame, outputMask);
+		getSkinHsv(inputFrame, outputMask, hand);
 		break;
 	case SKIN_SEGMENT_YCRCB:
-		getSkinYcbcr(inputFrame, outputMask);
+		getSkinYcbcr(inputFrame, outputMask, hand);
 		break;
 	default:
 		throw std::string("Unknown skin segmentation method!");
@@ -46,23 +46,25 @@ void SkinDetector::extrackskinMask(const cv::Mat inputFrame, cv::Mat& outputMask
 	}
 }
 
-void SkinDetector::getSkinYcbcr(const cv::Mat inputFrame, cv::Mat& outputMask) {
+void SkinDetector::getSkinYcbcr(const cv::Mat inputFrame, cv::Mat& outputMask, const Hand hand) {
 	//first convert our RGB image to YCrCb
 	cv::cvtColor(inputFrame, outputMask, cv::COLOR_BGR2YCrCb);
 
 	//filter the image in YCrCb color space
-	cv::inRange(outputMask, cv::Scalar(MIN(YCbCr.Y_MIN, YCbCr.Y_MAX), MIN(YCbCr.Cr_MIN, YCbCr.Cr_MAX), MIN(YCbCr.Cb_MIN, YCbCr.Cb_MAX)),
-							cv::Scalar(MAX(YCbCr.Y_MIN, YCbCr.Y_MAX), MAX(YCbCr.Cr_MIN, YCbCr.Cr_MAX), MAX(YCbCr.Cb_MIN, YCbCr.Cb_MAX)),
+	cv::inRange(outputMask, 
+		cv::Scalar(MIN(hand.YCbCr.Y_MIN, hand.YCbCr.Y_MAX), MIN(hand.YCbCr.Cr_MIN, hand.YCbCr.Cr_MAX), MIN(hand.YCbCr.Cb_MIN, hand.YCbCr.Cb_MAX)),
+		cv::Scalar(MAX(hand.YCbCr.Y_MIN, hand.YCbCr.Y_MAX), MAX(hand.YCbCr.Cr_MIN, hand.YCbCr.Cr_MAX), MAX(hand.YCbCr.Cb_MIN, hand.YCbCr.Cb_MAX)),
 				outputMask);
 }
 
 // perform HSV skin segmentation
-void SkinDetector::getSkinHsv(const cv::Mat inputFrame, cv::Mat& outputMask) {
+void SkinDetector::getSkinHsv(const cv::Mat inputFrame, cv::Mat& outputMask, const Hand hand) {
 	// convert input image to HSC
 	cv::cvtColor(inputFrame, outputMask, cv::COLOR_BGR2HSV);
 
-	cv::inRange(outputMask, cv::Scalar(MIN(HSV.H_MIN, HSV.H_MAX), MIN(HSV.S_MIN, HSV.S_MAX), MIN(HSV.V_MIN, HSV.V_MAX)),
-							cv::Scalar(MAX(HSV.H_MIN, HSV.H_MAX), MAX(HSV.S_MIN, HSV.S_MAX), MAX(HSV.V_MIN, HSV.V_MAX)), 
+	cv::inRange(outputMask, 
+		cv::Scalar(MIN(hand.HSV.H_MIN, hand.HSV.H_MAX), MIN(hand.HSV.S_MIN, hand.HSV.S_MAX), MIN(hand.HSV.V_MIN, hand.HSV.V_MAX)),
+		cv::Scalar(MAX(hand.HSV.H_MIN, hand.HSV.H_MAX), MAX(hand.HSV.S_MIN, hand.HSV.S_MAX), MAX(hand.HSV.V_MIN, hand.HSV.V_MAX)),
 				outputMask);
 }
 

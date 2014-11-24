@@ -42,7 +42,8 @@ void Tracker::trackHands(const cv::Mat inputFrame, std::vector<Hand>& hands) {
 		cv::Mat smallMask;
 		mask = cv::Mat(image.rows, image.cols, CV_8U);
 		mask = cv::Mat::zeros(image.rows, image.cols, CV_8U);
-		skinDetector.extrackskinMask(cv::Mat(image, hands[i].roiRectange), smallMask, skinSegmMethod);
+		//skinDetector.extrackskinMask(cv::Mat(image, hands[i].roiRectange), smallMask, skinSegmMethod);
+		skinDetector.extrackskinMask(cv::Mat(image, hands[i].roiRectange), smallMask, hands[i], skinSegmMethod);
 
 		// filter out the small blobs
 		removeSmallBlobs(smallMask, 100);
@@ -62,15 +63,14 @@ void Tracker::trackHands(const cv::Mat inputFrame, std::vector<Hand>& hands) {
 
 		// if the tracking was unsuccessful, remove the hand
 		if (!result) {
-			hands.erase(hands.begin() + i);
-
+			hands.erase(hands.begin() + i--);
 		}
 		else { // if successful, 
 			//extract hand contour
 			if (extractContour(hands[i]) == -1) {
 				// if hand empty, remove it
-				hands.erase(hands.begin() + i);
-				std::cout << "hand removed during tracking due to missing contour!" << std::endl;
+				hands.erase(hands.begin() + i--);
+				//std::cout << "hand removed during tracking due to missing contour!" << std::endl;
 			}
 		}
 	}

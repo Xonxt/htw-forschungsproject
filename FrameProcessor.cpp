@@ -110,6 +110,11 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 	// now detect (new) hands in the frame
 	handDetector.detectHands(frame, detectedHands, pedestrians);
 
+	// recalculate the color ranges for each hand:
+	for (int i = 0; i < detectedHands.size(); i++) {
+		detectedHands[i].recalculateRange(frame, handTracker.getSkinMethod());
+	}
+
 	// were any new hands added?
 	bool newHandsAdded = false;
 
@@ -159,6 +164,13 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 
 				// compare intersection sizes
 				if (intersection.area() > 0 && hands.size() > 1) {
+					if (hands[i].Tracker.kalmTrack.size() > hands[j].Tracker.kalmTrack.size()) {
+						hands.erase(hands.begin() + j--);
+					}
+					else {
+						hands.erase(hands.begin() + i--);
+					}
+					/*
 					if (hands[i].Parameters.handContour.empty() && !hands[j].Parameters.handContour.empty()) {
 						hands.erase(hands.begin() + j--);
 					}
@@ -173,8 +185,8 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 						else {
 							hands.erase(hands.begin() + j--);
 						}
-					}
-					std::cout << "hand removed because of intersection!" << std::endl;
+					}*/
+			//		std::cout << "hand removed because of intersection!" << std::endl;
 					N--;
 				}
 
@@ -202,7 +214,7 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 
 		if (remove) {
 			it = hands.erase(it);
-			std::cout << "hand removed because it was out of borders!" << std::endl;
+		//	std::cout << "hand removed because it was out of borders!" << std::endl;
 		}
 
 		if (it == hands.end())
@@ -248,7 +260,7 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 					// check if the intersection area too big
 					if (intersection.area() > 0) {
 						it = hands.erase(it);
-						std::cout << "hand removed due to intersection with a face!" << std::endl;
+						//std::cout << "hand removed due to intersection with a face!" << std::endl;
 
 						if (it == hands.end())
 							break;
@@ -504,9 +516,9 @@ void FrameProcessor::drawGlowyLines(cv::Mat& frame, const std::vector<Hand> hand
 
 	for (Hand hand : hands) {
 		if (!hand.Tracker.kalmTrack.empty()) {
-			if (hand.Tracker.kalmTrack.size() > 3) {
-				for (int i = 2; i < hand.Tracker.kalmTrack.size() - 1; i++) {
-					cv::line(image, hand.Tracker.kalmTrack[i], hand.Tracker.kalmTrack[i + 1], FP_COLOR_GREEN, 3);
+			if (hand.Tracker.kalmTrack.size() > 2) {
+				for (int i = 1; i < hand.Tracker.kalmTrack.size() - 1; i++) {
+					cv::line(image, hand.Tracker.kalmTrack[i], hand.Tracker.kalmTrack[i + 1], FP_COLOR_PURPLE, 3);
 				}
 			}
 		}
@@ -516,15 +528,15 @@ void FrameProcessor::drawGlowyLines(cv::Mat& frame, const std::vector<Hand> hand
 
 	for (Hand hand : hands) {
 		if (!hand.Tracker.kalmTrack.empty()) {
-			if (hand.Tracker.kalmTrack.size() > 3) {
-				for (int i = 2; i < hand.Tracker.kalmTrack.size() - 1; i++) {
+			if (hand.Tracker.kalmTrack.size() > 2) {
+				for (int i = 1; i < hand.Tracker.kalmTrack.size() - 1; i++) {
 					cv::line(image, hand.Tracker.kalmTrack[i], hand.Tracker.kalmTrack[i + 1], FP_COLOR_WHITE, 3);
 				}
 			}
 		}
 	}
 
-	cv::addWeighted(frame, 1.0, image, 0.9, 0, frame);
+	cv::addWeighted(frame, 1.0, image, 1.0, 0, frame);
 }
 
 void FrameProcessor::bwMorph(cv::Mat& inputImage, const int operation, const int mShape, const int mSize) {

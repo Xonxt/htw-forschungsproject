@@ -9,6 +9,22 @@ Hand::Hand() {
 	// new hand created!
 	Parameters.moveAngle = NAN;
 	Parameters.moveSpeed = -1;
+
+	// YCrCb thresholds
+	YCbCr.Y_MIN = 0;
+	YCbCr.Y_MAX = 255;
+	YCbCr.Cr_MIN = 133;
+	YCbCr.Cr_MAX = 173;
+	YCbCr.Cb_MIN = 77;
+	YCbCr.Cb_MAX = 127;
+
+	// HSV thresholds
+	HSV.H_MIN = 0;
+	HSV.H_MAX = 15;
+	HSV.S_MIN = 76;
+	HSV.S_MAX = 118;
+	HSV.V_MIN = 0;
+	HSV.V_MAX = 255;
 }
 
 Hand::~Hand() {
@@ -99,4 +115,90 @@ void Hand::initTracker() {
 
 	Tracker.camsTrack.clear();
 	Tracker.camsTrack.push_back(cv::Point(handBox.center.x, handBox.center.y));
+}
+
+// recalculate the hand's thresholding ranges:
+void Hand::recalculateRange(const cv::Mat frame, SkinSegmMethod method) {
+	if (method != SKIN_SEGMENT_ADAPTIVE) {
+		cv::Rect rect = handBox.boundingRect();
+		
+		// reduce the rect to half of its size
+		rect.y += (rect.height * 0.5);
+		rect.height *= 0.5;
+		rect.x += (rect.width * 0.1);
+		rect.width *= 0.8;
+
+		// crop the piece of the image with the palm
+		cv::Mat hsv = cv::Mat(frame.clone(), rect);
+		cv::blur(hsv, hsv, cv::Size(3, 3));
+
+		// convert it to HSV or YCrCb, depending on chosen segmentation method
+		if (method == SKIN_SEGMENT_HSV)
+			cv::cvtColor(hsv, hsv, cv::COLOR_BGR2HSV);
+		else
+			cv::cvtColor(hsv, hsv, cv::COLOR_BGR2YCrCb);
+
+		// split the cropped piece into channels:
+		std::vector<cv::Mat> bgr_planes;
+		cv::split(hsv, bgr_planes);
+		
+		// prepare variables
+		int histSize = 256;
+		float range[] = { 0, 256 };
+		const float* histRange = { range };
+		std::vector<cv::Mat> histograms(3);
+
+		// Compute the histograms:
+		cv::calcHist(&bgr_planes[0], 1, 0, cv::Mat(), histograms[0], 1, &histSize, &histRange, true, false);
+		cv::calcHist(&bgr_planes[1], 1, 0, cv::Mat(), histograms[1], 1, &histSize, &histRange, true, false);
+		cv::calcHist(&bgr_planes[2], 1, 0, cv::Mat(), histograms[2], 1, &histSize, &histRange, true, false);
+
+		// create a temporary variable of ranges
+		int color_ranges[3][2] = { 0, 256, 0, 256, 0, 256 };
+
+		// analyze the histograms
+		for (int idx = 0; idx < 3; idx++) {
+			// min and max
+			double minVal, maxVal;
+			int minIdx, maxIdx;
+
+			// find the maximum of the histogram
+			cv::SparseMat S = cv::SparseMat(histograms[idx]);
+			cv::minMaxLoc(S, &minVal, &maxVal, &minIdx, &maxIdx);
+
+			// find the left boundary
+			for (int i = 0; i <= maxIdx; i++) {
+				if (cvRound(histograms[idx].at<float>(i)) >= (0.4 * maxVal) || i == maxIdx) {
+					color_ranges[idx][0] = i;
+					break;
+				}
+			}
+			// find the right boundary
+			for (int i = 255; i >= maxIdx; i--) {
+				if (cvRound(histograms[idx].at<float>(i)) >= (0.4 * maxVal) || i == maxIdx) {
+					color_ranges[idx][1] = i;
+					break;
+				}
+			}
+		}
+
+		// assign the ranges
+		// if the segmentation method is HSV:
+		if (method == SKIN_SEGMENT_HSV) {
+			HSV.H_MIN = color_ranges[0][0];
+			HSV.H_MAX = color_ranges[0][1];
+			HSV.S_MIN = color_ranges[1][0];
+			HSV.S_MAX = color_ranges[1][1];
+			HSV.V_MIN = color_ranges[2][0];
+			HSV.V_MAX = color_ranges[2][1];
+		}
+		else { // if YCrCb
+			YCbCr.Y_MIN = color_ranges[0][0];
+			YCbCr.Y_MAX = color_ranges[0][1];
+			YCbCr.Cr_MIN = color_ranges[1][0];
+			YCbCr.Cr_MAX = color_ranges[1][1];
+			YCbCr.Cb_MIN = color_ranges[2][0];
+			YCbCr.Cb_MAX = color_ranges[2][1];
+		}
+	}
 }

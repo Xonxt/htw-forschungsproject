@@ -7,12 +7,14 @@
 #include "stdafx.h"
 #include "opencv2/contrib/contrib.hpp"
 
+#include "Hand.h"
+
 class SkinDetector {
 public:
 	SkinDetector();
 
 	// extract the skin mask
-	void extrackskinMask(const cv::Mat inputFrame, cv::Mat& outputMask, SkinSegmMethod method);
+	void extrackskinMask(const cv::Mat inputFrame, cv::Mat& outputMask, const Hand hand, SkinSegmMethod method);
 
 	// change the HSV bounds
 	void setNewHsvBounds(const struct HsvBounds hsv);
@@ -22,10 +24,10 @@ public:
 
 private:
 	// perform Ycbcr skin segmentation
-	void getSkinYcbcr(const cv::Mat inputFrame, cv::Mat& outputMask);
+	void getSkinYcbcr(const cv::Mat inputFrame, cv::Mat& outputMask, const Hand hand);
 
 	// perform HSV skin segmentation
-	void getSkinHsv(const cv::Mat inputFrame, cv::Mat& outputMask);
+	void getSkinHsv(const cv::Mat inputFrame, cv::Mat& outputMask, const Hand hand);
 
 	// use tha OpenCV sdaptive skin detector
 	void getSkinAdaptiveDetector(const cv::Mat inputFrame, cv::Mat& outputMask);
