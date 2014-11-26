@@ -104,8 +104,8 @@ void Hand::initTracker() {
 	Tracker.KalmanTracker.KF.statePre.at<float>(5) = 0;
 
 	cv::setIdentity(Tracker.KalmanTracker.KF.measurementMatrix);
-	cv::setIdentity(Tracker.KalmanTracker.KF.processNoiseCov, cv::Scalar::all(1e-2));
-	cv::setIdentity(Tracker.KalmanTracker.KF.measurementNoiseCov, cv::Scalar::all(1e-2));
+	cv::setIdentity(Tracker.KalmanTracker.KF.processNoiseCov, cv::Scalar::all(1e-4));
+	cv::setIdentity(Tracker.KalmanTracker.KF.measurementNoiseCov, cv::Scalar::all(1e-1));
 	cv::setIdentity(Tracker.KalmanTracker.KF.errorCovPost, cv::Scalar::all(.1));
 
 	Tracker.isKalman = false;
@@ -130,7 +130,7 @@ void Hand::recalculateRange(const cv::Mat frame, SkinSegmMethod method) {
 
 		// crop the piece of the image with the palm
 		cv::Mat hsv = cv::Mat(frame.clone(), rect);
-		cv::blur(hsv, hsv, cv::Size(3, 3));
+		//cv::blur(hsv, hsv, cv::Size(3, 3));
 
 		// convert it to HSV or YCrCb, depending on chosen segmentation method
 		if (method == SKIN_SEGMENT_HSV)
@@ -158,24 +158,31 @@ void Hand::recalculateRange(const cv::Mat frame, SkinSegmMethod method) {
 
 		// analyze the histograms
 		for (int idx = 0; idx < 3; idx++) {
+			cv::blur(histograms[idx], histograms[idx], cv::Size(5, 1));
 			// min and max
 			double minVal, maxVal;
 			int minIdx, maxIdx;
 
 			// find the maximum of the histogram
-			cv::SparseMat S = cv::SparseMat(histograms[idx]);
-			cv::minMaxLoc(S, &minVal, &maxVal, &minIdx, &maxIdx);
+			try {
+				cv::SparseMat S = cv::SparseMat(histograms[idx]);
+				cv::minMaxLoc(S, &minVal, &maxVal, &minIdx, &maxIdx);
+			}
+			catch (cv::Exception exc) {
+				std::cout << "error while computing MinMaxLoc!" << std::endl;
+				return;
+			}
 
 			// find the left boundary
 			for (int i = 0; i <= maxIdx; i++) {
-				if (cvRound(histograms[idx].at<float>(i)) >= (0.4 * maxVal) || i == maxIdx) {
+				if (cvRound(histograms[idx].at<float>(i)) >= (0.15 * maxVal) || i == maxIdx) {
 					color_ranges[idx][0] = i;
 					break;
 				}
 			}
 			// find the right boundary
 			for (int i = 255; i >= maxIdx; i--) {
-				if (cvRound(histograms[idx].at<float>(i)) >= (0.4 * maxVal) || i == maxIdx) {
+				if (cvRound(histograms[idx].at<float>(i)) >= (0.15 * maxVal) || i == maxIdx) {
 					color_ranges[idx][1] = i;
 					break;
 				}

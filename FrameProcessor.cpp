@@ -113,9 +113,9 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 	handDetector.detectHands(frame, detectedHands, pedestrians);
 
 	// recalculate the color ranges for each hand:
-	//for (int i = 0; i < detectedHands.size(); i++) {
-	//	detectedHands[i].recalculateRange(frame, handTracker.getSkinMethod());
-	//}
+	for (int i = 0; i < detectedHands.size(); i++) {
+		detectedHands[i].recalculateRange(frame, handTracker.getSkinMethod());
+	}
 
 	// were any new hands added?
 	bool newHandsAdded = false;

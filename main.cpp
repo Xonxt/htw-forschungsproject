@@ -14,7 +14,7 @@
 #define IS_WEB_CAM true
 
 // should I record the video too?
-#define RECORD_VIDEO true
+#define RECORD_VIDEO false
 
 const char* VideoFile[] = { "D:\\temp\\FP\\HFD\\MVI_5513.MOV", 
 														"D:\\temp\\FP\\HFD\\00237.MTS", 
@@ -184,16 +184,16 @@ int main(int argc, char* argv[])
 				_frame.copyTo(frame);
 			}
 
-			// write the frame into video
-			if (outputVideo.isOpened() && RECORD_VIDEO) {
-				outputVideo << frame;
-			}
-
 			// process the frame, find and track hands, detect gestures
 			frameProcessor.processFrame(frame);
 
 			// display the frame
 			imshow("video", frame);
+
+			// write the frame into video
+			if (outputVideo.isOpened() && RECORD_VIDEO) {
+				outputVideo << frame;
+			}
 
 		}
 
