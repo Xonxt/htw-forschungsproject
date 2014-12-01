@@ -16,14 +16,16 @@
 // should I record the video too?
 #define RECORD_VIDEO false
 
-const char* VideoFile[] = { "D:\\temp\\FP\\HFD\\MVI_5513.MOV", 
-														"D:\\temp\\FP\\HFD\\00237.MTS", 
-														"D:\\temp\\FP\\HFD\\00238.MTS", 
-														"D:\\temp\\FP\\HFD\\00239.MTS",
-														"/Users/nikita/Movies/MVI_5513.MOV",
-														"/Users/nikita/Movies/00237.MTS",
-														"/Users/nikita/Movies/00238.MTS",
-														"/Users/nikita/Movies/00239.MTS"
+const char* VideoFile[] = { 
+	"D:\\temp\\FP\\HFD\\MVI_5513.MOV", 
+	"D:\\temp\\FP\\HFD\\00237.MTS", 
+	"D:\\temp\\FP\\HFD\\00238.MTS", 
+	"D:\\temp\\FP\\HFD\\00239.MTS",
+	"D:\\temp\\FP\\reports\\report_08.12.2014\\12-56-25_unprocessed.avi",
+	"/Users/nikita/Movies/MVI_5513.MOV",
+	"/Users/nikita/Movies/00237.MTS",
+	"/Users/nikita/Movies/00238.MTS",
+	"/Users/nikita/Movies/00239.MTS"
 };
 
 enum VideoFileNames {
@@ -31,7 +33,8 @@ enum VideoFileNames {
 	VIDEO_FILE_00237MTS,
 	VIDEO_FILE_00238MTS,
 	VIDEO_FILE_00239MTS,
-  MAC_VIDEO_FILE_MVI5513MOV,
+	VIDEO_FILE_HAND_DRAWING,
+	MAC_VIDEO_FILE_MVI5513MOV,
 	MAC_VIDEO_FILE_00237MTS,
 	MAC_VIDEO_FILE_00238MTS,
 	MAC_VIDEO_FILE_00239MTS
@@ -137,7 +140,7 @@ int main(int argc, char* argv[])
 	Mat frame, stillFrame;
 
 	// should we skip some frames?
-	int skipFrames = 80;
+	int skipFrames = 50;
 
 	// current frame number
 	int frameNumber = 0;

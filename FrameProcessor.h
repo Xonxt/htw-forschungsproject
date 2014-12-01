@@ -76,6 +76,9 @@ private:
 	// perform morphological operation
 	void bwMorph(cv::Mat& inputImage, const int operation, const int mShape, const int mSize);
 
+	// generate a random number in range
+	int randomNumber(int limi, int lims);
+
 	// Tool for detecting every hand (open palm!) in the image
 	HandDetector handDetector;
 

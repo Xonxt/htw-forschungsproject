@@ -493,7 +493,7 @@ void FrameProcessor::drawGlowyHands(cv::Mat& frame, const std::vector<Hand> hand
 
 	//bwMorph(image, cv::MORPH_DILATE, cv::MORPH_ELLIPSE, 5);
 
-	cv::blur(image, image, cv::Size(30, 30));
+	cv::blur(image, image, cv::Size(randomNumber(20, 40), randomNumber(20, 40)));
 
 	for (Hand hand : hands) {
 		if (!hand.Parameters.handContour.empty()) {
@@ -520,19 +520,19 @@ void FrameProcessor::drawGlowyLines(cv::Mat& frame, const std::vector<Hand> hand
 		if (!hand.Tracker.kalmTrack.empty()) {
 			if (hand.Tracker.kalmTrack.size() > 2) {
 				for (int i = 1; i < hand.Tracker.kalmTrack.size() - 1; i++) {
-					cv::line(image, hand.Tracker.kalmTrack[i], hand.Tracker.kalmTrack[i + 1], FP_COLOR_PURPLE, 3);
+					cv::line(image, hand.Tracker.kalmTrack[i], hand.Tracker.kalmTrack[i + 1], FP_COLOR_PURPLE, randomNumber(2,4));
 				}
 			}
 		}
 	}
 
-	cv::blur(image, image, cv::Size(20, 20));
+	cv::blur(image, image, cv::Size(randomNumber(15, 20), randomNumber(15, 20)));
 
 	for (Hand hand : hands) {
 		if (!hand.Tracker.kalmTrack.empty()) {
 			if (hand.Tracker.kalmTrack.size() > 2) {
 				for (int i = 1; i < hand.Tracker.kalmTrack.size() - 1; i++) {
-					cv::line(image, hand.Tracker.kalmTrack[i], hand.Tracker.kalmTrack[i + 1], FP_COLOR_WHITE, 3);
+					cv::line(image, hand.Tracker.kalmTrack[i], hand.Tracker.kalmTrack[i + 1], FP_COLOR_WHITE, randomNumber(2, 3));
 				}
 			}
 		}
@@ -545,4 +545,9 @@ void FrameProcessor::bwMorph(cv::Mat& inputImage, const int operation, const int
 	cv::Mat element = cv::getStructuringElement(mShape, cv::Size(2 * mSize + 1, 2 * mSize + 1),
 		cv::Point(mSize, mSize));
 	cv::morphologyEx(inputImage, inputImage, operation, element);
+}
+
+int FrameProcessor::randomNumber(int limi, int lims)
+{
+	return (rand() % (lims - limi)) + limi;
 }
