@@ -63,33 +63,38 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 		hand.handGesture.varAngle.addValue(ANGLE_NONE);
 
 	// process the kalm track to find if it's stationary
-	int size = hand.Tracker.kalmTrack.size();
-	if (size >= 3) {
+	int size = (int)hand.Tracker.kalmTrack.size();
+    int N = 3;
+	if (size >= N) {
+        
+        std::vector<cv::Point2f> data;
+        
+        for (int i = 1; i <= N; i++ ) {
+            cv::Point a = hand.Tracker.kalmTrack[size - i];
+            cv::Point2f af = cv::Point2f((float)a.x / (float)frameSize.width, (float)a.y / (float)frameSize.height);
+            data.push_back(af);
+        }
 
-		cv::Point
-			a = hand.Tracker.kalmTrack[size - 1],
-			b = hand.Tracker.kalmTrack[size - 2],
-			c = hand.Tracker.kalmTrack[size - 3];
+		double mx = 0, my = 0, dx = 0, dy = 0;
+        
+        for (cv::Point2f pt : data) {
+            mx += pt.x;
+            my += pt.y;
+        }
+        mx /= N;
+        my /= N;
+        
+        for (cv::Point2f pt : data) {
+            dx += (pt.x - mx) * (pt.x - mx);
+            dy += (pt.y - mx) * (pt.y - my);
+        }
 
-		cv::Point2f
-			af = cv::Point2f((float)a.x / (float)frameSize.width, (float)a.y / (float)frameSize.height),
-			bf = cv::Point2f((float)b.x / (float)frameSize.width, (float)b.y / (float)frameSize.height),
-			cf = cv::Point2f((float)c.x / (float)frameSize.width, (float)c.y / (float)frameSize.height);
-
-		double mx, my, dx, dy;
-
-		mx = (af.x + bf.x + cf.x) / 3; 		my = (af.y + bf.y + cf.y) / 3;
-
-		dx = (pow(af.x - mx, 2) + pow(bf.x - mx, 2) + pow(bf.x - mx, 2)) / 3;
-		dy = (pow(af.y - my, 2) + pow(bf.y - my, 2) + pow(bf.y - my, 2)) / 3;
-
-		dx = sqrt(dx); dy = sqrt(dy);
+		dx = sqrt(dx / N); dy = sqrt(dy / N);
 
 		if (dx < 0.005 && dy < 0.005) {
 			hand.Tracker.kalmTrack.clear();
-			hand.Tracker.kalmTrack.push_back(a);
+			//hand.Tracker.kalmTrack.push_back(a);
 		}
-
 	}
 
 	// calculate movement speed
@@ -116,7 +121,7 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 
 
 	// calculate movement direction
-	long int N = hand.Tracker.kalmTrack.size();
+	N = hand.Tracker.kalmTrack.size();
 	if (N >= 2) {
 		double angle = getAngle(hand.Tracker.kalmTrack[N - 2], hand.Tracker.kalmTrack[N - 1]);
 
