@@ -7,8 +7,15 @@
 
 FrameProcessor::FrameProcessor()
 {
+	
+}
+
+FrameProcessor::FrameProcessor(const cv::Size frameSize)
+{
 	//isWebCam = webCam;
 	hands.clear();
+
+	gestureAnalyzer = GestureAnalyzer(frameSize);
 
 	frameNum = 0;
 }
@@ -58,7 +65,7 @@ bool FrameProcessor::initialize(bool isWebCam) {
 		std::cout << "\tError initializing face detector cascade!" << std::endl;
 	}
     
-    geometricRecognizer.loadTemplates();
+  geometricRecognizer.loadTemplates();
 
 	return result;
 }
@@ -522,7 +529,7 @@ void FrameProcessor::drawGlowyLines(cv::Mat& frame, const std::vector<Hand> hand
 		return;
 	}
     
-    int N = 4;
+	int N = 4;
 
 	cv::Mat image = cv::Mat(frame);
 	image = cv::Mat::zeros(frame.size(), CV_8U);

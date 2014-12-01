@@ -82,8 +82,8 @@ public:
 		// kalman track
 		std::vector<cv::Point> kalmTrack;
         
-        // camshift track
-        std::vector<cv::Point> camsTrack;
+    // camshift track
+    std::vector<cv::Point> camsTrack;
 
 		// Kalman Filter Data
 		struct KalmanFilterTracker {

@@ -14,6 +14,7 @@
 class GestureAnalyzer {
 public:
 	GestureAnalyzer();
+	GestureAnalyzer(const cv::Size _frameSize);
 	~GestureAnalyzer();
 
 	// process a hand, fill in its parameters
@@ -22,6 +23,9 @@ public:
 private:
 	// process the hand contour and extract fingers. Returns the amount of fingers
 	int extractFingers(Hand& hand);
+
+	// frame size
+	cv::Size frameSize;
 
 	// Determine if two floating point values are ~equal, with a threshold
 	bool isEqual(const double a, const double b);

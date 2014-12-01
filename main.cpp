@@ -106,14 +106,14 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
+	Size S = Size((int)capture.get(CV_CAP_PROP_FRAME_WIDTH),    // Acquire input size
+								(int)capture.get(CV_CAP_PROP_FRAME_HEIGHT));
+
 	// open video recorder
 	VideoWriter outputVideo;
 	if (RECORD_VIDEO) {
 		// output video
-		int ex = static_cast<int>(capture.get(CV_CAP_PROP_FOURCC));
-		Size S = Size((int)capture.get(CV_CAP_PROP_FRAME_WIDTH),    // Acquire input size
-					  (int)capture.get(CV_CAP_PROP_FRAME_HEIGHT));
-		
+		int ex = static_cast<int>(capture.get(CV_CAP_PROP_FOURCC));		
 
 		// construct a video file name
 		outputVideo.open(generateFileName(".avi"), CV_FOURCC('M','J','P','G'), 10, S, true);
@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
 	}
 
 	// create Frame Processor object
-	FrameProcessor frameProcessor;
+	FrameProcessor frameProcessor(S);
 
 	// initizlize frame processor
 	if (!frameProcessor.initialize(IS_WEB_CAM)) {

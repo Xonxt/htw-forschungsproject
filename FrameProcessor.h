@@ -10,7 +10,11 @@
 #include "Tracker.h"
 #include "GestureAnalyzer.h"
 
-#include "GeometricRecognizer.h"
+#if defined(__APPLE__)
+	#include "GeometricRecognizer.h"
+#else
+#include "OneDollar\GeometricRecognizer.h"
+#endif
 
 #include <time.h>
 #include <ctime>
@@ -24,7 +28,8 @@ class FrameProcessor
 {
 public:
 	FrameProcessor();
-    ~FrameProcessor();
+	FrameProcessor(const cv::Size frameSize);
+	~FrameProcessor();
 
 	// initizlize the processor
 	bool initialize(bool isWebCam = false);
@@ -93,8 +98,8 @@ private:
 	// The gesture analyzer
 	GestureAnalyzer gestureAnalyzer;
     
-    // geometric rcognizer
-    DollarRecognizer::GeometricRecognizer geometricRecognizer;
+  // geometric rcognizer
+  DollarRecognizer::GeometricRecognizer geometricRecognizer;
 
 	// show backprojection mask or not?
 	bool showMask;

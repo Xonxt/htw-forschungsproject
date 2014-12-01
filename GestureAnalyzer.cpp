@@ -5,12 +5,17 @@
 #include "stdafx.h"
 #include "GestureAnalyzer.h"
 
-
 GestureAnalyzer::GestureAnalyzer() {
+
+}
+
+GestureAnalyzer::GestureAnalyzer(const cv::Size _frameSize) {
 	FingerParameters.cosThreshold = 0.5;
 	FingerParameters.equalThreshold = 1e-7;
 	FingerParameters.r = 40; // 40;
 	FingerParameters.step = 16; // 16;
+
+	frameSize = _frameSize;
 }
 
 
@@ -18,6 +23,9 @@ GestureAnalyzer::~GestureAnalyzer() {
 }
 
 void GestureAnalyzer::analyzeHand(Hand& hand) {
+
+
+
 	// process the contour and extract fingers
 	extractFingers(hand);
 	
@@ -54,10 +62,39 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 	else
 		hand.handGesture.varAngle.addValue(ANGLE_NONE);
 
+	// process the kalm track to find if it's stationary
+	int size = hand.Tracker.kalmTrack.size();
+	if (size >= 3) {
+
+		cv::Point
+			a = hand.Tracker.kalmTrack[size - 1],
+			b = hand.Tracker.kalmTrack[size - 2],
+			c = hand.Tracker.kalmTrack[size - 3];
+
+		cv::Point2f
+			af = cv::Point2f((float)a.x / (float)frameSize.width, (float)a.y / (float)frameSize.height),
+			bf = cv::Point2f((float)b.x / (float)frameSize.width, (float)b.y / (float)frameSize.height),
+			cf = cv::Point2f((float)c.x / (float)frameSize.width, (float)c.y / (float)frameSize.height);
+
+		double mx, my, dx, dy;
+
+		mx = (af.x + bf.x + cf.x) / 3; 		my = (af.y + bf.y + cf.y) / 3;
+
+		dx = (pow(af.x - mx, 2) + pow(bf.x - mx, 2) + pow(bf.x - mx, 2)) / 3;
+		dy = (pow(af.y - my, 2) + pow(bf.y - my, 2) + pow(bf.y - my, 2)) / 3;
+
+		dx = sqrt(dx); dy = sqrt(dy);
+
+		if (dx < 0.005 && dy < 0.005) {
+			hand.Tracker.kalmTrack.clear();
+			hand.Tracker.kalmTrack.push_back(a);
+		}
+
+	}
+
 	// calculate movement speed
-    if (hand.Tracker.camsTrack.size() > 1) {
-        hand.Parameters.moveSpeed = getDistance(hand.Tracker.camsTrack[hand.Tracker.camsTrack.size()-1],
-                                                hand.Tracker.camsTrack[hand.Tracker.camsTrack.size()-2]);
+    if (hand.Tracker.kalmTrack.size() > 1) {
+			hand.Parameters.moveSpeed = getDistance(hand.Tracker.kalmTrack[hand.Tracker.kalmTrack.size() - 1], hand.Tracker.kalmTrack[hand.Tracker.kalmTrack.size() - 2]);
         hand.Parameters.moveSpeed = fabs(hand.Parameters.moveSpeed);
         
         hand.Parameters.moveSpeed /= MAX(hand.handBox.size.width, hand.handBox.size.height);
@@ -76,6 +113,7 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 	else {
 		hand.handGesture.varSpeed.addValue(SPEED_FAST);
 	}
+
 
 	// calculate movement direction
 	long int N = hand.Tracker.kalmTrack.size();
