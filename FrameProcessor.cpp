@@ -57,6 +57,8 @@ bool FrameProcessor::initialize(bool isWebCam) {
 	if (!(result &= faceCascade.load(FACE_DETECTOR_XML))) {
 		std::cout << "\tError initializing face detector cascade!" << std::endl;
 	}
+    
+    geometricRecognizer.loadTemplates();
 
 	return result;
 }
@@ -328,6 +330,14 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 				drawGlowText(frame, textPoint, hand.handGesture.getGestureName());
 			}
 		}
+        
+        // try to recognize the drawings
+        if (hand.Tracker.kalmTrack.size() > 10) {
+            DollarRecognizer::RecognitionResult recognitionResult = geometricRecognizer.recognize(hand.Tracker.kalmTrack);
+            if (recognitionResult.score >= 0.75) {
+                cv::putText(frame, recognitionResult.name, hand.Tracker.kalmTrack[hand.Tracker.kalmTrack.size()-1], CV_FONT_HERSHEY_PLAIN, 2, FP_COLOR_RED, 3);
+            }
+        }
 
 		clr++;
 	}
@@ -493,7 +503,7 @@ void FrameProcessor::drawGlowyHands(cv::Mat& frame, const std::vector<Hand> hand
 
 	//bwMorph(image, cv::MORPH_DILATE, cv::MORPH_ELLIPSE, 5);
 
-	cv::blur(image, image, cv::Size(randomNumber(20, 40), randomNumber(20, 40)));
+	cv::blur(image, image, cv::Size(randomNumber(20, 35), randomNumber(30, 45)));
 
 	for (Hand hand : hands) {
 		if (!hand.Parameters.handContour.empty()) {
@@ -511,6 +521,8 @@ void FrameProcessor::drawGlowyLines(cv::Mat& frame, const std::vector<Hand> hand
 	if (hands.empty()) {
 		return;
 	}
+    
+    int N = 4;
 
 	cv::Mat image = cv::Mat(frame);
 	image = cv::Mat::zeros(frame.size(), CV_8U);
@@ -518,9 +530,9 @@ void FrameProcessor::drawGlowyLines(cv::Mat& frame, const std::vector<Hand> hand
 
 	for (Hand hand : hands) {
 		if (!hand.Tracker.kalmTrack.empty()) {
-			if (hand.Tracker.kalmTrack.size() > 2) {
-				for (int i = 1; i < hand.Tracker.kalmTrack.size() - 1; i++) {
-					cv::line(image, hand.Tracker.kalmTrack[i], hand.Tracker.kalmTrack[i + 1], FP_COLOR_PURPLE, randomNumber(2,4));
+			if (hand.Tracker.kalmTrack.size() > N) {
+				for (int i = N-1; i < hand.Tracker.kalmTrack.size() - 1; i++) {
+					cv::line(image, hand.Tracker.kalmTrack[i], hand.Tracker.kalmTrack[i + 1], FP_COLOR_PURPLE, randomNumber(3,5));
 				}
 			}
 		}
@@ -530,9 +542,9 @@ void FrameProcessor::drawGlowyLines(cv::Mat& frame, const std::vector<Hand> hand
 
 	for (Hand hand : hands) {
 		if (!hand.Tracker.kalmTrack.empty()) {
-			if (hand.Tracker.kalmTrack.size() > 2) {
-				for (int i = 1; i < hand.Tracker.kalmTrack.size() - 1; i++) {
-					cv::line(image, hand.Tracker.kalmTrack[i], hand.Tracker.kalmTrack[i + 1], FP_COLOR_WHITE, randomNumber(2, 3));
+			if (hand.Tracker.kalmTrack.size() > N) {
+				for (int i = N-1; i < hand.Tracker.kalmTrack.size() - 1; i++) {
+					cv::line(image, hand.Tracker.kalmTrack[i], hand.Tracker.kalmTrack[i + 1], FP_COLOR_WHITE, randomNumber(2, 4));
 				}
 			}
 		}

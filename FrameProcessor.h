@@ -10,6 +10,8 @@
 #include "Tracker.h"
 #include "GestureAnalyzer.h"
 
+#include "GeometricRecognizer.h"
+
 #include <time.h>
 #include <ctime>
 
@@ -90,6 +92,9 @@ private:
 
 	// The gesture analyzer
 	GestureAnalyzer gestureAnalyzer;
+    
+    // geometric rcognizer
+    DollarRecognizer::GeometricRecognizer geometricRecognizer;
 
 	// show backprojection mask or not?
 	bool showMask;

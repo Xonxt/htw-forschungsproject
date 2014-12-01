@@ -1,4 +1,8 @@
-#include "../stdafx.h"
+#if defined(__APPLE__)
+    #include "stdafx.h"
+#else
+    #include "../stdafx.h"
+#endif
 
 #include "GeometricRecognizer.h"
 

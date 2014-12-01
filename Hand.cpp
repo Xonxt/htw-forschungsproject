@@ -111,10 +111,10 @@ void Hand::initTracker() {
 	Tracker.isKalman = false;
 
 	Tracker.kalmTrack.clear();
-	Tracker.kalmTrack.push_back(cv::Point(handBox.center.x, handBox.center.y));
+	//Tracker.kalmTrack.push_back(cv::Point(handBox.center.x, handBox.center.y));
 
 	Tracker.camsTrack.clear();
-	Tracker.camsTrack.push_back(cv::Point(handBox.center.x, handBox.center.y));
+	//Tracker.camsTrack.push_back(cv::Point(handBox.center.x, handBox.center.y));
 }
 
 // recalculate the hand's thresholding ranges:
