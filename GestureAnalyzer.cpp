@@ -66,7 +66,7 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 
 	// process the kalm track to find if it's stationary
 	int size = (int)hand.Tracker.kalmTrack.size();
-	int N = 4;
+	int N = 5;
 	if (size >= N) {
 
 		std::vector<cv::Point2f> data;
@@ -95,13 +95,15 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 
 		if (dx < 0.005 && dy < 0.005) {
 			// here we check the drawing!
-			if (hand.Tracker.kalmTrack.size() > 10) {
+			if (hand.Tracker.kalmTrack.size() >= 10) {
 				DollarRecognizer::RecognitionResult result = geometricRecognizer.recognize(hand.Tracker.kalmTrack);
-				if (result.score >= 0.75) {
+				if (result.score > 0.8) {
 					hand.handGesture.gestureName = result.name;
 				}
-				else
+				else {
 					hand.handGesture.gestureName = " ";
+                }
+                std::cout << "found: " << result.name << ", with score: " << result.score << std::endl;
 			}
 
 			hand.Tracker.kalmTrack.clear();
@@ -317,5 +319,5 @@ bool GestureAnalyzer::isInRange(const double value, const double A, const double
 
 // get the distance between two cv::Point points
 double GestureAnalyzer::getDistance(const cv::Point pt1, const cv::Point pt2) {
-	return (sqrt(pow(pt1.x - pt2.x, 2) + pow(pt1.y - pt2.y, 2)));
+	return (sqrt(pow(pt1.x - pt2.x, 2.0f) + pow(pt1.y - pt2.y, 2.0f)));
 }

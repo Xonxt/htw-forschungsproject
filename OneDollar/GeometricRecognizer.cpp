@@ -42,9 +42,18 @@ namespace DollarRecognizer
 		SampleGestures samples;
 
 		addTemplate("Circle", samples.getGestureCircle());
+        Path2D temp = samples.getGestureCircle();
+        std::reverse(temp.begin(), temp.end());
+        addTemplate("Circle", temp);
+        
 		addTemplate("LeftToRightLine", samples.getGestureLeftToRightLine());
 		addTemplate("LineDownDiagonal", samples.getGestureLineDownDiagonal());
+        
 		addTemplate("Rectangle", samples.getGestureRectangle());
+        temp = samples.getGestureRectangle();
+        std::reverse(temp.begin(), temp.end());
+        addTemplate("Rectangle", temp);
+        
 		addTemplate("RightToLeftLine", samples.getGestureRightToLeftLine());
 		addTemplate("RightToLeftLine2", samples.getGestureRightToLeftLine2());
 		addTemplate("RightToLeftSlashDown", samples.getGestureRightToLeftSlashDown());

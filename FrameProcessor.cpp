@@ -328,14 +328,14 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 		}
 
 		// SHOW GESTURE NAME
-		if (showInformation) {
+		//if (showInformation) {
 			if (hand.handGesture.getGestureType() != GESTURE_NONE) {
 				cv::Point textPoint(hand.handBox.boundingRect().br().x, hand.handBox.boundingRect().tl().y);
 				//cv::putText(frame, (*it).handGesture.getGestureName(), textPoint, CV_FONT_HERSHEY_PLAIN, 2, FP_COLOR_WHITE, 2);
 				//drawGlowText(frame, textPoint, hand.handGesture.getGestureName());
 				drawGlowText(frame, textPoint, hand.handGesture.gestureName);
 			}
-		}
+		//}
         
 		clr++;
 	}
@@ -462,7 +462,7 @@ void FrameProcessor::drawGlowText(cv::Mat& frame, cv::Point& point, const std::s
 	cv::Mat image = cv::Mat(size, CV_8U);
 	image = cv::Mat::zeros(size, CV_8U);
 	cv::cvtColor(image, image, cv::COLOR_GRAY2BGR);
-	cv::putText(image, text, cv::Point(15, 40), CV_FONT_HERSHEY_DUPLEX & CV_FONT_BOLD, 1.25, FP_COLOR_BLUE, 3);
+	cv::putText(image, text, cv::Point(15, 40), CV_FONT_HERSHEY_DUPLEX & CV_FONT_BOLD, 1.25, FP_COLOR_RED, 3);
 	bwMorph(image, cv::MORPH_DILATE, cv::MORPH_ELLIPSE, 3);
 	cv::blur(image, image, cv::Size(10, 10));
 	cv::putText(image, text, cv::Point(15, 40), CV_FONT_HERSHEY_DUPLEX & CV_FONT_BOLD, 1.25, FP_COLOR_WHITE, 3);
@@ -476,7 +476,7 @@ void FrameProcessor::drawGlowText(cv::Mat& frame, cv::Point& point, const std::s
 		roi.x -= ((roi.x + roi.width) - frame.cols);
 	if (roi.y + roi.height >= frame.rows)
 		roi.y -= ((roi.y + roi.height) - frame.rows);
-
+    
 	cv::Mat imageRoi = frame(roi);
 	cv::addWeighted(imageRoi, 1.0, image, 1.0, 0, imageRoi);
 }

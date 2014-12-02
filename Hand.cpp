@@ -104,7 +104,7 @@ void Hand::initTracker() {
 	Tracker.KalmanTracker.KF.statePre.at<float>(5) = 0;
 
 	cv::setIdentity(Tracker.KalmanTracker.KF.measurementMatrix);
-	cv::setIdentity(Tracker.KalmanTracker.KF.processNoiseCov, cv::Scalar::all(1e-4));
+	cv::setIdentity(Tracker.KalmanTracker.KF.processNoiseCov, cv::Scalar::all(1e-2));
 	cv::setIdentity(Tracker.KalmanTracker.KF.measurementNoiseCov, cv::Scalar::all(1e-1));
 	cv::setIdentity(Tracker.KalmanTracker.KF.errorCovPost, cv::Scalar::all(.1));
 
