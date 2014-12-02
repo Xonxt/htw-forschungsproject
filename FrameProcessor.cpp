@@ -331,9 +331,9 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 		//if (showInformation) {
 			if (hand.handGesture.getGestureType() != GESTURE_NONE) {
 				cv::Point textPoint(hand.handBox.boundingRect().br().x, hand.handBox.boundingRect().tl().y);
-				//cv::putText(frame, (*it).handGesture.getGestureName(), textPoint, CV_FONT_HERSHEY_PLAIN, 2, FP_COLOR_WHITE, 2);
+				cv::putText(frame, hand.handGesture.gestureName, textPoint, CV_FONT_HERSHEY_PLAIN, 5, FP_COLOR_RED, 7);
 				//drawGlowText(frame, textPoint, hand.handGesture.getGestureName());
-				drawGlowText(frame, textPoint, hand.handGesture.gestureName);
+				//drawGlowText(frame, textPoint, hand.handGesture.gestureName);
 			}
 		//}
         
