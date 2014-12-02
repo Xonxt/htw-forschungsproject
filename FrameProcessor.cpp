@@ -64,8 +64,6 @@ bool FrameProcessor::initialize(bool isWebCam) {
 	if (!(result &= faceCascade.load(FACE_DETECTOR_XML))) {
 		std::cout << "\tError initializing face detector cascade!" << std::endl;
 	}
-    
-  geometricRecognizer.loadTemplates();
 
 	return result;
 }
@@ -334,18 +332,11 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 			if (hand.handGesture.getGestureType() != GESTURE_NONE) {
 				cv::Point textPoint(hand.handBox.boundingRect().br().x, hand.handBox.boundingRect().tl().y);
 				//cv::putText(frame, (*it).handGesture.getGestureName(), textPoint, CV_FONT_HERSHEY_PLAIN, 2, FP_COLOR_WHITE, 2);
-				drawGlowText(frame, textPoint, hand.handGesture.getGestureName());
+				//drawGlowText(frame, textPoint, hand.handGesture.getGestureName());
+				drawGlowText(frame, textPoint, hand.handGesture.gestureName);
 			}
 		}
         
-        // try to recognize the drawings
-        if (hand.Tracker.kalmTrack.size() > 10) {
-            DollarRecognizer::RecognitionResult recognitionResult = geometricRecognizer.recognize(hand.Tracker.kalmTrack);
-            if (recognitionResult.score >= 0.75) {
-                cv::putText(frame, recognitionResult.name, hand.Tracker.kalmTrack[hand.Tracker.kalmTrack.size()-1], CV_FONT_HERSHEY_PLAIN, 2, FP_COLOR_RED, 3);
-            }
-        }
-
 		clr++;
 	}
 

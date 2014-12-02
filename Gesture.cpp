@@ -56,7 +56,7 @@ HandGesture Gesture::getGestureType() {
 			gestureType = GESTURE_NONE;
 		}
 	} // end-speed_none
-	else {
+	/*else {
 		switch (varDirection.getValue()) {
 		case MOVEMENT_UP:
 			gestureType = GESTURE_SWIPE_UP;
@@ -73,16 +73,16 @@ HandGesture Gesture::getGestureType() {
 		default:
 			gestureType = GESTURE_NONE;
 		}
-	}
+	}*/
 
 	return gestureType;
 }
 
 // get the gesture as a text
-const char* Gesture::getGestureName() {
+std::string Gesture::getGestureName() {
 	if (gestureType != GESTURE_NONE) {
 		//return GestureNames[gestureType];
-		return GestureNames[gestureType].c_str();
+		return GestureNames[gestureType];
 	}
 	else
 		return "No gesture";		

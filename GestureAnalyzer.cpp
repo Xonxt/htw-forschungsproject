@@ -16,6 +16,8 @@ GestureAnalyzer::GestureAnalyzer(const cv::Size _frameSize) {
 	FingerParameters.step = 16; // 16;
 
 	frameSize = _frameSize;
+
+	geometricRecognizer.loadTemplates();
 }
 
 
@@ -28,7 +30,7 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 
 	// process the contour and extract fingers
 	extractFingers(hand);
-	
+
 	// add amount of fingers
 	switch (hand.Parameters.fingers.size()) {
 	case 0:
@@ -64,49 +66,61 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 
 	// process the kalm track to find if it's stationary
 	int size = (int)hand.Tracker.kalmTrack.size();
-    int N = 3;
+	int N = 4;
 	if (size >= N) {
-        
-        std::vector<cv::Point2f> data;
-        
-        for (int i = 1; i <= N; i++ ) {
-            cv::Point a = hand.Tracker.kalmTrack[size - i];
-            cv::Point2f af = cv::Point2f((float)a.x / (float)frameSize.width, (float)a.y / (float)frameSize.height);
-            data.push_back(af);
-        }
+
+		std::vector<cv::Point2f> data;
+
+		for (int i = 1; i <= N; i++) {
+			cv::Point a = hand.Tracker.kalmTrack[size - i];
+			cv::Point2f af = cv::Point2f((float)a.x / (float)frameSize.width, (float)a.y / (float)frameSize.height);
+			data.push_back(af);
+		}
 
 		double mx = 0, my = 0, dx = 0, dy = 0;
-        
-        for (cv::Point2f pt : data) {
-            mx += pt.x;
-            my += pt.y;
-        }
-        mx /= N;
-        my /= N;
-        
-        for (cv::Point2f pt : data) {
-            dx += (pt.x - mx) * (pt.x - mx);
-            dy += (pt.y - mx) * (pt.y - my);
-        }
 
+		// calculate mean:
+		for (cv::Point2f pt : data) {
+			mx += pt.x;
+			my += pt.y;
+		}
+		mx /= N;		my /= N;
+
+		// calculate variance
+		for (cv::Point2f pt : data) {
+			dx += (pt.x - mx) * (pt.x - mx);
+			dy += (pt.y - mx) * (pt.y - my);
+		}
 		dx = sqrt(dx / N); dy = sqrt(dy / N);
 
 		if (dx < 0.005 && dy < 0.005) {
+			// here we check the drawing!
+			if (hand.Tracker.kalmTrack.size() > 10) {
+				DollarRecognizer::RecognitionResult result = geometricRecognizer.recognize(hand.Tracker.kalmTrack);
+				if (result.score >= 0.75) {
+					hand.handGesture.gestureName = result.name;
+				}
+				else
+					hand.handGesture.gestureName = " ";
+			}
+
 			hand.Tracker.kalmTrack.clear();
+			hand.handGesture.varDirection.addValue(MOVEMENT_NONE);
+			hand.handGesture.varSpeed.addValue(SPEED_NONE);
 			//hand.Tracker.kalmTrack.push_back(a);
 		}
 	}
 
 	// calculate movement speed
-    if (hand.Tracker.kalmTrack.size() > 1) {
-			hand.Parameters.moveSpeed = getDistance(hand.Tracker.kalmTrack[hand.Tracker.kalmTrack.size() - 1], hand.Tracker.kalmTrack[hand.Tracker.kalmTrack.size() - 2]);
-        hand.Parameters.moveSpeed = fabs(hand.Parameters.moveSpeed);
-        
-        hand.Parameters.moveSpeed /= MAX(hand.handBox.size.width, hand.handBox.size.height);
-    }
+	if (hand.Tracker.kalmTrack.size() > 1) {
+		hand.Parameters.moveSpeed = getDistance(hand.Tracker.kalmTrack[hand.Tracker.kalmTrack.size() - 1], hand.Tracker.kalmTrack[hand.Tracker.kalmTrack.size() - 2]);
+		hand.Parameters.moveSpeed = fabs(hand.Parameters.moveSpeed);
+
+		hand.Parameters.moveSpeed /= MAX(hand.handBox.size.width, hand.handBox.size.height);
+	}
 	else {
-        hand.Parameters.moveSpeed = 0;
-    }
+		hand.Parameters.moveSpeed = 0;
+	}
 
 	// set movement speed type
 	if (hand.Parameters.moveSpeed < 0.05) {
@@ -145,15 +159,15 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 		}
 		else
 			hand.handGesture.varDirection.addValue(MOVEMENT_NONE);
-	}    
+	}
 	/*
-    // clear the tracks
-    if (hand.Tracker.kalmTrack.size() > 8) {
-        hand.Tracker.kalmTrack.erase(hand.Tracker.kalmTrack.begin());
-    }
-    if (hand.Tracker.camsTrack.size() > 8) {
-        hand.Tracker.camsTrack.erase(hand.Tracker.camsTrack.begin());
-    }*/
+		// clear the tracks
+		if (hand.Tracker.kalmTrack.size() > 8) {
+		hand.Tracker.kalmTrack.erase(hand.Tracker.kalmTrack.begin());
+		}
+		if (hand.Tracker.camsTrack.size() > 8) {
+		hand.Tracker.camsTrack.erase(hand.Tracker.camsTrack.begin());
+		}*/
 }
 
 // Determine if two floating point values are ~equal, with a threshold
@@ -203,7 +217,7 @@ int GestureAnalyzer::extractFingers(Hand& hand) {
 	for (int j = 0; j < hand.Parameters.handContour.size(); j += FingerParameters.step) {
 		double cos0 = getPointsAangle(hand.Parameters.handContour, j, FingerParameters.r);
 
-		if ((cos0 > 0.5) && (j + FingerParameters.step <hand.Parameters.handContour.size())) {
+		if ((cos0 > 0.5) && (j + FingerParameters.step < hand.Parameters.handContour.size())) {
 			double cos1 = getPointsAangle(hand.Parameters.handContour, j - FingerParameters.step, FingerParameters.r);
 			double cos2 = getPointsAangle(hand.Parameters.handContour, j + FingerParameters.step, FingerParameters.r);
 			double maxCos = std::max(std::max(cos0, cos1), cos2);

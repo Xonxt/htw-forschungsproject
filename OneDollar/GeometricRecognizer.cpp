@@ -42,14 +42,12 @@ namespace DollarRecognizer
 		SampleGestures samples;
 
 		addTemplate("Circle", samples.getGestureCircle());
-		addTemplate("Diamond", samples.getGestureDiamond());
 		addTemplate("LeftToRightLine", samples.getGestureLeftToRightLine());
 		addTemplate("LineDownDiagonal", samples.getGestureLineDownDiagonal());
 		addTemplate("Rectangle", samples.getGestureRectangle());
 		addTemplate("RightToLeftLine", samples.getGestureRightToLeftLine());
 		addTemplate("RightToLeftLine2", samples.getGestureRightToLeftLine2());
 		addTemplate("RightToLeftSlashDown", samples.getGestureRightToLeftSlashDown());
-		addTemplate("Spiral", samples.getGestureSpiral());
 		addTemplate("Star", samples.getGestureStar());
 		addTemplate("Triangle", samples.getGestureTriangle());
 	}

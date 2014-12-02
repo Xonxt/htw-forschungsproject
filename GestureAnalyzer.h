@@ -5,6 +5,12 @@
 #pragma once
 #include "Hand.h"
 
+#if defined(__APPLE__)
+	#include "GeometricRecognizer.h"
+#else
+	#include "OneDollar\GeometricRecognizer.h"
+#endif
+
 // anglws
 #define NW 135
 #define NE 45
@@ -26,6 +32,9 @@ private:
 
 	// frame size
 	cv::Size frameSize;
+
+	// geometric rcognizer
+	DollarRecognizer::GeometricRecognizer geometricRecognizer;
 
 	// Determine if two floating point values are ~equal, with a threshold
 	bool isEqual(const double a, const double b);

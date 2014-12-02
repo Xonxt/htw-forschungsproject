@@ -10,12 +10,6 @@
 #include "Tracker.h"
 #include "GestureAnalyzer.h"
 
-#if defined(__APPLE__)
-	#include "GeometricRecognizer.h"
-#else
-#include "OneDollar\GeometricRecognizer.h"
-#endif
-
 #include <time.h>
 #include <ctime>
 
@@ -97,9 +91,6 @@ private:
 
 	// The gesture analyzer
 	GestureAnalyzer gestureAnalyzer;
-    
-  // geometric rcognizer
-  DollarRecognizer::GeometricRecognizer geometricRecognizer;
 
 	// show backprojection mask or not?
 	bool showMask;

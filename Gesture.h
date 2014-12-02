@@ -12,9 +12,12 @@ public:
 	HandGesture getGestureType();
 
 	// get the gesture as a text
-	const char* getGestureName();
+	std::string getGestureName();
 
-	// variabales
+	// gesture name
+	std::string gestureName;
+
+	// variables
 	Variable varDirection;
 	Variable varSpeed;
 	Variable varFingers;
