@@ -320,13 +320,6 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 			}
 		}
 
-		// show the track line
-		if (hand.Tracker.kalmTrack.size() > 1) {
-			for (int i = 0; i < hand.Tracker.kalmTrack.size() - 1; i++) {
-				//cv::line(frame, hand.Tracker.kalmTrack[i], hand.Tracker.kalmTrack[i + 1], FP_COLOR_WHITE, 2);
-			}
-		}
-
 		// SHOW GESTURE NAME
 		//if (showInformation) {
 			if (hand.handGesture.getGestureType() != GESTURE_NONE) {
@@ -339,6 +332,8 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
         
 		clr++;
 	}
+    
+    frame.convertTo(frame, -1, 1, -25);
 
 	// add glowy effect
 	if (!showMask) {
@@ -521,6 +516,7 @@ void FrameProcessor::drawGlowyLines(cv::Mat& frame, const std::vector<Hand> hand
 	}
     
 	int N = 4;
+    int thickness = 7;
 
 	cv::Mat image = cv::Mat(frame);
 	image = cv::Mat::zeros(frame.size(), CV_8U);
@@ -530,7 +526,7 @@ void FrameProcessor::drawGlowyLines(cv::Mat& frame, const std::vector<Hand> hand
 		if (!hand.Tracker.kalmTrack.empty()) {
 			if (hand.Tracker.kalmTrack.size() > N) {
 				for (int i = N-1; i < hand.Tracker.kalmTrack.size() - 1; i++) {
-					cv::line(image, hand.Tracker.kalmTrack[i], hand.Tracker.kalmTrack[i + 1], FP_COLOR_PURPLE, randomNumber(3,5));
+					cv::line(image, hand.Tracker.kalmTrack[i], hand.Tracker.kalmTrack[i + 1], FP_COLOR_PURPLE, randomNumber(thickness-2, thickness + 3));
 				}
 			}
 		}
@@ -542,7 +538,7 @@ void FrameProcessor::drawGlowyLines(cv::Mat& frame, const std::vector<Hand> hand
 		if (!hand.Tracker.kalmTrack.empty()) {
 			if (hand.Tracker.kalmTrack.size() > N) {
 				for (int i = N-1; i < hand.Tracker.kalmTrack.size() - 1; i++) {
-					cv::line(image, hand.Tracker.kalmTrack[i], hand.Tracker.kalmTrack[i + 1], FP_COLOR_WHITE, randomNumber(2, 4));
+					cv::line(image, hand.Tracker.kalmTrack[i], hand.Tracker.kalmTrack[i + 1], FP_COLOR_WHITE, randomNumber(thickness-1, thickness+1));
 				}
 			}
 		}

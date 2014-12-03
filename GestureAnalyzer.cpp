@@ -97,7 +97,7 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 			// here we check the drawing!
 			if (hand.Tracker.kalmTrack.size() >= 20) {
 				DollarRecognizer::RecognitionResult result = geometricRecognizer.recognize(hand.Tracker.kalmTrack);
-				if (result.score > 0.8) {
+				if (result.score >= 0.75) {
 					hand.handGesture.gestureName = result.name;
 				}
 				else {
