@@ -150,12 +150,12 @@ void Hand::recalculateRange(const cv::Mat frame, SkinSegmMethod method) {
 			HSV.H_MAX = vec[0] + 10;
 			HSV.S_MIN = vec[1] - 25;
 			HSV.S_MAX = vec[1] + 25;
-			HSV.V_MIN = 0;
-			HSV.V_MAX = 255;
+			HSV.V_MIN = vec[2] - 35;
+			HSV.V_MAX = vec[2] + 35;
 		}
 		else { // if YCrCb
-			YCbCr.Y_MIN = 0;
-			YCbCr.Y_MAX = 255;
+			YCbCr.Y_MIN = vec[0] - 35;
+			YCbCr.Y_MAX = vec[0] + 35;
 			YCbCr.Cr_MIN = vec[1] - 20;
 			YCbCr.Cr_MAX = vec[1] + 20;
 			YCbCr.Cb_MIN = vec[2] - 25;

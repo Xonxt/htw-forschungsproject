@@ -143,6 +143,7 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 			if (intersection.area() >= (tempHand.handBox.boundingRect().area() * 0.75)) {
 				// then this hand is already being tracked, correct position
 				(*it2).assignNewLocation(tempHand);
+                (*it2).recalculateRange(frame, handTracker.getSkinMethod());
 				sameHand = true;
 				break;
 			}

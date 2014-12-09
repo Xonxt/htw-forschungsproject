@@ -47,6 +47,9 @@ void Tracker::trackHands(const cv::Mat inputFrame, std::vector<Hand>& hands) {
 
 		// filter out the small blobs
 		removeSmallBlobs(smallMask, 100);
+        
+        // floodfill
+        cv::floodFill(smallMask, cv::Point((int)hands[i].handBox.center.x, (int)hands[i].handBox.center.y), cv::Scalar(255));
 
 		// do the morphology
 		//bwMorph(smallMask, cv::MORPH_CLOSE, cv::MORPH_ELLIPSE, 1);
