@@ -5,7 +5,6 @@
 #include "stdafx.h"
 #include "SkinDetector.h"
 
-
 SkinDetector::SkinDetector() {
 	// YCrCb thresholds
 	YCbCr.Y_MIN  = 0;
@@ -28,7 +27,7 @@ SkinDetector::SkinDetector() {
 }
 
 // extract the skin mask
-void SkinDetector::extrackskinMask(const cv::Mat inputFrame, cv::Mat& outputMask, const Hand hand, SkinSegmMethod method) {
+void SkinDetector::extrackskinMask(const cv::Mat& inputFrame, cv::Mat& outputMask, const Hand& hand, SkinSegmMethod method) {
 	// get the skin detection method and extract mask
 	switch (method) {
 	case SKIN_SEGMENT_ADAPTIVE:
@@ -46,7 +45,7 @@ void SkinDetector::extrackskinMask(const cv::Mat inputFrame, cv::Mat& outputMask
 	}
 }
 
-void SkinDetector::getSkinYcbcr(const cv::Mat inputFrame, cv::Mat& outputMask, const Hand hand) {
+void SkinDetector::getSkinYcbcr(const cv::Mat& inputFrame, cv::Mat& outputMask, const Hand& hand) {
 	//first convert our RGB image to YCrCb
 	cv::cvtColor(inputFrame, outputMask, cv::COLOR_BGR2YCrCb);
 
@@ -58,7 +57,7 @@ void SkinDetector::getSkinYcbcr(const cv::Mat inputFrame, cv::Mat& outputMask, c
 }
 
 // perform HSV skin segmentation
-void SkinDetector::getSkinHsv(const cv::Mat inputFrame, cv::Mat& outputMask, const Hand hand) {
+void SkinDetector::getSkinHsv(const cv::Mat& inputFrame, cv::Mat& outputMask, const Hand& hand) {
 	// convert input image to HSC
 	cv::cvtColor(inputFrame, outputMask, cv::COLOR_BGR2HSV);
 
@@ -69,7 +68,7 @@ void SkinDetector::getSkinHsv(const cv::Mat inputFrame, cv::Mat& outputMask, con
 }
 
 // use tha OpenCV sdaptive skin detector
-void SkinDetector::getSkinAdaptiveDetector(const cv::Mat inputFrame, cv::Mat& outputMask) {
+void SkinDetector::getSkinAdaptiveDetector(const cv::Mat& inputFrame, cv::Mat& outputMask) {
 	// Convert input Mat-type to old-style IplImage-type
 	IplImage* _frame = new IplImage(inputFrame);
 

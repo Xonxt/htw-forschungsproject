@@ -98,41 +98,6 @@ namespace DollarRecognizer
 			return path;
 		}
 
-		Path2D getGestureLineDownDiagonal()
-		{
-			Path2D path;
-			path.push_back(Point2D(45,215));
-			path.push_back(Point2D(45,215));
-			path.push_back(Point2D(45,215));
-			path.push_back(Point2D(45,215));
-			path.push_back(Point2D(45,215));
-			path.push_back(Point2D(45,215));
-			path.push_back(Point2D(45,215));
-			path.push_back(Point2D(47,217));
-			path.push_back(Point2D(49,220));
-			path.push_back(Point2D(82,249));
-			path.push_back(Point2D(159,292));
-			path.push_back(Point2D(207,318));
-			path.push_back(Point2D(298,374));
-			path.push_back(Point2D(346,397));
-			path.push_back(Point2D(385,416));
-			path.push_back(Point2D(427,445));
-			path.push_back(Point2D(443,454));
-			path.push_back(Point2D(446,457));
-			path.push_back(Point2D(447,457));
-			path.push_back(Point2D(447,457));
-			path.push_back(Point2D(447,457));
-			path.push_back(Point2D(450,459));
-			path.push_back(Point2D(456,465));
-			path.push_back(Point2D(461,469));
-			path.push_back(Point2D(464,473));
-			path.push_back(Point2D(464,473));
-			path.push_back(Point2D(464,473));
-			path.push_back(Point2D(464,473));
-
-			return path;
-		}
-
 		Path2D getGestureRectangle()
 		{
 			Path2D path;
@@ -295,44 +260,6 @@ namespace DollarRecognizer
 
 			return path;
 		}
-
-		Path2D getGestureRightToLeftSlashDown()
-		{
-			Path2D path;
-			path.push_back(Point2D(200,170));
-			path.push_back(Point2D(195,171));
-			path.push_back(Point2D(190,172));
-			path.push_back(Point2D(185,173));
-			path.push_back(Point2D(180,174));
-			path.push_back(Point2D(175,175));
-			path.push_back(Point2D(170,176));
-			path.push_back(Point2D(165,177));
-			path.push_back(Point2D(160,178));
-			path.push_back(Point2D(155,179));
-			path.push_back(Point2D(150,180));
-			path.push_back(Point2D(160,181));
-			path.push_back(Point2D(140,182));
-			path.push_back(Point2D(160,183));
-			path.push_back(Point2D(155,184));
-			path.push_back(Point2D(150,185));
-			path.push_back(Point2D(145,186));
-			path.push_back(Point2D(140,187));
-			path.push_back(Point2D(135,188));
-			path.push_back(Point2D(130,189));
-			path.push_back(Point2D(125,190));
-			path.push_back(Point2D(120,191));
-			path.push_back(Point2D(115,192));
-			path.push_back(Point2D(110,193));
-			path.push_back(Point2D(105,194));
-			path.push_back(Point2D(100,195));
-			path.push_back(Point2D(95,196));
-			path.push_back(Point2D(85,197));
-			path.push_back(Point2D(75,198));
-			path.push_back(Point2D(70,199));
-
-			return path;
-		}
-
 
 		Path2D getGestureStar()
 		{

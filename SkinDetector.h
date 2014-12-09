@@ -14,7 +14,7 @@ public:
 	SkinDetector();
 
 	// extract the skin mask
-	void extrackskinMask(const cv::Mat inputFrame, cv::Mat& outputMask, const Hand hand, SkinSegmMethod method);
+	void extrackskinMask(const cv::Mat& inputFrame, cv::Mat& outputMask, const Hand& hand, SkinSegmMethod method);
 
 	// change the HSV bounds
 	void setNewHsvBounds(const struct HsvBounds hsv);
@@ -24,13 +24,13 @@ public:
 
 private:
 	// perform Ycbcr skin segmentation
-	void getSkinYcbcr(const cv::Mat inputFrame, cv::Mat& outputMask, const Hand hand);
+	void getSkinYcbcr(const cv::Mat& inputFrame, cv::Mat& outputMask, const Hand& hand);
 
 	// perform HSV skin segmentation
-	void getSkinHsv(const cv::Mat inputFrame, cv::Mat& outputMask, const Hand hand);
+	void getSkinHsv(const cv::Mat& inputFrame, cv::Mat& outputMask, const Hand& hand);
 
 	// use tha OpenCV sdaptive skin detector
-	void getSkinAdaptiveDetector(const cv::Mat inputFrame, cv::Mat& outputMask);
+	void getSkinAdaptiveDetector(const cv::Mat& inputFrame, cv::Mat& outputMask);
 
 	// the thresholding bounds
 	struct YCbCrBounds YCbCr;

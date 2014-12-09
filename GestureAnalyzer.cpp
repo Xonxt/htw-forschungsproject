@@ -26,8 +26,6 @@ GestureAnalyzer::~GestureAnalyzer() {
 
 void GestureAnalyzer::analyzeHand(Hand& hand) {
 
-
-
 	// process the contour and extract fingers
 	extractFingers(hand);
 

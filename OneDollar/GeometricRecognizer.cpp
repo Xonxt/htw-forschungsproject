@@ -47,7 +47,6 @@ namespace DollarRecognizer
         addTemplate("Circle", temp);
         
 		addTemplate("LeftToRightLine", samples.getGestureLeftToRightLine());
-		addTemplate("LineDownDiagonal", samples.getGestureLineDownDiagonal());
         
 		addTemplate("Rectangle", samples.getGestureRectangle());
         temp = samples.getGestureRectangle();
@@ -56,7 +55,6 @@ namespace DollarRecognizer
         
 		addTemplate("RightToLeftLine", samples.getGestureRightToLeftLine());
 		addTemplate("RightToLeftLine2", samples.getGestureRightToLeftLine2());
-		addTemplate("RightToLeftSlashDown", samples.getGestureRightToLeftSlashDown());
 		addTemplate("Star", samples.getGestureStar());
 		addTemplate("Triangle", samples.getGestureTriangle());
 	}
