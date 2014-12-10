@@ -54,6 +54,10 @@ void SkinDetector::getSkinYcbcr(const cv::Mat& inputFrame, cv::Mat& outputMask, 
 		cv::Scalar(MIN(hand.YCbCr.Y_MIN, hand.YCbCr.Y_MAX), MIN(hand.YCbCr.Cr_MIN, hand.YCbCr.Cr_MAX), MIN(hand.YCbCr.Cb_MIN, hand.YCbCr.Cb_MAX)),
 		cv::Scalar(MAX(hand.YCbCr.Y_MIN, hand.YCbCr.Y_MAX), MAX(hand.YCbCr.Cr_MIN, hand.YCbCr.Cr_MAX), MAX(hand.YCbCr.Cb_MIN, hand.YCbCr.Cb_MAX)),
 				outputMask);
+    
+    if (cv::countNonZero(outputMask) >= (0.5 * outputMask.rows * outputMask.cols)) {
+        ;
+    }
 }
 
 // perform HSV skin segmentation

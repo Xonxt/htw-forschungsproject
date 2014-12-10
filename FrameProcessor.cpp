@@ -121,7 +121,7 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 
 	// recalculate the color ranges for each hand:
 	for (int i = 0; i < detectedHands.size(); i++) {
-		detectedHands[i].recalculateRange(frame, handTracker.getSkinMethod());
+	//	detectedHands[i].recalculateRange(frame, handTracker.getSkinMethod(), true);
 	}
 
 	// were any new hands added?
@@ -143,7 +143,7 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 			if (intersection.area() >= (tempHand.handBox.boundingRect().area() * 0.75)) {
 				// then this hand is already being tracked, correct position
 				(*it2).assignNewLocation(tempHand);
-                (*it2).recalculateRange(frame, handTracker.getSkinMethod());
+                //(*it2).recalculateRange(frame, handTracker.getSkinMethod(), true);
 				sameHand = true;
 				break;
 			}
@@ -151,6 +151,7 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 
 		// if this hand  wasn't tracked before, add it to list
 		if (!sameHand) {
+            //tempHand.recalculateRange(frame, handTracker.getSkinMethod(), true);
 			hands.push_back(tempHand);
 			newHandsAdded = true;
 		}

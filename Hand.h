@@ -29,7 +29,7 @@ public:
 	cv::Point getLatestKalmanPrediction();
 
 	// recalculate the hand's thresholding ranges:
-	void recalculateRange(const cv::Mat frame, SkinSegmMethod method);
+	void recalculateRange(const cv::Mat frame, SkinSegmMethod method, const bool useHistogram = false);
 
 	// the hand's bounding box
 	cv::RotatedRect handBox;
