@@ -143,15 +143,15 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 			if (intersection.area() >= (tempHand.handBox.boundingRect().area() * 0.75)) {
 				// then this hand is already being tracked, correct position
 				(*it2).assignNewLocation(tempHand);
-                //(*it2).recalculateRange(frame, handTracker.getSkinMethod(), true);
+        //(*it2).recalculateRange(frame, handTracker.getSkinMethod(), true);
 				sameHand = true;
 				break;
 			}
 		}
 
 		// if this hand  wasn't tracked before, add it to list
-		if (!sameHand) {
-            //tempHand.recalculateRange(frame, handTracker.getSkinMethod(), true);
+		if (!sameHand) { 
+			tempHand.recalculateRange(frame, handTracker.getSkinMethod(), true);
 			hands.push_back(tempHand);
 			newHandsAdded = true;
 		}
@@ -339,11 +339,11 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 
 	// add glowy effect
 	if (!showMask) {
-		drawGlowyHands(frame, hands);
+	//	drawGlowyHands(frame, hands);
 	}
 
 	// draw glowy lines
-	drawGlowyLines(frame, hands);
+	//drawGlowyLines(frame, hands);
 
 	// display system information text
 	std::vector<std::string> strings;

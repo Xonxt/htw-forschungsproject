@@ -2,33 +2,48 @@
 #include "Gesture.h"
 
 Gesture::Gesture() {
-	varDirection = Variable(10, 5, 3, "var:Direction");
-	varSpeed = Variable(4, 3, 2, "var:Speed");
-	varFingers = Variable(5, 6, 3, "var:Fingers");
-	varAngle = Variable(3, 3, 3, "var:Angle");
+	varFingers = Variable(3, 6, 3, "var:Fingers");
+	varAngle = Variable(2, 3, 2, "var:Angle");
 }
 
 Gesture::~Gesture() {
 }
 
+HandGesture Gesture::getPosture() {
+	HandGesture returnType = GESTURE_NONE;
+
+	switch (varFingers.getValue()) {
+	case FINGERS_ZERO:
+		returnType = GESTURE_POSTURE_FIST;
+		break;
+	case FINGERS_ONE:
+		returnType = GESTURE_POSTURE_ONE;
+		break;
+	case FINGERS_TWO:
+		if (varAngle.getValue() == ANGLE_CLOSE)
+			returnType = GESTURE_POSTURE_V;
+		else
+			returnType = GESTURE_POSTURE_TWO;
+		break;
+	case FINGERS_THREE:
+		returnType = GESTURE_POSTURE_THREE;
+		break;
+	case FINGERS_FOUR:
+		returnType = GESTURE_POSTURE_FOUR;
+		break;
+	case FINGERS_FIVE:
+		returnType = GESTURE_POSTURE_FIVE;
+		break;
+	default:
+		returnType = GESTURE_NONE;
+	}
+
+	return returnType;
+}
+
 // get the gesture type as an enum
 HandGesture Gesture::getGestureType() {
-/*
-	if (varSpeed.getValue() == SPEED_NONE) {
-		gestureType = (HandGesture)varFingers.getValue();
-
-		if (varFingers.getValue() == 2) {
-			if (varAngle.getValue() == ANGLE_CLOSE) {
-				gestureType = GESTURE_POSTURE_V;
-			}
-		}
-	}
-	else {
-		int val = (varDirection.getValue() + 9);
-		gestureType = (val <= 12) ? (HandGesture)val : GESTURE_NONE;
-	}
-*/
-
+	/*
 	if (varSpeed.getValue() == SPEED_NONE) { 
 		switch (varFingers.getValue()) {
 		case FINGERS_ZERO:
@@ -55,8 +70,9 @@ HandGesture Gesture::getGestureType() {
 		default:
 			gestureType = GESTURE_NONE;
 		}
+		
 	} // end-speed_none
-	/*else {
+	else {
 		switch (varDirection.getValue()) {
 		case MOVEMENT_UP:
 			gestureType = GESTURE_SWIPE_UP;
@@ -76,6 +92,12 @@ HandGesture Gesture::getGestureType() {
 	}*/
 
 	return gestureType;
+}
+
+
+// set gesture type
+void Gesture::setGestureType(HandGesture gesture) {
+	gestureType = gesture;
 }
 
 // get the gesture as a text

@@ -43,7 +43,8 @@ public:
 	// Hand gesture
 	Gesture handGesture;
 
-	float sizeDiff;
+	// previous stationary position
+	cv::Point prevPosition;
 
 	// The hand's color ranges
 	struct YCbCrBounds YCbCr;

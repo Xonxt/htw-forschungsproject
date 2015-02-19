@@ -26,49 +26,17 @@ GestureAnalyzer::~GestureAnalyzer() {
 
 void GestureAnalyzer::analyzeHand(Hand& hand) {
 
-	// process the contour and extract fingers
-	extractFingers(hand);
+	hand.handGesture.setGestureType(GESTURE_NONE);
 
-	// add amount of fingers
-	switch (hand.Parameters.fingers.size()) {
-	case 0:
-		hand.handGesture.varFingers.addValue(FINGERS_ZERO);
-		break;
-	case 1:
-		hand.handGesture.varFingers.addValue(FINGERS_ONE);
-		break;
-	case 2:
-		hand.handGesture.varFingers.addValue(FINGERS_TWO);
-		break;
-	case 3:
-		hand.handGesture.varFingers.addValue(FINGERS_THREE);
-		break;
-	case 4:
-		hand.handGesture.varFingers.addValue(FINGERS_FOUR);
-		break;
-	default:
-		hand.handGesture.varFingers.addValue(FINGERS_FIVE);
-	}
-
-	// set finger angles:
-	if (hand.Parameters.fingers.size() == 2) {
-		if (hand.Parameters.fingers[0].Angles.angle2next <= 30) {
-			hand.handGesture.varAngle.addValue(ANGLE_CLOSE);
-		}
-		else {
-			hand.handGesture.varAngle.addValue(ANGLE_FAR);
-		}
-	}
-	else
-		hand.handGesture.varAngle.addValue(ANGLE_NONE);
-
-	// process the kalm track to find if it's stationary
+	// CALCULATE VARIANCE TO DETERMINE IF HAND STATIONARY OR MOVING
 	int size = (int)hand.Tracker.kalmTrack.size();
-	int N = 5;
+	int N = 4;
 	if (size >= N) {
 
+		// a vector of N last points of the track line
 		std::vector<cv::Point2f> data;
 
+		// normalize the point coordinates and put them into the vector
 		for (int i = 1; i <= N; i++) {
 			cv::Point a = hand.Tracker.kalmTrack[size - i];
 			cv::Point2f af = cv::Point2f((float)a.x / (float)frameSize.width, (float)a.y / (float)frameSize.height);
@@ -82,7 +50,7 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 			mx += pt.x;
 			my += pt.y;
 		}
-		mx /= N;		my /= N;
+		mx /= N; my /= N;
 
 		// calculate variance
 		for (cv::Point2f pt : data) {
@@ -91,83 +59,113 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 		}
 		dx = sqrt(dx / N); dy = sqrt(dy / N);
 
+		// Check if the variance is small to negligible (default: 0-0.005)
 		if (dx < 0.005 && dy < 0.005) {
-			// here we check the drawing!
+			// Hand is stationary!
+
+			cv::Point currPosition = hand.Tracker.kalmTrack.back();
+
+			// if track length is atl east N (default: 20)
+			// then we check the "air drawing" shape
+			DollarRecognizer::RecognitionResult result = geometricRecognizer.recognize(hand.Tracker.kalmTrack);
+			float resultThreshold = 0.75;
 			if (hand.Tracker.kalmTrack.size() >= 20) {
-				DollarRecognizer::RecognitionResult result = geometricRecognizer.recognize(hand.Tracker.kalmTrack);
-				if (result.score >= 0.75) {
-					hand.handGesture.gestureName = result.name;
+				if (result.score >= resultThreshold) {
+					//hand.handGesture.gestureName = result.name;
+					hand.handGesture.setGestureType(result.gestureType);
 				}
 				else {
-					hand.handGesture.gestureName = " ";
-                }
-                std::cout << "found: " << result.name << ", with score: " << result.score << std::endl;
+					//hand.handGesture.gestureName = " ";
+					hand.handGesture.setGestureType(GESTURE_NONE);
+				}
+				std::cout << "found: " << result.name << ", with score: " << result.score << std::endl;
+			}
+
+			// if track length is less than N, or if the resulting shape score is less than X (default: 0.75)
+			// or if no match found, then it's probably just a swipe
+			if (result.score < resultThreshold || hand.Tracker.kalmTrack.size() < 20 || result.gestureType == GESTURE_NONE) {
+				// also, the previous stationary position must be valid, i.e. not (-1; -1)
+				if ((hand.prevPosition.x + hand.prevPosition.y) > 0) {
+
+					// also, if the distance between points is bigger than the width of the hand region:
+					if (getDistance(hand.prevPosition, currPosition) >= hand.detectionBox.width) {
+						// calculate swipe direction:
+						double angle = getAngle(hand.prevPosition, currPosition);
+
+						// determine the angle:
+						if (isInRange(angle, NE + 1, NW - 1)) {
+							hand.handGesture.setGestureType(GESTURE_SWIPE_UP);
+						}
+						else if (isInRange(angle, NW + 1, SW - 1)) {
+							hand.handGesture.setGestureType(GESTURE_SWIPE_RIGHT);
+						}
+						else if (isInRange(angle, SW + 1, SE - 1)) {
+							hand.handGesture.setGestureType(GESTURE_SWIPE_DOWN);
+						}
+						else if (isInRange(angle, 0, SE + 1) || isInRange(angle, 0, NE - 1)) {
+							hand.handGesture.setGestureType(GESTURE_SWIPE_LEFT);
+						}
+						else {
+							hand.handGesture.setGestureType(GESTURE_NONE);
+						}
+					}
+					else { // if the distance is smaller that the hand itself, assume it didn't move
+						hand.handGesture.setGestureType(GESTURE_NONE);
+					}
+				}
 			}
 
 			hand.Tracker.kalmTrack.clear();
-			hand.handGesture.varDirection.addValue(MOVEMENT_NONE);
-			hand.handGesture.varSpeed.addValue(SPEED_NONE);
-			//hand.Tracker.kalmTrack.push_back(a);
+
+			hand.prevPosition = currPosition;
+		}
+
+		// if the hand didn't move, then we process the fingers:
+		if (hand.handGesture.getGestureType() != GESTURE_NONE) {
+			return;
+		}
+		else {
+
+			// process the contour and extract fingers
+			extractFingers(hand);
+
+			// add amount of fingers
+			switch (hand.Parameters.fingers.size()) {
+			case 0:
+				hand.handGesture.varFingers.addValue(FINGERS_ZERO);
+				break;
+			case 1:
+				hand.handGesture.varFingers.addValue(FINGERS_ONE);
+				break;
+			case 2:
+				hand.handGesture.varFingers.addValue(FINGERS_TWO);
+				break;
+			case 3:
+				hand.handGesture.varFingers.addValue(FINGERS_THREE);
+				break;
+			case 4:
+				hand.handGesture.varFingers.addValue(FINGERS_FOUR);
+				break;
+			default:
+				hand.handGesture.varFingers.addValue(FINGERS_FIVE);
+			}
+
+			// set finger angles:
+			if (hand.Parameters.fingers.size() == 2) {
+				if (hand.Parameters.fingers[0].Angles.angle2next <= 30) {
+					hand.handGesture.varAngle.addValue(ANGLE_CLOSE);
+				}
+				else {
+					hand.handGesture.varAngle.addValue(ANGLE_FAR);
+				}
+			}
+			else
+				hand.handGesture.varAngle.addValue(ANGLE_NONE);
+
+			// get the finger-amount-posture
+			hand.handGesture.setGestureType(hand.handGesture.getPosture());
 		}
 	}
-
-	// calculate movement speed
-	if (hand.Tracker.kalmTrack.size() > 1) {
-		hand.Parameters.moveSpeed = getDistance(hand.Tracker.kalmTrack[hand.Tracker.kalmTrack.size() - 1], hand.Tracker.kalmTrack[hand.Tracker.kalmTrack.size() - 2]);
-		hand.Parameters.moveSpeed = fabs(hand.Parameters.moveSpeed);
-
-		hand.Parameters.moveSpeed /= MAX(hand.handBox.size.width, hand.handBox.size.height);
-	}
-	else {
-		hand.Parameters.moveSpeed = 0;
-	}
-
-	// set movement speed type
-	if (hand.Parameters.moveSpeed < 0.05) {
-		hand.handGesture.varSpeed.addValue(SPEED_NONE);
-	}
-	else if (isInRange(hand.Parameters.moveSpeed, 0.05, 0.2)) {
-		hand.handGesture.varSpeed.addValue(SPEED_SLOW);
-	}
-	else {
-		hand.handGesture.varSpeed.addValue(SPEED_FAST);
-	}
-
-
-	// calculate movement direction
-	N = hand.Tracker.kalmTrack.size();
-	if (N >= 2) {
-		double angle = getAngle(hand.Tracker.kalmTrack[N - 2], hand.Tracker.kalmTrack[N - 1]);
-
-		hand.Parameters.moveAngle = angle;
-
-		if (isInRange(angle, NE + 1, NW - 1)) {
-			//hand.Parameters.moveDirection = MOVEMENT_UP;
-			hand.handGesture.varDirection.addValue(MOVEMENT_UP);
-		}
-		else if (isInRange(angle, NW + 1, SW - 1)) {
-			//hand.Parameters.moveDirection = MOVEMENT_RIGHT;
-			hand.handGesture.varDirection.addValue(MOVEMENT_RIGHT);
-		}
-		else if (isInRange(angle, SW + 1, SE - 1)) {
-			//hand.Parameters.moveDirection = MOVEMENT_DOWN;
-			hand.handGesture.varDirection.addValue(MOVEMENT_DOWN);
-		}
-		else if (isInRange(angle, 0, SE + 1) || isInRange(angle, 0, NE - 1)) {
-			//hand.Parameters.moveDirection = MOVEMENT_LEFT;
-			hand.handGesture.varDirection.addValue(MOVEMENT_LEFT);
-		}
-		else
-			hand.handGesture.varDirection.addValue(MOVEMENT_NONE);
-	}
-	/*
-		// clear the tracks
-		if (hand.Tracker.kalmTrack.size() > 8) {
-		hand.Tracker.kalmTrack.erase(hand.Tracker.kalmTrack.begin());
-		}
-		if (hand.Tracker.camsTrack.size() > 8) {
-		hand.Tracker.camsTrack.erase(hand.Tracker.camsTrack.begin());
-		}*/
 }
 
 // Determine if two floating point values are ~equal, with a threshold

@@ -14,12 +14,16 @@ public:
 	// get the gesture as a text
 	std::string getGestureName();
 
+	// set gesture type
+	void setGestureType(HandGesture gesture);
+
+	// get posture gesture
+	HandGesture getPosture();
+
 	// gesture name
 	std::string gestureName;
 
 	// variables
-	Variable varDirection;
-	Variable varSpeed;
 	Variable varFingers;
 	Variable varAngle;
 

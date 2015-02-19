@@ -9,8 +9,6 @@
 #include "GestureTemplate.h"
 #include "SampleGestures.h"
 
-
-
 using namespace std;
 
 namespace DollarRecognizer
@@ -38,7 +36,7 @@ namespace DollarRecognizer
 	public:
 		GeometricRecognizer();
 
-		int addTemplate(string name, Path2D points);
+		int addTemplate(HandGesture name, Path2D points);
 		DollarRecognizer::Rectangle boundingBox(Path2D points);
 		Point2D centroid(Path2D points);
 		double getDistance(Point2D p1, Point2D p2);

@@ -283,7 +283,7 @@ SkinSegmMethod Tracker::getSkinMethod() {
 // retrieve the skin mask for debugging purposes
 void Tracker::getSkinMask(cv::Mat& outputSkinMask) {
 	if (somethingIsTracked) {
-		cv::cvtColor(backprojection, outputSkinMask, cv::COLOR_GRAY2BGR);
+		cv::cvtColor(mask, outputSkinMask, cv::COLOR_GRAY2BGR);
     }
 	else
 		image.copyTo(outputSkinMask);

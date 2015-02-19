@@ -25,6 +25,10 @@ Hand::Hand() {
 	HSV.S_MAX = 118;
 	HSV.V_MIN = 0;
 	HSV.V_MAX = 255;
+
+	// previous position
+	prevPosition.x = -1;
+	prevPosition.y = -1;
 }
 
 Hand::~Hand() {

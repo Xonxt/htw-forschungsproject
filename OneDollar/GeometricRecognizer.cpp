@@ -41,25 +41,21 @@ namespace DollarRecognizer
 	{
 		SampleGestures samples;
 
-		addTemplate("Circle", samples.getGestureCircle());
+		addTemplate(GESTURE_DRAWING_CIRCLE, samples.getGestureCircle());
         Path2D temp = samples.getGestureCircle();
         std::reverse(temp.begin(), temp.end());
-        addTemplate("Circle", temp);
+				addTemplate(GESTURE_DRAWING_CIRCLE, temp);
         
-		addTemplate("LeftToRightLine", samples.getGestureLeftToRightLine());
-        
-		addTemplate("Rectangle", samples.getGestureRectangle());
+				addTemplate(GESTURE_DRAWING_RECTANGLE, samples.getGestureRectangle());
         temp = samples.getGestureRectangle();
         std::reverse(temp.begin(), temp.end());
-        addTemplate("Rectangle", temp);
-        
-		addTemplate("RightToLeftLine", samples.getGestureRightToLeftLine());
-		addTemplate("RightToLeftLine2", samples.getGestureRightToLeftLine2());
-		addTemplate("Star", samples.getGestureStar());
-		addTemplate("Triangle", samples.getGestureTriangle());
+				addTemplate(GESTURE_DRAWING_RECTANGLE, temp);
+
+				addTemplate(GESTURE_DRAWING_STAR, samples.getGestureStar());
+				addTemplate(GESTURE_DRAWING_STAR, samples.getGestureTriangle());
 	}
 
-	int GeometricRecognizer::addTemplate(string name, Path2D points)
+	int GeometricRecognizer::addTemplate(HandGesture name, Path2D points)
 	{
 		points = normalizePath(points);
 
@@ -213,7 +209,7 @@ namespace DollarRecognizer
 		if (templates.empty())
 		{
 			std::cout << "No templates loaded so no symbols to match." << std::endl;
-			return RecognitionResult("Unknown", NULL);
+			return RecognitionResult(GESTURE_NONE, NULL);
 		}
 
 		points = normalizePath(points);
@@ -250,7 +246,7 @@ namespace DollarRecognizer
 		if (-1 == indexOfBestMatch)
 		{
 			cout << "Couldn't find a good match." << endl;
-			return RecognitionResult("Unknown", 1);
+			return RecognitionResult(GESTURE_NONE, 1);
 		}
 
 		RecognitionResult bestMatch(templates[indexOfBestMatch].name, score);

@@ -11,6 +11,7 @@ class GestureTemplate
 {
 public:
 	string name;
+	HandGesture type;
 	Path2D points;
 	
 	GestureTemplate(string name, Path2D points)
@@ -18,6 +19,13 @@ public:
 		this->name   = name;
 		this->points = points;
 	}
+
+	GestureTemplate(HandGesture type, Path2D points)
+	{
+		this->type = type;
+		this->points = points;
+	}
+
 };
 
 typedef vector<GestureTemplate> GestureTemplates;
