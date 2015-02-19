@@ -183,6 +183,7 @@ void Hand::recalculateRange(const cv::Mat frame, SkinSegmMethod method, const bo
         //std::cout << "--Range: " << (int)vec[0] << "-" << (int)vec[1] << "-" << (int)vec[2] << "--" << std::endl;
         
 		// assign the ranges
+        
 		// if the segmentation method is HSV:
 		if (method == SKIN_SEGMENT_HSV) {
 			HSV.H_MIN = vec[0] - 10;

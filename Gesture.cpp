@@ -2,7 +2,7 @@
 #include "Gesture.h"
 
 Gesture::Gesture() {
-	varFingers = Variable(3, 6, 3, "var:Fingers");
+	varFingers = Variable(3, 6, 2, "var:Fingers");
 	varAngle = Variable(2, 3, 2, "var:Angle");
 }
 

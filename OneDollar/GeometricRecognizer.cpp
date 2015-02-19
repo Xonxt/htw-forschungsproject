@@ -44,15 +44,16 @@ namespace DollarRecognizer
 		addTemplate(GESTURE_DRAWING_CIRCLE, samples.getGestureCircle());
         Path2D temp = samples.getGestureCircle();
         std::reverse(temp.begin(), temp.end());
-				addTemplate(GESTURE_DRAWING_CIRCLE, temp);
+		addTemplate(GESTURE_DRAWING_CIRCLE, temp);
         
-				addTemplate(GESTURE_DRAWING_RECTANGLE, samples.getGestureRectangle());
+		addTemplate(GESTURE_DRAWING_RECTANGLE, samples.getGestureRectangle());
         temp = samples.getGestureRectangle();
         std::reverse(temp.begin(), temp.end());
-				addTemplate(GESTURE_DRAWING_RECTANGLE, temp);
+		addTemplate(GESTURE_DRAWING_RECTANGLE, temp);
 
-				addTemplate(GESTURE_DRAWING_STAR, samples.getGestureStar());
-				addTemplate(GESTURE_DRAWING_STAR, samples.getGestureTriangle());
+        addTemplate(GESTURE_DRAWING_STAR, samples.getGestureStar());
+        
+		addTemplate(GESTURE_DRAWING_TRIANGLE, samples.getGestureTriangle());
 	}
 
 	int GeometricRecognizer::addTemplate(HandGesture name, Path2D points)
@@ -237,7 +238,7 @@ namespace DollarRecognizer
 		//--- Turn the distance into a percentage by dividing it by 
 		//---  half the maximum possible distance (across the diagonal 
 		//---  of the square we scaled everything too)
-		//--- Distance = hwo different they are
+		//--- Distance = how different they are
 		//--- Subtract that from 1 (100%) to get the similarity
 		double score = 1.0 - (bestDistance / halfDiagonal);
 
@@ -249,7 +250,7 @@ namespace DollarRecognizer
 			return RecognitionResult(GESTURE_NONE, 1);
 		}
 
-		RecognitionResult bestMatch(templates[indexOfBestMatch].name, score);
+		RecognitionResult bestMatch(templates[indexOfBestMatch].type, score);
 		return bestMatch;
 	};
 

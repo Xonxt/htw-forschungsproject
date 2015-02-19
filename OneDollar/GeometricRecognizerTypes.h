@@ -77,15 +77,17 @@ namespace DollarRecognizer
 		HandGesture gestureType;
 
 		double score;
+        
 		RecognitionResult(std::string name, double score)
 		{
 			this->name = name;
 			this->score = score;
 		}
 
-		RecognitionResult(HandGesture name, double score)
+		RecognitionResult(HandGesture type, double score)
 		{
-			this->gestureType = name;
+            this->name = (type!=GESTURE_NONE) ? GestureNames[type] : "none";
+			this->gestureType = type;
 			this->score = score;
 		}
 	};

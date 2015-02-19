@@ -22,6 +22,7 @@ public:
 
 	GestureTemplate(HandGesture type, Path2D points)
 	{
+        this->name = (type!=GESTURE_NONE) ? GestureNames[type] : "none";
 		this->type = type;
 		this->points = points;
 	}

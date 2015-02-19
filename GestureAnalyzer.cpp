@@ -25,12 +25,14 @@ GestureAnalyzer::~GestureAnalyzer() {
 }
 
 void GestureAnalyzer::analyzeHand(Hand& hand) {
+    
+    HandGesture resultGesture = GESTURE_NONE;
 
-	hand.handGesture.setGestureType(GESTURE_NONE);
+	// hand.handGesture.setGestureType(GESTURE_NONE);
 
 	// CALCULATE VARIANCE TO DETERMINE IF HAND STATIONARY OR MOVING
 	int size = (int)hand.Tracker.kalmTrack.size();
-	int N = 4;
+	int N = 5;
 	if (size >= N) {
 
 		// a vector of N last points of the track line
@@ -60,7 +62,7 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 		dx = sqrt(dx / N); dy = sqrt(dy / N);
 
 		// Check if the variance is small to negligible (default: 0-0.005)
-		if (dx < 0.005 && dy < 0.005) {
+		if (dx < 0.0075 && dy < 0.0075) {
 			// Hand is stationary!
 
 			cv::Point currPosition = hand.Tracker.kalmTrack.back();
@@ -72,11 +74,12 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 			if (hand.Tracker.kalmTrack.size() >= 20) {
 				if (result.score >= resultThreshold) {
 					//hand.handGesture.gestureName = result.name;
-					hand.handGesture.setGestureType(result.gestureType);
+					//hand.handGesture.setGestureType(result.gestureType);
+                    resultGesture = result.gestureType;
 				}
 				else {
 					//hand.handGesture.gestureName = " ";
-					hand.handGesture.setGestureType(GESTURE_NONE);
+					//hand.handGesture.setGestureType(GESTURE_NONE);
 				}
 				std::cout << "found: " << result.name << ", with score: " << result.score << std::endl;
 			}
@@ -88,29 +91,35 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 				if ((hand.prevPosition.x + hand.prevPosition.y) > 0) {
 
 					// also, if the distance between points is bigger than the width of the hand region:
-					if (getDistance(hand.prevPosition, currPosition) >= hand.detectionBox.width) {
+					if (getDistance(hand.prevPosition, currPosition) >= (hand.detectionBox.width * 2)) {
 						// calculate swipe direction:
 						double angle = getAngle(hand.prevPosition, currPosition);
 
 						// determine the angle:
 						if (isInRange(angle, NE + 1, NW - 1)) {
-							hand.handGesture.setGestureType(GESTURE_SWIPE_UP);
+							//hand.handGesture.setGestureType(GESTURE_SWIPE_UP);
+                            resultGesture = GESTURE_SWIPE_UP;
 						}
 						else if (isInRange(angle, NW + 1, SW - 1)) {
-							hand.handGesture.setGestureType(GESTURE_SWIPE_RIGHT);
+							//hand.handGesture.setGestureType(GESTURE_SWIPE_RIGHT);
+                            resultGesture = GESTURE_SWIPE_RIGHT;
 						}
 						else if (isInRange(angle, SW + 1, SE - 1)) {
-							hand.handGesture.setGestureType(GESTURE_SWIPE_DOWN);
+							//hand.handGesture.setGestureType(GESTURE_SWIPE_DOWN);
+                            resultGesture = GESTURE_SWIPE_DOWN;
 						}
 						else if (isInRange(angle, 0, SE + 1) || isInRange(angle, 0, NE - 1)) {
-							hand.handGesture.setGestureType(GESTURE_SWIPE_LEFT);
+							//hand.handGesture.setGestureType(GESTURE_SWIPE_LEFT);
+                            resultGesture = GESTURE_SWIPE_LEFT;
 						}
 						else {
-							hand.handGesture.setGestureType(GESTURE_NONE);
+							//hand.handGesture.setGestureType(GESTURE_NONE);
 						}
+                        
+                        std::cout << "Swipe detected: " << GestureNames[resultGesture];
 					}
 					else { // if the distance is smaller that the hand itself, assume it didn't move
-						hand.handGesture.setGestureType(GESTURE_NONE);
+						//hand.handGesture.setGestureType(GESTURE_NONE);
 					}
 				}
 			}
@@ -121,8 +130,9 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 		}
 
 		// if the hand didn't move, then we process the fingers:
-		if (hand.handGesture.getGestureType() != GESTURE_NONE) {
-			return;
+		//if (hand.handGesture.getGestureType() != GESTURE_NONE) {
+        if (resultGesture != GESTURE_NONE) {
+			// return;
 		}
 		else {
 
@@ -130,7 +140,7 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 			extractFingers(hand);
 
 			// add amount of fingers
-			switch (hand.Parameters.fingers.size()) {
+			switch ((int)hand.Parameters.fingers.size()) {
 			case 0:
 				hand.handGesture.varFingers.addValue(FINGERS_ZERO);
 				break;
@@ -163,9 +173,13 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 				hand.handGesture.varAngle.addValue(ANGLE_NONE);
 
 			// get the finger-amount-posture
-			hand.handGesture.setGestureType(hand.handGesture.getPosture());
+			//hand.handGesture.setGestureType(hand.handGesture.getPosture());
+            resultGesture = hand.handGesture.getPosture();
 		}
 	}
+    if (hand.handGesture.getGestureType() != resultGesture) {
+        hand.handGesture.setGestureType(resultGesture);
+    }
 }
 
 // Determine if two floating point values are ~equal, with a threshold

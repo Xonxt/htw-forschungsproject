@@ -149,7 +149,7 @@ bool Tracker::getNewPosition(Hand& hand) {
 	// Try to forbid sudden HUGE changes in the window size
 	float size_A = trackBox.size.height, size_B = hand.detectionBox.height;
 	float sizeDiff = size_A / size_B; //MAX(size_A, size_B) / MIN(size_A, size_B);
-	hand.sizeDiff = sizeDiff;
+	//hand.sizeDiff = sizeDiff;
 
 	// fix the trackbox using Kalman:
 	//	trackBox.center.x = statePt.x;

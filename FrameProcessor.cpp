@@ -121,7 +121,7 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 
 	// recalculate the color ranges for each hand:
 	for (int i = 0; i < detectedHands.size(); i++) {
-	//	detectedHands[i].recalculateRange(frame, handTracker.getSkinMethod(), true);
+		// detectedHands[i].recalculateRange(frame, handTracker.getSkinMethod(), true);
 	}
 
 	// were any new hands added?
@@ -143,7 +143,7 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 			if (intersection.area() >= (tempHand.handBox.boundingRect().area() * 0.75)) {
 				// then this hand is already being tracked, correct position
 				(*it2).assignNewLocation(tempHand);
-        //(*it2).recalculateRange(frame, handTracker.getSkinMethod(), true);
+                //(*it2).recalculateRange(frame, handTracker.getSkinMethod(), true);
 				sameHand = true;
 				break;
 			}
@@ -151,7 +151,7 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 
 		// if this hand  wasn't tracked before, add it to list
 		if (!sameHand) { 
-			tempHand.recalculateRange(frame, handTracker.getSkinMethod(), true);
+			//tempHand.recalculateRange(frame, handTracker.getSkinMethod(), true);
 			hands.push_back(tempHand);
 			newHandsAdded = true;
 		}
@@ -247,7 +247,7 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 			std::vector<cv::Rect> tempFaces;
 
 			// look for faces in the cutout
-			faceCascade.detectMultiScale(cutOut, tempFaces, 1.1, 3, CV_HAAR_FIND_BIGGEST_OBJECT);
+			faceCascade.detectMultiScale(cutOut, tempFaces);//, 1.1, 3, CV_HAAR_FIND_BIGGEST_OBJECT);
 
 			// append the located faces to the Faces vector
 			for (std::vector<cv::Rect>::iterator fc2 = tempFaces.begin(); fc2 != tempFaces.end(); ++fc2) {
@@ -326,9 +326,8 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 		//if (showInformation) {
 			if (hand.handGesture.getGestureType() != GESTURE_NONE) {
 				cv::Point textPoint(hand.handBox.boundingRect().br().x, hand.handBox.boundingRect().tl().y);
-				cv::putText(frame, hand.handGesture.gestureName, textPoint, CV_FONT_HERSHEY_PLAIN, 5, FP_COLOR_RED, 7);
+				cv::putText(frame, hand.handGesture.getGestureName(), textPoint, CV_FONT_HERSHEY_PLAIN, 4, FP_COLOR_RED, 7);
 				//drawGlowText(frame, textPoint, hand.handGesture.getGestureName());
-				//drawGlowText(frame, textPoint, hand.handGesture.gestureName);
 			}
 		//}
         
@@ -339,11 +338,11 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 
 	// add glowy effect
 	if (!showMask) {
-	//	drawGlowyHands(frame, hands);
+       // drawGlowyHands(frame, hands);
 	}
 
 	// draw glowy lines
-	//drawGlowyLines(frame, hands);
+	drawGlowyLines(frame, hands);
 
 	// display system information text
 	std::vector<std::string> strings;
@@ -459,7 +458,7 @@ void FrameProcessor::drawGlowText(cv::Mat& frame, cv::Point& point, const std::s
 	cv::Mat image = cv::Mat(size, CV_8U);
 	image = cv::Mat::zeros(size, CV_8U);
 	cv::cvtColor(image, image, cv::COLOR_GRAY2BGR);
-	cv::putText(image, text, cv::Point(15, 40), CV_FONT_HERSHEY_DUPLEX & CV_FONT_BOLD, 1.25, FP_COLOR_RED, 3);
+	cv::putText(image, text, cv::Point(15, 40), CV_FONT_HERSHEY_DUPLEX & CV_FONT_BOLD, 1.25, FP_COLOR_WHITE, 3);
 	bwMorph(image, cv::MORPH_DILATE, cv::MORPH_ELLIPSE, 3);
 	cv::blur(image, image, cv::Size(10, 10));
 	cv::putText(image, text, cv::Point(15, 40), CV_FONT_HERSHEY_DUPLEX & CV_FONT_BOLD, 1.25, FP_COLOR_WHITE, 3);
