@@ -27,6 +27,9 @@ public:
 	Variable varFingers;
 	Variable varAngle;
 
+	// did the gesture change?
+	bool newGesture;
+
 private:
 	HandGesture gestureType;
 };

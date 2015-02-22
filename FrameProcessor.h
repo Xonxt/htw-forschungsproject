@@ -1,6 +1,6 @@
-// Forschungsproject (teil 2) at HTW Berlin
+// Forschungsproject (teil 3) at HTW Berlin
 // Recognition of short-time micro-gestures from a single-PoV video stream
-// (c) Nikita "Xonxt" Kovalenko, 2013-2014, Berlin
+// (c) Nikita "Xonxt" Kovalenko, 2013-2015, Berlin
 
 #pragma once
 
@@ -33,7 +33,7 @@ public:
 
 	// process frame, find hands, detect gestures
 	void processFrame(cv::Mat& frame);
-	
+
 	// draw everything on frame (hands, fingers, etc.)
 	void drawFrame(cv::Mat& frame);
 
@@ -115,5 +115,8 @@ private:
 
 	// frame number, to check for faces every N frames
 	int frameNum;
+
+	// list of last gestures
+	std::vector<HandGesture> gestureList;
 };
 

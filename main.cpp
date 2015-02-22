@@ -16,10 +16,10 @@
 // should I record the video too?
 #define RECORD_VIDEO false
 
-const char* VideoFile[] = { 
-	"D:\\temp\\FP\\HFD\\MVI_5513.MOV", 
-	"D:\\temp\\FP\\HFD\\00237.MTS", 
-	"D:\\temp\\FP\\HFD\\00238.MTS", 
+const char* VideoFile[] = {
+	"D:\\temp\\FP\\HFD\\MVI_5513.MOV",
+	"D:\\temp\\FP\\HFD\\00237.MTS",
+	"D:\\temp\\FP\\HFD\\00238.MTS",
 	"D:\\temp\\FP\\HFD\\00239.MTS",
 	"D:\\temp\\FP\\reports\\report_08.12.2014\\12-56-25_unprocessed.avi",
 	"/Users/nikita/Movies/MVI_5513.MOV",
@@ -46,10 +46,10 @@ using namespace std;
 // construct a filename based on the current time and supplied extension (with a ".")
 std::string generateFileName(const char* ext) {
 	std::ostringstream ost;
-	
+
 	char timeString[12];
 	time_t now = time(0);
-	strftime(timeString, sizeof(timeString), "%H-%M-%S", localtime(&now));		
+	strftime(timeString, sizeof(timeString), "%H-%M-%S", localtime(&now));
 
 	ost << timeString;
 
@@ -65,8 +65,8 @@ std::string generateFileName(const char* ext) {
 bool fexists(const char *filename) {
 	ifstream ifile(filename);
 
-	if (!ifile) 
-		return false;	
+	if (!ifile)
+		return false;
 	else
 		return true;
 }
@@ -78,8 +78,8 @@ VideoCapture capture(0);
 FrameProcessor frameProcessor;
 cv::Mat frame;
 while(true) {
-	frameProcessor.processFrame(frame);
-	imshow(frame);
+frameProcessor.processFrame(frame);
+imshow(frame);
 }
 
 // everything else is just prettying it up
@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
 {
 	// open capture
 	VideoCapture capture;
-	
+
 	if (!IS_WEB_CAM) { // from video file   
 		if (fexists(VideoFile[VIDEO_FILE_MVI5513MOV]))
 			capture = VideoCapture(VideoFile[VIDEO_FILE_MVI5513MOV]);
@@ -107,16 +107,16 @@ int main(int argc, char* argv[])
 	}
 
 	Size S = Size((int)capture.get(CV_CAP_PROP_FRAME_WIDTH),    // Acquire input size
-								(int)capture.get(CV_CAP_PROP_FRAME_HEIGHT));
+		(int)capture.get(CV_CAP_PROP_FRAME_HEIGHT));
 
 	// open video recorder
 	VideoWriter outputVideo;
 	if (RECORD_VIDEO) {
 		// output video
-		int ex = static_cast<int>(capture.get(CV_CAP_PROP_FOURCC));		
+		int ex = static_cast<int>(capture.get(CV_CAP_PROP_FOURCC));
 
 		// construct a video file name
-		outputVideo.open(generateFileName(".avi"), CV_FOURCC('M','J','P','G'), 10, S, true);
+		outputVideo.open(generateFileName(".avi"), CV_FOURCC('M', 'J', 'P', 'G'), 10, S, true);
 
 		if (!outputVideo.isOpened()) {
 			cout << "Could not open the output video for write. " << endl;
@@ -144,9 +144,9 @@ int main(int argc, char* argv[])
 
 	// current frame number
 	int frameNumber = 0;
-    
-  // pause or resume
-  bool pause = false;
+
+	// pause or resume
+	bool pause = false;
 
 	// display a menu
 	cout << "Use the following keys for result" << endl << endl;
@@ -156,22 +156,22 @@ int main(int argc, char* argv[])
 	cout << "'t'\tdisplay hand information" << endl;
 	cout << "'m'\tdisplay backprojection mask" << endl;
 	cout << "'s'\tchange skin segmentation method" << endl;
-    cout << "'p'\tpause or resume" << endl;
+	cout << "'p'\tpause or resume" << endl;
 	cout << "'b'\tshow/hide the bounding box" << endl;
 	cout << "'c'\tshow/hide the contour" << endl;
 	cout << "'f'\tshow/hide the fingertips" << endl;
 
 	// infinite loop for the video stream
-	while (true) {		
+	while (true) {
 		// read a frame
-        if (!pause) {
-            capture >> frame;
-            frame.copyTo(stillFrame);
-        }
-        else {
-            stillFrame.copyTo(frame);
-        }
-            
+		if (!pause) {
+			capture >> frame;
+			frame.copyTo(stillFrame);
+		}
+		else {
+			stillFrame.copyTo(frame);
+		}
+
 		// frame not empty?
 		if (!frame.empty()) {
 
@@ -221,8 +221,8 @@ int main(int argc, char* argv[])
 				frameProcessor.toggleShowMask();
 				break;
 			case 'p':   // pause/resume
-                pause = !pause;
-                break;
+				pause = !pause;
+				break;
 			case 'c':
 				frameProcessor.toggleShowContour(); // show contour
 				break;
@@ -238,8 +238,8 @@ int main(int argc, char* argv[])
 			case 'i':
 				frameProcessor.toggleShowInformation(); // show system information
 				break;
-            }
-            
+			}
+
 		}
 	}
 
@@ -247,8 +247,8 @@ int main(int argc, char* argv[])
 	destroyAllWindows();
 
 	// release the video writer
-    if (RECORD_VIDEO)
-        outputVideo.release();
+	if (RECORD_VIDEO)
+		outputVideo.release();
 
 	return 0;
 }

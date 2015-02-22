@@ -1,6 +1,6 @@
 // Forschungsproject (teil 2) at HTW Berlin
 // Recognition of short-time micro-gestures from a single-PoV video stream
-// (c) Nikita "Xonxt" Kovalenko, 2013-2014, Berlin
+// (c) Nikita "Xonxt" Kovalenko, 2013-2015, Berlin
 
 #pragma once
 
@@ -43,7 +43,7 @@ enum MovementDirection {
 	MOVEMENT_DOWN,
 	MOVEMENT_LEFT,
 	MOVEMENT_RIGHT,
-    MOVEMENT_NONE
+	MOVEMENT_NONE
 };
 
 // amount of fingers
@@ -71,17 +71,17 @@ enum HandGesture {
 	GESTURE_SWIPE_UP = 9,
 	GESTURE_SWIPE_DOWN = 10,
 	GESTURE_SWIPE_LEFT = 11,
-	GESTURE_SWIPE_RIGHT = 12,	
+	GESTURE_SWIPE_RIGHT = 12,
 	GESTURE_DRAWING_CIRCLE = 13,
 	GESTURE_DRAWING_RECTANGLE = 14,
 	GESTURE_DRAWING_STAR = 15,
 	GESTURE_DRAWING_TRIANGLE = 16
 };
 
-const std::string GestureNames[] = { 
+const std::string GestureNames[] = {
 	"FIST", "ONE FINGER", "TWO FINGERS", "THREE FINGERS", "FOUR FINGERS", "FIVE FINGERS",
-	"VICTORY SIGN", "SPOCK", "THUMBS UP", 
-	"SWIPE UP", "SWIPE DOWN", "SWIPE LEFT", "SWIPE RIGHT", 
+	"VICTORY SIGN", "SPOCK", "THUMBS UP",
+	"SWIPE UP", "SWIPE DOWN", "SWIPE LEFT", "SWIPE RIGHT",
 	"CIRCLE", "RECTANGLE", "STAR", "TRIANGLE" };
 
 // movement speed
@@ -99,35 +99,36 @@ enum FingersAngle {
 };
 
 // array of colors
-const cv::Scalar fpColors[] = { cv::Scalar(0,0,255), cv::Scalar(0,255,0), cv::Scalar(255,0,0), 
-								cv::Scalar(255,0,255), cv::Scalar(255,255,0), cv::Scalar(0,255,255), 
-								cv::Scalar(0,128,0), cv::Scalar(255,128,128), cv::Scalar(255,128,255), 
-								cv::Scalar(255,255,255) };
+const cv::Scalar fpColors[] = {
+	cv::Scalar(0, 0, 255), cv::Scalar(0, 255, 0), cv::Scalar(255, 0, 0),
+	cv::Scalar(255, 0, 255), cv::Scalar(255, 255, 0), cv::Scalar(0, 255, 255),
+	cv::Scalar(0, 128, 0), cv::Scalar(255, 128, 128), cv::Scalar(255, 128, 255),
+	cv::Scalar(255, 255, 255) };
 
 // access colors with these names
 enum Colors {
-    COLOR_RED = 0,
-    COLOR_GREEN,
-    COLOR_BLUE,
-    COLOR_PURPLE,
-    COLOR_CYAN,
-    COLOR_YELLOW,
-    COLOR_DARKGREEN,
-    COLOR_LIGHTBLUE,
-    COLOR_PINK,
-    COLOR_WHITE
+	COLOR_RED = 0,
+	COLOR_GREEN,
+	COLOR_BLUE,
+	COLOR_PURPLE,
+	COLOR_CYAN,
+	COLOR_YELLOW,
+	COLOR_DARKGREEN,
+	COLOR_LIGHTBLUE,
+	COLOR_PINK,
+	COLOR_WHITE
 };
 
 
 
 struct YCbCrBounds {
-	int Y_MIN,  Y_MAX;
+	int Y_MIN, Y_MAX;
 	int Cr_MIN, Cr_MAX;
 	int Cb_MIN, Cb_MAX;
 
-	YCbCrBounds() : Y_MIN(-1),  Y_MAX(-1),
-					Cr_MIN(-1), Cr_MAX(-1),
-					Cb_MIN(-1), Cb_MAX(-1) {};
+	YCbCrBounds() : Y_MIN(-1), Y_MAX(-1),
+		Cr_MIN(-1), Cr_MAX(-1),
+		Cb_MIN(-1), Cb_MAX(-1) {};
 };
 
 struct HsvBounds {
@@ -135,9 +136,9 @@ struct HsvBounds {
 	int S_MIN, S_MAX;
 	int V_MIN, V_MAX;
 
-	HsvBounds() :	H_MIN(-1), H_MAX(-1),
-					S_MIN(-1), S_MAX(-1),
-					V_MIN(-1), V_MAX(-1) {};
+	HsvBounds() : H_MIN(-1), H_MAX(-1),
+		S_MIN(-1), S_MAX(-1),
+		V_MIN(-1), V_MAX(-1) {};
 };
 
 // crop a rectangle from an image with no problems

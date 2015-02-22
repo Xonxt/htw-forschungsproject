@@ -7,7 +7,7 @@
 
 FrameProcessor::FrameProcessor()
 {
-	
+
 }
 
 FrameProcessor::FrameProcessor(const cv::Size frameSize)
@@ -41,10 +41,10 @@ bool FrameProcessor::initialize(bool isWebCam) {
 	showFingers = false;
 
 	// the hand text is not shown at the beginning
-	showHandText = false;
+	showHandText = true;
 
 	// showing text information
-	showInformation = false;
+	showInformation = true;
 
 	// clear the hands list
 	hands.clear();
@@ -143,14 +143,14 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 			if (intersection.area() >= (tempHand.handBox.boundingRect().area() * 0.75)) {
 				// then this hand is already being tracked, correct position
 				(*it2).assignNewLocation(tempHand);
-                //(*it2).recalculateRange(frame, handTracker.getSkinMethod(), true);
+				//(*it2).recalculateRange(frame, handTracker.getSkinMethod(), true);
 				sameHand = true;
 				break;
 			}
 		}
 
 		// if this hand  wasn't tracked before, add it to list
-		if (!sameHand) { 
+		if (!sameHand) {
 			//tempHand.recalculateRange(frame, handTracker.getSkinMethod(), true);
 			hands.push_back(tempHand);
 			newHandsAdded = true;
@@ -183,21 +183,21 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 					}
 					/*
 					if (hands[i].Parameters.handContour.empty() && !hands[j].Parameters.handContour.empty()) {
-						hands.erase(hands.begin() + j--);
+					hands.erase(hands.begin() + j--);
 					}
 					else if (!hands[i].Parameters.handContour.empty() && hands[j].Parameters.handContour.empty()) {
-						hands.erase(hands.begin() + i--);
+					hands.erase(hands.begin() + i--);
 					}
 					else {
-						// remove the largest region
-						if ((firstHand.area() < secondHand.area())) {
-							hands.erase(hands.begin() + i--);
-						}
-						else {
-							hands.erase(hands.begin() + j--);
-						}
+					// remove the largest region
+					if ((firstHand.area() < secondHand.area())) {
+					hands.erase(hands.begin() + i--);
+					}
+					else {
+					hands.erase(hands.begin() + j--);
+					}
 					}*/
-			//		std::cout << "hand removed because of intersection!" << std::endl;
+					//		std::cout << "hand removed because of intersection!" << std::endl;
 					N--;
 				}
 
@@ -225,7 +225,7 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 
 		if (remove) {
 			it = hands.erase(it);
-		//	std::cout << "hand removed because it was out of borders!" << std::endl;
+			//	std::cout << "hand removed because it was out of borders!" << std::endl;
 		}
 
 		if (it == hands.end())
@@ -289,6 +289,22 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 	// iterate through our vector of hands
 	int clr = 0;
 
+	// draw a graphical promt:
+	if (hands.empty()) {
+
+		cv::Mat promt = cv::imread("promt.jpg");
+
+		cv::Rect rect;
+		rect.x = (frame.cols / 2) - (promt.cols / 2);
+		rect.y = (frame.rows / 2) - (promt.rows / 2);
+		rect.width = promt.cols;
+		rect.height = promt.rows;
+
+		cv::Mat imageRoi = frame(rect);
+		cv::addWeighted(frame, 1.0, promt, 0.9, 0, frame);
+
+	}
+
 	for (Hand hand : hands) {
 		// put a rectangle|ellipse on the image
 		if (showBoundingBox) {
@@ -323,22 +339,27 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 		}
 
 		// SHOW GESTURE NAME
-		//if (showInformation) {
-			if (hand.handGesture.getGestureType() != GESTURE_NONE) {
+		if (showHandText) {
+			if (hand.handGesture.newGesture) {
 				cv::Point textPoint(hand.handBox.boundingRect().br().x, hand.handBox.boundingRect().tl().y);
-				cv::putText(frame, hand.handGesture.getGestureName(), textPoint, CV_FONT_HERSHEY_PLAIN, 4, FP_COLOR_RED, 7);
+				//cv::putText(frame, hand.handGesture.getGestureName(), textPoint, CV_FONT_HERSHEY_PLAIN, 4, FP_COLOR_RED, 7);
 				//drawGlowText(frame, textPoint, hand.handGesture.getGestureName());
+
+				gestureList.push_back(hand.handGesture.getGestureType());
+				if (gestureList.size() > 5) {
+					gestureList.erase(gestureList.begin());
+				}
 			}
-		//}
-        
+		}
+
 		clr++;
 	}
-    
-    frame.convertTo(frame, -1, 1, -35);
+
+	frame.convertTo(frame, -1, 1, -35);
 
 	// add glowy effect
 	if (!showMask) {
-       // drawGlowyHands(frame, hands);
+		drawGlowyHands(frame, hands);
 	}
 
 	// draw glowy lines
@@ -370,6 +391,7 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 		break;
 	}
 
+	// show the information about the system
 	if (showInformation) {
 
 		int maxlen = 0;
@@ -381,6 +403,24 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 		drawRectangle(frame, cv::Rect(10, 10, maxlen * 19, strings.size() * 25 + 25));
 		for (int i = 0; i < strings.size(); i++) {
 			cv::putText(frame, strings[i], cv::Point(20, 20 + (i + 1) * 25), CV_FONT_HERSHEY_PLAIN, 2, FP_COLOR_WHITE, 2);
+		}
+	}
+
+	// show gestures as a list in right-bottom corner
+	if (showInformation) {
+		int maxlen = -1;
+		for (HandGesture gest : gestureList) {
+			if (GestureNames[gest].length() > maxlen)
+				maxlen = GestureNames[gest].length();
+		}
+
+		cv::Rect rect(10, 10, maxlen * 19, gestureList.size() * 25 + 25);
+		rect.x = frame.cols - rect.width - 10;
+		rect.y = frame.rows - rect.height - 10;
+
+		drawRectangle(frame, rect);
+		for (int i = 0; i < gestureList.size(); i++) {
+			cv::putText(frame, GestureNames[gestureList[i]], cv::Point(rect.x + 10, rect.y + 10 + (i + 1) * 25), CV_FONT_HERSHEY_PLAIN, 2, FP_COLOR_WHITE, 2);
 		}
 	}
 }
@@ -472,7 +512,7 @@ void FrameProcessor::drawGlowText(cv::Mat& frame, cv::Point& point, const std::s
 		roi.x -= ((roi.x + roi.width) - frame.cols);
 	if (roi.y + roi.height >= frame.rows)
 		roi.y -= ((roi.y + roi.height) - frame.rows);
-    
+
 	cv::Mat imageRoi = frame(roi);
 	cv::addWeighted(imageRoi, 1.0, image, 1.0, 0, imageRoi);
 }
@@ -515,9 +555,9 @@ void FrameProcessor::drawGlowyLines(cv::Mat& frame, const std::vector<Hand> hand
 	if (hands.empty()) {
 		return;
 	}
-    
+
 	int N = 4;
-    int thickness = 7;
+	int thickness = 7;
 
 	cv::Mat image = cv::Mat(frame);
 	image = cv::Mat::zeros(frame.size(), CV_8U);
@@ -526,8 +566,8 @@ void FrameProcessor::drawGlowyLines(cv::Mat& frame, const std::vector<Hand> hand
 	for (Hand hand : hands) {
 		if (!hand.Tracker.kalmTrack.empty()) {
 			if (hand.Tracker.kalmTrack.size() > N) {
-				for (int i = N-1; i < hand.Tracker.kalmTrack.size() - 1; i++) {
-					cv::line(image, hand.Tracker.kalmTrack[i], hand.Tracker.kalmTrack[i + 1], FP_COLOR_PURPLE, randomNumber(thickness-2, thickness + 3));
+				for (int i = N - 1; i < hand.Tracker.kalmTrack.size() - 1; i++) {
+					cv::line(image, hand.Tracker.kalmTrack[i], hand.Tracker.kalmTrack[i + 1], FP_COLOR_PURPLE, randomNumber(thickness - 2, thickness + 3));
 				}
 			}
 		}
@@ -538,8 +578,8 @@ void FrameProcessor::drawGlowyLines(cv::Mat& frame, const std::vector<Hand> hand
 	for (Hand hand : hands) {
 		if (!hand.Tracker.kalmTrack.empty()) {
 			if (hand.Tracker.kalmTrack.size() > N) {
-				for (int i = N-1; i < hand.Tracker.kalmTrack.size() - 1; i++) {
-					cv::line(image, hand.Tracker.kalmTrack[i], hand.Tracker.kalmTrack[i + 1], FP_COLOR_WHITE, randomNumber(thickness-1, thickness+1));
+				for (int i = N - 1; i < hand.Tracker.kalmTrack.size() - 1; i++) {
+					cv::line(image, hand.Tracker.kalmTrack[i], hand.Tracker.kalmTrack[i + 1], FP_COLOR_WHITE, randomNumber(thickness - 1, thickness + 1));
 				}
 			}
 		}

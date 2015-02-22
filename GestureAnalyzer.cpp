@@ -25,8 +25,9 @@ GestureAnalyzer::~GestureAnalyzer() {
 }
 
 void GestureAnalyzer::analyzeHand(Hand& hand) {
-    
-    HandGesture resultGesture = GESTURE_NONE;
+
+	HandGesture resultGesture = GESTURE_NONE;
+	hand.handGesture.newGesture = false;
 
 	// hand.handGesture.setGestureType(GESTURE_NONE);
 
@@ -75,7 +76,7 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 				if (result.score >= resultThreshold) {
 					//hand.handGesture.gestureName = result.name;
 					//hand.handGesture.setGestureType(result.gestureType);
-                    resultGesture = result.gestureType;
+					resultGesture = result.gestureType;
 				}
 				else {
 					//hand.handGesture.gestureName = " ";
@@ -98,25 +99,23 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 						// determine the angle:
 						if (isInRange(angle, NE + 1, NW - 1)) {
 							//hand.handGesture.setGestureType(GESTURE_SWIPE_UP);
-                            resultGesture = GESTURE_SWIPE_UP;
+							resultGesture = GESTURE_SWIPE_UP;
 						}
 						else if (isInRange(angle, NW + 1, SW - 1)) {
 							//hand.handGesture.setGestureType(GESTURE_SWIPE_RIGHT);
-                            resultGesture = GESTURE_SWIPE_RIGHT;
+							resultGesture = GESTURE_SWIPE_RIGHT;
 						}
 						else if (isInRange(angle, SW + 1, SE - 1)) {
 							//hand.handGesture.setGestureType(GESTURE_SWIPE_DOWN);
-                            resultGesture = GESTURE_SWIPE_DOWN;
+							resultGesture = GESTURE_SWIPE_DOWN;
 						}
 						else if (isInRange(angle, 0, SE + 1) || isInRange(angle, 0, NE - 1)) {
 							//hand.handGesture.setGestureType(GESTURE_SWIPE_LEFT);
-                            resultGesture = GESTURE_SWIPE_LEFT;
+							resultGesture = GESTURE_SWIPE_LEFT;
 						}
 						else {
 							//hand.handGesture.setGestureType(GESTURE_NONE);
-						}
-                        
-                        std::cout << "Swipe detected: " << GestureNames[resultGesture];
+						}						
 					}
 					else { // if the distance is smaller that the hand itself, assume it didn't move
 						//hand.handGesture.setGestureType(GESTURE_NONE);
@@ -131,7 +130,7 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 
 		// if the hand didn't move, then we process the fingers:
 		//if (hand.handGesture.getGestureType() != GESTURE_NONE) {
-        if (resultGesture != GESTURE_NONE) {
+		if (resultGesture != GESTURE_NONE) {
 			// return;
 		}
 		else {
@@ -174,12 +173,14 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 
 			// get the finger-amount-posture
 			//hand.handGesture.setGestureType(hand.handGesture.getPosture());
-            resultGesture = hand.handGesture.getPosture();
+			resultGesture = hand.handGesture.getPosture();
 		}
 	}
-    if (hand.handGesture.getGestureType() != resultGesture) {
-        hand.handGesture.setGestureType(resultGesture);
-    }
+	if (hand.handGesture.getGestureType() != resultGesture) {
+		hand.handGesture.setGestureType(resultGesture);
+		hand.handGesture.newGesture = true;
+		std::cout << "Gesture detected: " << GestureNames[resultGesture];
+	}
 }
 
 // Determine if two floating point values are ~equal, with a threshold

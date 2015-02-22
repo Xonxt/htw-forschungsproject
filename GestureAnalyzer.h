@@ -11,7 +11,7 @@
 	#include "OneDollar\GeometricRecognizer.h"
 #endif
 
-// anglws
+// angles
 #define NW 135
 #define NE 45
 #define SE 315

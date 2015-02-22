@@ -7,8 +7,8 @@
 
 SkinDetector::SkinDetector() {
 	// YCrCb thresholds
-	YCbCr.Y_MIN  = 0;
-	YCbCr.Y_MAX  = 255;
+	YCbCr.Y_MIN = 0;
+	YCbCr.Y_MAX = 255;
 	YCbCr.Cr_MIN = 133;
 	YCbCr.Cr_MAX = 173;
 	YCbCr.Cb_MIN = 77;
@@ -50,14 +50,14 @@ void SkinDetector::getSkinYcbcr(const cv::Mat& inputFrame, cv::Mat& outputMask, 
 	cv::cvtColor(inputFrame, outputMask, cv::COLOR_BGR2YCrCb);
 
 	//filter the image in YCrCb color space
-	cv::inRange(outputMask, 
+	cv::inRange(outputMask,
 		cv::Scalar(MIN(hand.YCbCr.Y_MIN, hand.YCbCr.Y_MAX), MIN(hand.YCbCr.Cr_MIN, hand.YCbCr.Cr_MAX), MIN(hand.YCbCr.Cb_MIN, hand.YCbCr.Cb_MAX)),
 		cv::Scalar(MAX(hand.YCbCr.Y_MIN, hand.YCbCr.Y_MAX), MAX(hand.YCbCr.Cr_MIN, hand.YCbCr.Cr_MAX), MAX(hand.YCbCr.Cb_MIN, hand.YCbCr.Cb_MAX)),
-				outputMask);
-    
-    if (cv::countNonZero(outputMask) >= (0.5 * outputMask.rows * outputMask.cols)) {
-        ;
-    }
+		outputMask);
+
+	if (cv::countNonZero(outputMask) >= (0.5 * outputMask.rows * outputMask.cols)) {
+		;
+	}
 }
 
 // perform HSV skin segmentation
@@ -65,10 +65,10 @@ void SkinDetector::getSkinHsv(const cv::Mat& inputFrame, cv::Mat& outputMask, co
 	// convert input image to HSC
 	cv::cvtColor(inputFrame, outputMask, cv::COLOR_BGR2HSV);
 
-	cv::inRange(outputMask, 
+	cv::inRange(outputMask,
 		cv::Scalar(MIN(hand.HSV.H_MIN, hand.HSV.H_MAX), MIN(hand.HSV.S_MIN, hand.HSV.S_MAX), MIN(hand.HSV.V_MIN, hand.HSV.V_MAX)),
 		cv::Scalar(MAX(hand.HSV.H_MIN, hand.HSV.H_MAX), MAX(hand.HSV.S_MIN, hand.HSV.S_MAX), MAX(hand.HSV.V_MIN, hand.HSV.V_MAX)),
-				outputMask);
+		outputMask);
 }
 
 // use tha OpenCV sdaptive skin detector
@@ -99,8 +99,8 @@ void SkinDetector::setNewHsvBounds(const struct HsvBounds hsv) {
 
 // change Ycbcr bounds
 void SkinDetector::setNewYcbcrBounds(const struct YCbCrBounds ycbcr) {
-	YCbCr.Y_MIN  = ycbcr.Y_MIN;
-	YCbCr.Y_MAX  = ycbcr.Y_MAX;
+	YCbCr.Y_MIN = ycbcr.Y_MIN;
+	YCbCr.Y_MAX = ycbcr.Y_MAX;
 	YCbCr.Cr_MIN = ycbcr.Cr_MIN;
 	YCbCr.Cr_MAX = ycbcr.Cr_MAX;
 	YCbCr.Cb_MIN = ycbcr.Cb_MIN;
