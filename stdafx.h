@@ -1,4 +1,4 @@
-// Forschungsproject (teil 2) at HTW Berlin
+// Forschungsproject (teil 3) at HTW Berlin
 // Recognition of short-time micro-gestures from a single-PoV video stream
 // (c) Nikita "Xonxt" Kovalenko, 2013-2015, Berlin
 
