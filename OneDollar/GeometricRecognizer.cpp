@@ -54,6 +54,14 @@ namespace DollarRecognizer
         addTemplate(GESTURE_DRAWING_STAR, samples.getGestureStar());
         
 		addTemplate(GESTURE_DRAWING_TRIANGLE, samples.getGestureTriangle());
+        
+        addTemplate(GESTURE_DRAWING_V, samples.getGestureV());
+        
+        addTemplate(GESTURE_DRAWING_SPIRAL, samples.getGestureSpiral());
+        
+        addTemplate(GESTURE_DRAWING_DIAMOND, samples.getGestureDiamond());
+        
+        addTemplate(GESTURE_DRAWING_PIGTAIL, samples.getGesturePigtail());
 	}
 
 	int GeometricRecognizer::addTemplate(HandGesture name, Path2D points)
