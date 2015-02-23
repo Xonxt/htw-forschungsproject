@@ -22,9 +22,9 @@ HandGesture Gesture::getPosture() {
 		returnType = GESTURE_POSTURE_ONE;
 		break;
 	case FINGERS_TWO:
-		if (varAngle.getValue() == ANGLE_CLOSE)
-			returnType = GESTURE_POSTURE_V;
-		else
+		//if (varAngle.getValue() == ANGLE_CLOSE)
+		//	returnType = GESTURE_POSTURE_V;
+		//else
 			returnType = GESTURE_POSTURE_TWO;
 		break;
 	case FINGERS_THREE:

@@ -291,6 +291,8 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 
 	// draw a graphical promt:
 	if (hands.empty()) {
+        
+        gestureList.clear();
 
 		cv::Mat promt = cv::imread("promt.jpg");
 
@@ -344,9 +346,18 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 				cv::Point textPoint(hand.handBox.boundingRect().br().x, hand.handBox.boundingRect().tl().y);
 				//cv::putText(frame, hand.handGesture.getGestureName(), textPoint, CV_FONT_HERSHEY_PLAIN, 4, FP_COLOR_RED, 7);
 				//drawGlowText(frame, textPoint, hand.handGesture.getGestureName());
-
+            
 				gestureList.push_back(hand.handGesture.getGestureType());
-				if (gestureList.size() > 5) {
+                
+                int N = gestureList.size();
+                
+                if (N >= 3) {
+                    if ((int)gestureList[N-2] >= 9 && gestureList.back() == gestureList[N-3]) {
+                        gestureList.erase(gestureList.end() - 1);
+                    }
+                }
+                
+                if (gestureList.size() > 5) {
 					gestureList.erase(gestureList.begin());
 				}
 			}
@@ -407,14 +418,11 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 	}
 
 	// show gestures as a list in right-bottom corner
-	if (showInformation) {
-		int maxlen = -1;
-		for (HandGesture gest : gestureList) {
-			if (GestureNames[gest].length() > maxlen)
-				maxlen = GestureNames[gest].length();
-		}
+	if (showHandText && !hands.empty()) {
+		int scalarWidth = 14;
+        int scalarHeight = 5;
 
-		cv::Rect rect(10, 10, maxlen * 19, gestureList.size() * 25 + 25);
+		cv::Rect rect(10, 10, scalarWidth * 19, scalarHeight * 25 + 25);
 		rect.x = frame.cols - rect.width - 10;
 		rect.y = frame.rows - rect.height - 10;
 

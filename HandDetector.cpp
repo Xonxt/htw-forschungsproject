@@ -111,12 +111,24 @@ void HandDetector::detectHands(const cv::Mat frame, std::vector<Hand>& hands, st
 		cv::Mat frameCrop = (isWebCam || noPedestrians) ? frameResized : cv::Mat(frame, pedestrians[i]);
 
 		// look for hand objects in the frame
-		handCascade.detectMultiScale(frameCrop, handRects, 1.05, 6, CV_HAAR_FIND_BIGGEST_OBJECT);
+		handCascade.detectMultiScale(frameCrop, handRects, 1.05, 6);
+        
+       // if (handRects.size() > 1) {
+            int idx = 0; int area = -1;
+            for (int i=0; i<handRects.size();i++) {
+                if (handRects[i].area() > area) {
+                    idx = i;
+                    area = handRects[i].area();
+                }
+            }
+        //}
+        
+        
 
 		// iterate through located objects
 		for (int j = 0; j < handRects.size(); j++) {
 			// a temporary rect
-			cv::Rect rect = handRects[i];
+			cv::Rect rect = handRects[idx];
 
 			// create temporary Hand object
 			Hand tempHand;

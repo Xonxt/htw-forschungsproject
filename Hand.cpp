@@ -78,6 +78,7 @@ void Hand::initTracker() {
 	Tracker.trackedFrames = 0;
 
 	// init Kalman filter
+    /*
 	Tracker.KalmanTracker.KF = cv::KalmanFilter(6, 2, 0);
 	Tracker.KalmanTracker.state = cv::Mat(6, 1, CV_32F);
 	Tracker.KalmanTracker.processNoise = cv::Mat(6, 1, CV_32F);
@@ -106,9 +107,36 @@ void Hand::initTracker() {
 	Tracker.KalmanTracker.KF.statePre.at<float>(3) = 0;
 	Tracker.KalmanTracker.KF.statePre.at<float>(4) = 0;
 	Tracker.KalmanTracker.KF.statePre.at<float>(5) = 0;
+ */
+   
+    // init Kalman filter
+	Tracker.KalmanTracker.KF = cv::KalmanFilter(4, 2, 0);
+	Tracker.KalmanTracker.state = cv::Mat(4, 1, CV_32F);
+	Tracker.KalmanTracker.processNoise = cv::Mat(4, 1, CV_32F);
+    
+	randn(Tracker.KalmanTracker.state, cv::Scalar::all(0), cv::Scalar::all(0.1));
+	randn(Tracker.KalmanTracker.KF.statePost, cv::Scalar::all(0), cv::Scalar::all(0.1));
+    
+	Tracker.KalmanTracker.KF.transitionMatrix = *(cv::Mat_<float>(4, 4) <<
+                                                  1, 0, 1, 0,
+                                                  0, 1, 0, 1,
+                                                  0, 0, 1, 0,
+                                                  0, 0, 0, 1);
+    
+	Tracker.KalmanTracker.KF.measurementMatrix = *(cv::Mat_<float>(2, 4) <<
+                                                   1, 0, 1, 0,
+                                                   0, 1, 0, 1);
+    
+	Tracker.KalmanTracker.measurement = cv::Mat(2, 1, CV_32F);
+	Tracker.KalmanTracker.measurement.setTo(cv::Scalar(0));
+    
+	Tracker.KalmanTracker.KF.statePre.at<float>(0) = handBox.center.x;
+	Tracker.KalmanTracker.KF.statePre.at<float>(1) = handBox.center.y;
+	Tracker.KalmanTracker.KF.statePre.at<float>(2) = 0;
+	Tracker.KalmanTracker.KF.statePre.at<float>(3) = 0;
 
 	cv::setIdentity(Tracker.KalmanTracker.KF.measurementMatrix);
-	cv::setIdentity(Tracker.KalmanTracker.KF.processNoiseCov, cv::Scalar::all(1e-2));
+	cv::setIdentity(Tracker.KalmanTracker.KF.processNoiseCov, cv::Scalar::all(1e-3));
 	cv::setIdentity(Tracker.KalmanTracker.KF.measurementNoiseCov, cv::Scalar::all(1e-1));
 	cv::setIdentity(Tracker.KalmanTracker.KF.errorCovPost, cv::Scalar::all(.1));
 

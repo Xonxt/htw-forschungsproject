@@ -82,7 +82,7 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 					//hand.handGesture.gestureName = " ";
 					//hand.handGesture.setGestureType(GESTURE_NONE);
 				}
-				std::cout << "found: " << result.name << ", with score: " << result.score << std::endl;
+				std::cout << "shape found: " << result.name << ", with score: " << result.score << std::endl;
 			}
 
 			// if track length is less than N, or if the resulting shape score is less than X (default: 0.75)
@@ -122,64 +122,62 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 					}
 				}
 			}
+            
+            // if the hand didn't move, then we process the fingers:
+            //if (hand.handGesture.getGestureType() != GESTURE_NONE) {
+            if (resultGesture == GESTURE_NONE) {
+                // process the contour and extract fingers
+                extractFingers(hand);
+                
+                // add amount of fingers
+                switch ((int)hand.Parameters.fingers.size()) {
+                    case 0:
+                        hand.handGesture.varFingers.addValue(FINGERS_ZERO);
+                        break;
+                    case 1:
+                        hand.handGesture.varFingers.addValue(FINGERS_ONE);
+                        break;
+                    case 2:
+                        hand.handGesture.varFingers.addValue(FINGERS_TWO);
+                        break;
+                    case 3:
+                        hand.handGesture.varFingers.addValue(FINGERS_THREE);
+                        break;
+                    case 4:
+                        hand.handGesture.varFingers.addValue(FINGERS_FOUR);
+                        break;
+                    default:
+                        hand.handGesture.varFingers.addValue(FINGERS_FIVE);
+                }
+                
+                // set finger angles:
+                if (hand.Parameters.fingers.size() == 2) {
+                    if (hand.Parameters.fingers[0].Angles.angle2next <= 30) {
+                        hand.handGesture.varAngle.addValue(ANGLE_CLOSE);
+                    }
+                    else {
+                        hand.handGesture.varAngle.addValue(ANGLE_FAR);
+                    }
+                }
+                else
+                    hand.handGesture.varAngle.addValue(ANGLE_NONE);
+                
+                // get the finger-amount-posture
+                //hand.handGesture.setGestureType(hand.handGesture.getPosture());
+                resultGesture = hand.handGesture.getPosture();
+            }
 
 			hand.Tracker.kalmTrack.clear();
 
 			hand.prevPosition = currPosition;
 		}
 
-		// if the hand didn't move, then we process the fingers:
-		//if (hand.handGesture.getGestureType() != GESTURE_NONE) {
-		if (resultGesture != GESTURE_NONE) {
-			// return;
-		}
-		else {
-
-			// process the contour and extract fingers
-			extractFingers(hand);
-
-			// add amount of fingers
-			switch ((int)hand.Parameters.fingers.size()) {
-			case 0:
-				hand.handGesture.varFingers.addValue(FINGERS_ZERO);
-				break;
-			case 1:
-				hand.handGesture.varFingers.addValue(FINGERS_ONE);
-				break;
-			case 2:
-				hand.handGesture.varFingers.addValue(FINGERS_TWO);
-				break;
-			case 3:
-				hand.handGesture.varFingers.addValue(FINGERS_THREE);
-				break;
-			case 4:
-				hand.handGesture.varFingers.addValue(FINGERS_FOUR);
-				break;
-			default:
-				hand.handGesture.varFingers.addValue(FINGERS_FIVE);
-			}
-
-			// set finger angles:
-			if (hand.Parameters.fingers.size() == 2) {
-				if (hand.Parameters.fingers[0].Angles.angle2next <= 30) {
-					hand.handGesture.varAngle.addValue(ANGLE_CLOSE);
-				}
-				else {
-					hand.handGesture.varAngle.addValue(ANGLE_FAR);
-				}
-			}
-			else
-				hand.handGesture.varAngle.addValue(ANGLE_NONE);
-
-			// get the finger-amount-posture
-			//hand.handGesture.setGestureType(hand.handGesture.getPosture());
-			resultGesture = hand.handGesture.getPosture();
-		}
 	}
-	if (hand.handGesture.getGestureType() != resultGesture) {
+    
+	if (hand.handGesture.getGestureType() != resultGesture && resultGesture != GESTURE_NONE) {
 		hand.handGesture.setGestureType(resultGesture);
 		hand.handGesture.newGesture = true;
-		std::cout << "Gesture detected: " << GestureNames[resultGesture];
+		std::cout << "Gesture detected: " << GestureNames[resultGesture] << std::endl;;
 	}
 }
 
