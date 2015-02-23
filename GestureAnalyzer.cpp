@@ -33,7 +33,7 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 
 	// CALCULATE VARIANCE TO DETERMINE IF HAND STATIONARY OR MOVING
 	int size = (int)hand.Tracker.kalmTrack.size();
-	int N = 5;
+	int N = 4;
 	if (size >= N) {
 
 		// a vector of N last points of the track line
@@ -66,7 +66,7 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 		if (dx < 0.0075 && dy < 0.0075) {
 			// Hand is stationary!
 
-			cv::Point currPosition = hand.Tracker.kalmTrack.back();
+			cv::Point currPosition = cv::Point(hand.handBox.center.x, hand.handBox.center.y);
 
 			// if track length is atl east N (default: 20)
 			// then we check the "air drawing" shape
@@ -92,7 +92,7 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 				if ((hand.prevPosition.x + hand.prevPosition.y) > 0) {
 
 					// also, if the distance between points is bigger than the width of the hand region:
-					if (getDistance(hand.prevPosition, currPosition) >= (hand.detectionBox.width * 2)) {
+					if (getDistance(hand.prevPosition, currPosition) >= (hand.detectionBox.width)) {
 						// calculate swipe direction:
 						double angle = getAngle(hand.prevPosition, currPosition);
 

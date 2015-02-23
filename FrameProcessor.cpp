@@ -44,7 +44,7 @@ bool FrameProcessor::initialize(bool isWebCam) {
 	showHandText = true;
 
 	// showing text information
-	showInformation = true;
+	showInformation = false;
 
 	// clear the hands list
 	hands.clear();
@@ -302,8 +302,8 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 		rect.width = promt.cols;
 		rect.height = promt.rows;
 
-		cv::Mat imageRoi = frame(rect);
-		cv::addWeighted(frame, 1.0, promt, 0.9, 0, frame);
+		//cv::Mat imageRoi = frame(rect);
+		cv::addWeighted(frame(rect), 1.0, promt, 0.9, 0, frame(rect));
 
 	}
 
@@ -411,7 +411,7 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 				maxlen = str.length();
 		}
 
-		drawRectangle(frame, cv::Rect(10, 10, maxlen * 19, strings.size() * 25 + 25));
+		drawRectangle(frame, cv::Rect(10, 10, maxlen * 19, strings.size() * 25 + 25), 100);
 		for (int i = 0; i < strings.size(); i++) {
 			cv::putText(frame, strings[i], cv::Point(20, 20 + (i + 1) * 25), CV_FONT_HERSHEY_PLAIN, 2, FP_COLOR_WHITE, 2);
 		}
@@ -422,13 +422,13 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 		int scalarWidth = 14;
         int scalarHeight = 5;
 
-		cv::Rect rect(10, 10, scalarWidth * 19, scalarHeight * 25 + 25);
+		cv::Rect rect(10, 10, scalarWidth * 28, scalarHeight * 45 + 25);
 		rect.x = frame.cols - rect.width - 10;
 		rect.y = frame.rows - rect.height - 10;
 
 		drawRectangle(frame, rect);
 		for (int i = 0; i < gestureList.size(); i++) {
-			cv::putText(frame, GestureNames[gestureList[i]], cv::Point(rect.x + 10, rect.y + 10 + (i + 1) * 25), CV_FONT_HERSHEY_PLAIN, 2, FP_COLOR_WHITE, 2);
+			cv::putText(frame, GestureNames[gestureList[i]], cv::Point(rect.x + 10, rect.y + 10 + (i + 1) * 45), CV_FONT_HERSHEY_PLAIN, 3, FP_COLOR_WHITE, 5);
 		}
 	}
 }
@@ -482,8 +482,8 @@ void FrameProcessor::toggleShowInformation() {
 }
 
 // a function to draw a darkened rectangle
-void FrameProcessor::drawRectangle(cv::Mat& frame, const cv::Rect rectangle) {
-	int shift = 50;
+void FrameProcessor::drawRectangle(cv::Mat& frame, const cv::Rect rectangle, int shift) {
+	
 	for (int i = rectangle.x; i < rectangle.x + rectangle.width; i++) {
 		for (int j = rectangle.y; j < rectangle.y + rectangle.height; j++) {
 			cv::Vec3b color = frame.at<cv::Vec3b>(j, i);

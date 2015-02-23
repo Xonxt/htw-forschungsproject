@@ -63,7 +63,7 @@ private:
 	void detectAndTrack(const cv::Mat& frame);
 
 	// a function to draw a darkened rectangle
-	void drawRectangle(cv::Mat& frame, const cv::Rect rectangle);
+	void drawRectangle(cv::Mat& frame, const cv::Rect rectangle, int shift = 50);
 
 	// draw a text on the image, making in glowy and pretty
 	void drawGlowText(cv::Mat& frame, cv::Point& point, const std::string& text);
