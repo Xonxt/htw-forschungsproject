@@ -243,6 +243,14 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 			// cut out a part of the image
 			cv::Mat cutOut = cv::Mat(frame, *pd);
 
+			bool resize = false;
+
+			if (cutOut.cols > RESIZE_WIDTH || cutOut.rows > RESIZE_HEIGHT) {
+				resize = true;
+
+				cv::resize(cutOut.clone(), cutOut, cv::Size(RESIZE_WIDTH, RESIZE_HEIGHT));
+			}
+
 			// prepare a temporary storage for faces
 			std::vector<cv::Rect> tempFaces;
 
@@ -252,6 +260,13 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 			// append the located faces to the Faces vector
 			for (std::vector<cv::Rect>::iterator fc2 = tempFaces.begin(); fc2 != tempFaces.end(); ++fc2) {
 				cv::Rect face = *fc2;
+
+				if (resize) {
+					face.x *= (frame.cols / RESIZE_WIDTH);
+					face.y *= (frame.rows / RESIZE_HEIGHT);
+					face.height *= (frame.rows / RESIZE_HEIGHT);
+					face.width *= (frame.cols / RESIZE_WIDTH);
+				}
 
 				// apply shift
 				face += (*pd).tl();
