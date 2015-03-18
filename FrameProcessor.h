@@ -9,6 +9,7 @@
 #include "HandDetector.h"
 #include "Tracker.h"
 #include "GestureAnalyzer.h"
+#include "SequenceRecognizer.h"
 
 #include <time.h>
 #include <ctime>
@@ -91,6 +92,10 @@ private:
 
 	// The gesture analyzer
 	GestureAnalyzer gestureAnalyzer;
+
+	// the gesture sequence recognizer
+	SequenceRecognizer sequenceRecognizer;
+	RecognizedSequence sequenceResult;
 
 	// show backprojection mask or not?
 	bool showMask;

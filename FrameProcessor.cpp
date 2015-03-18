@@ -431,6 +431,25 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 			cv::putText(frame, GestureNames[gestureList[i]], cv::Point(rect.x + 10, rect.y + 10 + (i + 1) * 45), CV_FONT_HERSHEY_PLAIN, 3, FP_COLOR_WHITE, 5);
 		}
 	}
+
+	// draw the gesture sequence on the top:
+	if (gestureList.size() > 1) {
+		RecognizedSequence _recognizedSequence = sequenceRecognizer.recognizeSequence(gestureList);
+		if (_recognizedSequence.getScore() >= 0.6) {
+			sequenceResult = RecognizedSequence(_recognizedSequence.getName(), _recognizedSequence.getScore());
+			gestureList.clear();
+		}
+	}
+
+	if (sequenceResult.getScore() > 0 && gestureList.size() <= 2) {
+		cv::Rect rect(10, 10, sequenceResult.getName().length() * 33, strings.size() * 45 + 25);
+		rect.x = frame.cols / 2 - rect.width / 2;
+		rect.y = frame.rows - rect.height - 50;
+		drawRectangle(frame, rect, 100);
+		
+		cv::putText(frame, sequenceResult.getName(), cv::Point(rect.x + 10, rect.y + rect.height * 2 / 3), 
+			CV_FONT_HERSHEY_PLAIN, 3, FP_COLOR_WHITE, 5);
+	}
 }
 
 // change skin segmentation method

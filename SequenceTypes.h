@@ -4,7 +4,8 @@
 class GestureSequence {
 
 public:
-	GestureSequence() { };
+	GestureSequence() { }
+
 	GestureSequence(std::string name, std::vector<HandGesture> sequence) {
 		setSequence(name, sequence);
 	}
@@ -33,7 +34,9 @@ private:
 
 class RecognizedSequence {
 public:
-	RecognizedSequence() { };
+	RecognizedSequence() :
+		recognitionScore(0.0f),	sequenceName(" ") { };
+
 	RecognizedSequence(std::string name, double score) :
 		recognitionScore(score), sequenceName(name) { }
 
