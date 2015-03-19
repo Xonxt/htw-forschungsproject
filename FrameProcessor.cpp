@@ -296,6 +296,11 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 					break;
 			}
 		}
+        
+        // also try to recalculate colors here
+        std::for_each(hands.begin(), hands.end()-1, [&](Hand& hand) {
+            hand.recalculateRange(frame, handTracker.getSkinMethod(), true);
+        });
 	}
 }
 

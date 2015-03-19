@@ -5,19 +5,50 @@
 
 SequenceRecognizer::SequenceRecognizer()
 {
-	// add a few gesture sequences
+	/*// add a few gesture sequences
 	// left-down-two-three
+    std::vector<HandGesture> temp;
+    temp.clear();
+    temp.push_back(GESTURE_SWIPE_LEFT);
+    temp.push_back(GESTURE_SWIPE_DOWN);
+    temp.push_back(GESTURE_POSTURE_TWO);
+    temp.push_back(GESTURE_POSTURE_THREE);
+    
+	addGestureSequence(GestureSequence("L-D-2-3", temp));
+	// one-two-three-circle
+    temp.clear();
+    temp.push_back(GESTURE_POSTURE_ONE);
+    temp.push_back(GESTURE_POSTURE_TWO);
+    temp.push_back(GESTURE_POSTURE_THREE);
+    temp.push_back(GESTURE_DRAWING_CIRCLE);
+	addGestureSequence(GestureSequence("1-2-3-circle", temp));
+	// fist-up-right-rectangle
+    temp.clear();
+    temp.push_back(GESTURE_POSTURE_FIST);
+    temp.push_back(GESTURE_SWIPE_UP);
+    temp.push_back(GESTURE_SWIPE_RIGHT);
+    temp.push_back(GESTURE_DRAWING_RECTANGLE);
+	addGestureSequence(GestureSequence("0-U-R-rect", temp));
+	// left-right
+    temp.clear();
+    temp.push_back(GESTURE_SWIPE_LEFT);
+    temp.push_back(GESTURE_SWIPE_RIGHT);
+	addGestureSequence(GestureSequence("left-right",temp));
+    */
+    // C++14
+    // left-down-two-three
 	addGestureSequence(GestureSequence("L-D-2-3",
-		{ GESTURE_SWIPE_LEFT, GESTURE_SWIPE_DOWN, GESTURE_POSTURE_TWO, GESTURE_POSTURE_THREE }));
+    { GESTURE_SWIPE_LEFT, GESTURE_SWIPE_DOWN, GESTURE_POSTURE_TWO, GESTURE_POSTURE_THREE }));
 	// one-two-three-circle
 	addGestureSequence(GestureSequence("1-2-3-circle",
-		{ GESTURE_POSTURE_ONE, GESTURE_POSTURE_TWO, GESTURE_POSTURE_THREE, GESTURE_DRAWING_CIRCLE }));
+    { GESTURE_POSTURE_ONE, GESTURE_POSTURE_TWO, GESTURE_POSTURE_THREE, GESTURE_DRAWING_CIRCLE }));
 	// fist-up-right-rectangle
 	addGestureSequence(GestureSequence("0-U-R-rect",
-		{ GESTURE_POSTURE_FIST, GESTURE_SWIPE_UP, GESTURE_SWIPE_RIGHT, GESTURE_DRAWING_RECTANGLE }));
+    { GESTURE_POSTURE_FIST, GESTURE_SWIPE_UP, GESTURE_SWIPE_RIGHT, GESTURE_DRAWING_RECTANGLE }));
 	// left-right
 	addGestureSequence(GestureSequence("left-right",
-		{ GESTURE_SWIPE_LEFT, GESTURE_SWIPE_RIGHT }));
+    { GESTURE_SWIPE_LEFT, GESTURE_SWIPE_RIGHT }));
+    
 }
 
 void SequenceRecognizer::addGestureSequence(GestureSequence sequence) {
