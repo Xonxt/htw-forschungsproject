@@ -121,7 +121,7 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 
 	// recalculate the color ranges for each hand:
 	for (int i = 0; i < detectedHands.size(); i++) {
-		// detectedHands[i].recalculateRange(frame, handTracker.getSkinMethod(), true);
+        //detectedHands[i].recalculateRange(frame, handTracker.getSkinMethod(), true);
 	}
 
 	// were any new hands added?
@@ -298,7 +298,7 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 		}
         
         // also try to recalculate colors here
-       // std::for_each(hands.begin(), hands.end(), [&](Hand& hand) {hand.recalculateRange(frame, handTracker.getSkinMethod(), true); });
+      //  std::for_each(hands.begin(), hands.end(), [&](Hand& hand) {hand.recalculateRange(frame, handTracker.getSkinMethod(), true); });
 	}
 }
 
