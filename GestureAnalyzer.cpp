@@ -71,7 +71,7 @@ void GestureAnalyzer::analyzeHand(Hand& hand) {
 			// if track length is atl east N (default: 20)
 			// then we check the "air drawing" shape
 			DollarRecognizer::RecognitionResult result = geometricRecognizer.recognize(hand.Tracker.kalmTrack);
-			float resultThreshold = 0.75;
+			float resultThreshold = 0.6;
 			if (hand.Tracker.kalmTrack.size() >= 20) {
 				if (result.score >= resultThreshold) {
 					//hand.handGesture.gestureName = result.name;

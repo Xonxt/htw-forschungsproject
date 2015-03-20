@@ -136,7 +136,7 @@ void Hand::initTracker() {
 	Tracker.KalmanTracker.KF.statePre.at<float>(3) = 0;
 
 	cv::setIdentity(Tracker.KalmanTracker.KF.measurementMatrix);
-	cv::setIdentity(Tracker.KalmanTracker.KF.processNoiseCov, cv::Scalar::all(1e-3));
+	cv::setIdentity(Tracker.KalmanTracker.KF.processNoiseCov, cv::Scalar::all(1e-2));
 	cv::setIdentity(Tracker.KalmanTracker.KF.measurementNoiseCov, cv::Scalar::all(1e-1));
 	cv::setIdentity(Tracker.KalmanTracker.KF.errorCovPost, cv::Scalar::all(.1));
 
@@ -150,7 +150,7 @@ void Hand::initTracker() {
 }
 
 // recalculate the hand's thresholding ranges:
-void Hand::recalculateRange(const cv::Mat frame, SkinSegmMethod method, const bool useHistogram) {
+void Hand::recalculateRange(const cv::Mat& frame, SkinSegmMethod method, const bool useHistogram) {
 	if (method != SKIN_SEGMENT_ADAPTIVE) {
 		cv::Rect rect = handBox.boundingRect();
 		
@@ -181,10 +181,28 @@ void Hand::recalculateRange(const cv::Mat frame, SkinSegmMethod method, const bo
 		else
 			cv::cvtColor(crop, crop, cv::COLOR_BGR2YCrCb);
         
-        cv::Vec3b vec = crop.at<cv::Vec3b>(0,0);
-        
-        // histogram method:
-        if (useHistogram) {
+        if (!useHistogram) {
+            
+            cv::Vec3b vec = crop.at<cv::Vec3b>(0,0);
+            
+            if (method == SKIN_SEGMENT_HSV) {
+                HSV.H_MIN = vec[0] - 10;
+                HSV.H_MAX = vec[0] + 10;
+                HSV.S_MIN = vec[1] - 35;
+                HSV.S_MAX = vec[1] + 35;
+                HSV.V_MIN = vec[2] - 35;
+                HSV.V_MAX = vec[2] + 35;
+            }
+            else { // if YCrCb
+                YCbCr.Y_MIN = vec[0] - 50;
+                YCbCr.Y_MAX = vec[0] + 50;
+                YCbCr.Cr_MIN = vec[1] - 20;
+                YCbCr.Cr_MAX = vec[1] + 20;
+                YCbCr.Cb_MIN = vec[2] - 25;
+                YCbCr.Cb_MAX = vec[2] + 25;
+            }
+        }
+        else { // histogram method:
             std::vector<cv::Mat> bgr_planes;
             cv::split(crop, bgr_planes);
             
@@ -199,35 +217,91 @@ void Hand::recalculateRange(const cv::Mat frame, SkinSegmMethod method, const bo
             cv::calcHist(&bgr_planes[1], 1, 0, cv::Mat(), histograms[1], 1, &histSize, &histRange, true, false);
             cv::calcHist(&bgr_planes[2], 1, 0, cv::Mat(), histograms[2], 1, &histSize, &histRange, true, false);
             
-            for (int i=0; i<3; i++) {
+            int color_ranges[3][2] = {0, 0, 0, 0, 0, 0};
+            
+            for (int idx=0; idx<3; idx++) {
                 double minVal, maxVal;
                 cv::Point maxloc;
-                cv::minMaxLoc(histograms[i], &minVal, &maxVal, 0, &maxloc);
+                cv::minMaxLoc(histograms[idx], &minVal, &maxVal, 0, &maxloc);
                 
-                vec[i] = maxloc.y;
+                int numMaxElement = (int)maxloc.y;
+                
+                // here we need to do te gaussian filtering and then differentiate;
+                // Generate the Gaussian:
+                int sigma = 5, size = 30, i = -size/2;
+                std::vector<int> x;
+                std::generate_n(std::back_inserter(x), (size), [&]() {return i++;});
+                std::vector<double> gaussFilter;
+                
+                double filterSum = 0;
+                
+                i = 0;
+                std::generate_n(std::back_inserter(gaussFilter), x.size(), [&]() {
+                    double val = exp(-pow(x[i++],2) / (2 * sigma * sigma));
+                    filterSum+=val;
+                    return val;
+                });
+                
+                std::for_each(gaussFilter.begin(), gaussFilter.end(), [&](double& V) { V /= filterSum;});
+                
+                // filter the histogram with the gaussian:
+                int paddedLength = histograms[idx].rows + size - 1;
+                std::vector<double> convolved(paddedLength); //zeros
+                reverse(gaussFilter.begin(), gaussFilter.end());
+                for(int outputIdx=0; outputIdx<paddedLength; outputIdx++) //index into 'convolved' vector
+                {
+                    int vecIdx = outputIdx - size + 1; //aligns with leftmost element of kernel
+                    int lowerBound = std::max( 0, -vecIdx );
+                    int upperBound = std::min( size, histograms[idx].rows - vecIdx );
+                    
+                    for( int kernelIdx = lowerBound; kernelIdx < upperBound; kernelIdx++ )
+                    {
+                        convolved[outputIdx] += gaussFilter[kernelIdx] * histograms[idx].at<float>(vecIdx+kernelIdx);
+                    }
+                }
+                
+                std::vector<double> diffVector;
+                
+                // i = size/2; // chek this!!!
+                
+                for (i = size/2; i < paddedLength - size/2; i++) {
+                    diffVector.push_back(convolved[i+1]-convolved[i]);
+                }
+                
+                // find lower bound:
+                auto itLeft = std::max_element(diffVector.begin(), diffVector.begin() + numMaxElement);
+                int left = std::distance(diffVector.begin(), itLeft);
+                
+                // find upper bound
+                auto itRight = std::max_element(diffVector.begin() + numMaxElement, diffVector.end());
+                int right = std::distance(diffVector.begin(), itRight) + numMaxElement;
+                
+                left = left - (numMaxElement - left);// * 0.9;
+                right = right + (right - numMaxElement);// * 0.9;
+                
+                color_ranges[idx][0] = left;
+                color_ranges[idx][1] = right;
+            }
+            if (method == SKIN_SEGMENT_HSV) {
+                HSV.H_MIN = color_ranges[0][0];
+                HSV.H_MAX = color_ranges[0][1];
+                HSV.S_MIN = color_ranges[1][0];
+                HSV.S_MAX = color_ranges[1][1];
+                HSV.V_MIN = color_ranges[2][0];
+                HSV.V_MAX = color_ranges[2][1];
+            }
+            else { // if YCrCb
+                YCbCr.Y_MIN = color_ranges[0][0];
+                YCbCr.Y_MAX = color_ranges[0][1];
+                YCbCr.Cr_MIN = color_ranges[1][0];
+                YCbCr.Cr_MAX = color_ranges[1][1];
+                YCbCr.Cb_MIN = color_ranges[2][0];
+                YCbCr.Cb_MAX = color_ranges[2][1];
             }
         }
         
         //std::cout << "--Range: " << (int)vec[0] << "-" << (int)vec[1] << "-" << (int)vec[2] << "--" << std::endl;
         
 		// assign the ranges
-        
-		// if the segmentation method is HSV:
-		if (method == SKIN_SEGMENT_HSV) {
-			HSV.H_MIN = vec[0] - 10;
-			HSV.H_MAX = vec[0] + 10;
-			HSV.S_MIN = vec[1] - 35;
-			HSV.S_MAX = vec[1] + 35;
-			HSV.V_MIN = vec[2] - 35;
-			HSV.V_MAX = vec[2] + 35;
-		}
-		else { // if YCrCb
-			YCbCr.Y_MIN = vec[0] - 50;
-			YCbCr.Y_MAX = vec[0] + 50;
-			YCbCr.Cr_MIN = vec[1] - 20;
-			YCbCr.Cr_MAX = vec[1] + 20;
-			YCbCr.Cb_MIN = vec[2] - 25;
-			YCbCr.Cb_MAX = vec[2] + 25;
-		}
 	}
 }

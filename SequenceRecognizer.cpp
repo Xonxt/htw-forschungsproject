@@ -5,7 +5,8 @@
 
 SequenceRecognizer::SequenceRecognizer()
 {
-	/*// add a few gesture sequences
+	// add a few gesture sequences
+    /*
 	// left-down-two-three
     std::vector<HandGesture> temp;
     temp.clear();
@@ -35,6 +36,7 @@ SequenceRecognizer::SequenceRecognizer()
     temp.push_back(GESTURE_SWIPE_RIGHT);
 	addGestureSequence(GestureSequence("left-right",temp));
     */
+    
     // C++14
     // left-down-two-three
 	addGestureSequence(GestureSequence("L-D-2-3",
@@ -118,6 +120,10 @@ RecognizedSequence SequenceRecognizer::recognizeSequence(std::vector<HandGesture
 		}
 		// count "1"s in the "1010101" vector
 		int i = std::count_if(checks.begin(), checks.end(), [](bool i) {return (i == true); });
+       /* int i = 0;
+        for (int j = 0; j < checks.size(); j++) {
+            if (checks[j] == true) i++;
+        } */
 
 		// the score is the amount of "1"s dicided by the total amount of checks
 		return RecognizedSequence(sequenceSet[idx].getName(), (i*1.0) / checks.size());

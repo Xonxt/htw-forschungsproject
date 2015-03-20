@@ -298,9 +298,7 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 		}
         
         // also try to recalculate colors here
-        std::for_each(hands.begin(), hands.end()-1, [&](Hand& hand) {
-            hand.recalculateRange(frame, handTracker.getSkinMethod(), true);
-        });
+       // std::for_each(hands.begin(), hands.end(), [&](Hand& hand) {hand.recalculateRange(frame, handTracker.getSkinMethod(), true); });
 	}
 }
 
@@ -372,9 +370,27 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
                 int N = gestureList.size();
                 
                 if (N >= 3) {
-                    if ((int)gestureList[N-2] >= 9 && gestureList.back() == gestureList[N-3]) {
-                        gestureList.erase(gestureList.end() - 1);
+                    
+                    HandGesture temp = gestureList.back();
+                    
+                    int i = N - 1;
+                    bool isDrawing = false;
+                    while( i-- > 0) {
+                        if ((int)gestureList[i] >= (int)GESTURE_SWIPE_UP) {
+                            isDrawing = true;
+                            continue;
+                        }
+                        else {
+                            if (gestureList[i] == temp && isDrawing) {
+                                gestureList.erase(gestureList.end() - 1);
+                                break;
+                            }
+                        }
                     }
+                    
+                   /* if ((int)gestureList[N-2] >= 9 && gestureList.back() == gestureList[N-3]) {
+                        gestureList.erase(gestureList.end() - 1);
+                    }*/
                 }
                 
                 if (gestureList.size() > 5) {
@@ -452,6 +468,7 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 		}
 	}
 
+    
 	// draw the gesture sequence on the top:
 	if (gestureList.size() > 1) {
 		RecognizedSequence _recognizedSequence = sequenceRecognizer.recognizeSequence(gestureList);
@@ -460,9 +477,17 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 			gestureList.clear();
 		}
 	}
-
+/*
+    int N = gestureList.size();
+    
+    if (N > 0) {
+    if ((int)gestureList[N-1] >= (int)GESTURE_DRAWING_CIRCLE) {
+        sequenceResult = RecognizedSequence(GestureNames[gestureList[N-1]], 1.0);
+    }
+    }
+*/
 	if (sequenceResult.getScore() > 0 && gestureList.size() <= 2) {
-		cv::Rect rect(10, 10, sequenceResult.getName().length() * 33, strings.size() * 45 + 25);
+		cv::Rect rect(10, 10, sequenceResult.getName().length() * 34, strings.size() * 45 + 25);
 		rect.x = frame.cols / 2 - rect.width / 2;
 		rect.y = frame.rows - rect.height - 50;
 		drawRectangle(frame, rect, 100);
@@ -470,6 +495,9 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 		cv::putText(frame, sequenceResult.getName(), cv::Point(rect.x + 10, rect.y + rect.height * 2 / 3), 
 			CV_FONT_HERSHEY_PLAIN, 3, FP_COLOR_WHITE, 5);
 	}
+    
+    if (gestureList.size() > 3)
+        sequenceResult = RecognizedSequence(" ", 0.0f);
 }
 
 // change skin segmentation method
