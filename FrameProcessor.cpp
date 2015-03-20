@@ -406,11 +406,11 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 
 	// add glowy effect
 	if (!showMask) {
-		drawGlowyHands(frame, hands);
+		//drawGlowyHands(frame, hands);
 	}
 
 	// draw glowy lines
-	drawGlowyLines(frame, hands);
+	//drawGlowyLines(frame, hands);
 
 	// display system information text
 	std::vector<std::string> strings;
