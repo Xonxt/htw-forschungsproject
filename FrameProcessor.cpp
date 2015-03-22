@@ -121,7 +121,7 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 
 	// recalculate the color ranges for each hand:
 	for (int i = 0; i < detectedHands.size(); i++) {
-        //detectedHands[i].recalculateRange(frame, handTracker.getSkinMethod(), true);
+		//detectedHands[i].recalculateRange(frame, handTracker.getSkinMethod(), true);
 	}
 
 	// were any new hands added?
@@ -296,9 +296,9 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 					break;
 			}
 		}
-        
-        // also try to recalculate colors here
-      //  std::for_each(hands.begin(), hands.end(), [&](Hand& hand) {hand.recalculateRange(frame, handTracker.getSkinMethod(), true); });
+
+		// also try to recalculate colors here
+		//std::for_each(hands.begin(), hands.end(), [&](Hand& hand) {hand.recalculateRange(frame, handTracker.getSkinMethod(), true); });
 	}
 }
 
@@ -309,8 +309,8 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 
 	// draw a graphical promt:
 	if (hands.empty()) {
-        
-        gestureList.clear();
+
+		gestureList.clear();
 
 		cv::Mat promt = cv::imread("promt.jpg");
 
@@ -364,36 +364,36 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 				cv::Point textPoint(hand.handBox.boundingRect().br().x, hand.handBox.boundingRect().tl().y);
 				//cv::putText(frame, hand.handGesture.getGestureName(), textPoint, CV_FONT_HERSHEY_PLAIN, 4, FP_COLOR_RED, 7);
 				//drawGlowText(frame, textPoint, hand.handGesture.getGestureName());
-            
+
 				gestureList.push_back(hand.handGesture.getGestureType());
-                
-                int N = gestureList.size();
-                
-                if (N >= 3) {
-                    
-                    HandGesture temp = gestureList.back();
-                    
-                    int i = N - 1;
-                    bool isDrawing = false;
-                    while( i-- > 0) {
-                        if ((int)gestureList[i] >= (int)GESTURE_SWIPE_UP) {
-                            isDrawing = true;
-                            continue;
-                        }
-                        else {
-                            if (gestureList[i] == temp && isDrawing) {
-                                gestureList.erase(gestureList.end() - 1);
-                                break;
-                            }
-                        }
-                    }
-                    
-                   /* if ((int)gestureList[N-2] >= 9 && gestureList.back() == gestureList[N-3]) {
-                        gestureList.erase(gestureList.end() - 1);
-                    }*/
-                }
-                
-                if (gestureList.size() > 5) {
+
+				int N = gestureList.size();
+
+				if (N >= 3) {
+
+					HandGesture temp = gestureList.back();
+
+					int i = N - 1;
+					bool isDrawing = false;
+					while (i-- > 0) {
+						if ((int)gestureList[i] >= (int)GESTURE_SWIPE_UP) {
+							isDrawing = true;
+							continue;
+						}
+						else {
+							if (gestureList[i] == temp && isDrawing) {
+								gestureList.erase(gestureList.end() - 1);
+								break;
+							}
+						}
+					}
+
+					/* if ((int)gestureList[N-2] >= 9 && gestureList.back() == gestureList[N-3]) {
+							 gestureList.erase(gestureList.end() - 1);
+							 }*/
+				}
+
+				if (gestureList.size() > 5) {
 					gestureList.erase(gestureList.begin());
 				}
 			}
@@ -456,7 +456,7 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 	// show gestures as a list in right-bottom corner
 	if (showHandText && !hands.empty()) {
 		int scalarWidth = 14;
-        int scalarHeight = 5;
+		int scalarHeight = 5;
 
 		cv::Rect rect(10, 10, scalarWidth * 28, scalarHeight * 45 + 25);
 		rect.x = frame.cols - rect.width - 10;
@@ -468,7 +468,7 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 		}
 	}
 
-    
+
 	// draw the gesture sequence on the top:
 	if (gestureList.size() > 1) {
 		RecognizedSequence _recognizedSequence = sequenceRecognizer.recognizeSequence(gestureList);
@@ -477,27 +477,27 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 			gestureList.clear();
 		}
 	}
-/*
-    int N = gestureList.size();
-    
-    if (N > 0) {
-    if ((int)gestureList[N-1] >= (int)GESTURE_DRAWING_CIRCLE) {
-        sequenceResult = RecognizedSequence(GestureNames[gestureList[N-1]], 1.0);
-    }
-    }
-*/
+	/*
+			int N = gestureList.size();
+
+			if (N > 0) {
+			if ((int)gestureList[N-1] >= (int)GESTURE_DRAWING_CIRCLE) {
+			sequenceResult = RecognizedSequence(GestureNames[gestureList[N-1]], 1.0);
+			}
+			}
+			*/
 	if (sequenceResult.getScore() > 0 && gestureList.size() <= 2) {
 		cv::Rect rect(10, 10, sequenceResult.getName().length() * 34, strings.size() * 45 + 25);
 		rect.x = frame.cols / 2 - rect.width / 2;
 		rect.y = frame.rows - rect.height - 50;
 		drawRectangle(frame, rect, 100);
-		
-		cv::putText(frame, sequenceResult.getName(), cv::Point(rect.x + 10, rect.y + rect.height * 2 / 3), 
+
+		cv::putText(frame, sequenceResult.getName(), cv::Point(rect.x + 10, rect.y + rect.height * 2 / 3),
 			CV_FONT_HERSHEY_PLAIN, 3, FP_COLOR_WHITE, 5);
 	}
-    
-    if (gestureList.size() > 3)
-        sequenceResult = RecognizedSequence(" ", 0.0f);
+
+	if (gestureList.size() > 3)
+		sequenceResult = RecognizedSequence(" ", 0.0f);
 }
 
 // change skin segmentation method
@@ -550,7 +550,7 @@ void FrameProcessor::toggleShowInformation() {
 
 // a function to draw a darkened rectangle
 void FrameProcessor::drawRectangle(cv::Mat& frame, const cv::Rect rectangle, int shift) {
-	
+
 	for (int i = rectangle.x; i < rectangle.x + rectangle.width; i++) {
 		for (int j = rectangle.y; j < rectangle.y + rectangle.height; j++) {
 			cv::Vec3b color = frame.at<cv::Vec3b>(j, i);
