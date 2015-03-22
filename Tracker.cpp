@@ -48,6 +48,14 @@ void Tracker::trackHands(const cv::Mat inputFrame, std::vector<Hand>& hands) {
 		// filter out the small blobs
 		removeSmallBlobs(smallMask, 100);
 
+		cv::Mat tempMask = smallMask.clone();
+		std::ostringstream ofs;
+		ofs << "mask_hand_" << i << ".jpg";
+		cv::imwrite(ofs.str(), tempMask);
+		ofs.flush();
+		ofs.str("");
+
+
 		// floodfill
 		//cv::floodFill(smallMask, cv::Point((int)hands[i].handBox.center.x, (int)hands[i].handBox.center.y), cv::Scalar(255));
 

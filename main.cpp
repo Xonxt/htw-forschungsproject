@@ -161,6 +161,7 @@ int main(int argc, char* argv[])
 	cout << "'b'\tshow/hide the bounding box" << endl;
 	cout << "'c'\tshow/hide the contour" << endl;
 	cout << "'f'\tshow/hide the fingertips" << endl;
+	cout << "'x'\tto clear hands" << endl;
 
 	// infinite loop for the video stream
 	while (true) {
@@ -238,9 +239,11 @@ int main(int argc, char* argv[])
 				break;
 			case 'i':
 				frameProcessor.toggleShowInformation(); // show system information
+				break;			
+			case 'x':
+				frameProcessor.hands.clear();
 				break;
 			}
-
 		}
 	}
 

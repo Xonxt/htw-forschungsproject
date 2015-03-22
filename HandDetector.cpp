@@ -110,6 +110,9 @@ void HandDetector::detectHands(const cv::Mat frame, std::vector<Hand>& hands, st
 		//cv::Mat frameCrop = (isWebCam || noPedestrians) ? frame.clone() : cv::Mat(frame.clone(), pedestrians[i]);
 		cv::Mat frameCrop = (isWebCam || noPedestrians) ? frameResized : cv::Mat(frame, pedestrians[i]);
 
+	//	cv::cvtColor(frameCrop.clone(), frameCrop, cv::COLOR_BGR2GRAY);
+	//	cv::equalizeHist(frameCrop.clone(), frameCrop);
+
 		// look for hand objects in the frame
 		handCascade.detectMultiScale(frameCrop, handRects, 1.05, 5);
         

@@ -121,7 +121,7 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 
 	// recalculate the color ranges for each hand:
 	for (int i = 0; i < detectedHands.size(); i++) {
-		//detectedHands[i].recalculateRange(frame, handTracker.getSkinMethod(), true);
+		detectedHands[i].recalculateRange(frame, handTracker.getSkinMethod(), true);
 	}
 
 	// were any new hands added?
@@ -129,7 +129,7 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 
 	// add new hands to the tracking list,
 	// but remove those already being tracked
-	for (std::vector<Hand>::iterator it = detectedHands.begin(); it != detectedHands.end(); ++it) {
+	for (auto it = detectedHands.begin(); it != detectedHands.end(); ++it) {
 		// take the temporary hand
 		Hand tempHand = *it;
 
@@ -137,7 +137,7 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 		bool sameHand = false;
 
 		// check if this hand's position intersects with the position of a tracked hand
-		for (std::vector<Hand>::iterator it2 = hands.begin(); it2 != hands.end(); ++it2) {
+		for (auto it2 = hands.begin(); it2 != hands.end(); ++it2) {
 			// if the area of intersection is 75% of the hand's size or more
 			cv::Rect intersection = tempHand.handBox.boundingRect() & (*it2).handBox.boundingRect();
 			if (intersection.area() >= (tempHand.handBox.boundingRect().area() * 0.75)) {
@@ -232,6 +232,17 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 			break;
 	}
 
+	// remove hands that are too big (more that half the size of the screen)
+	double screenArea = frame.cols * frame.rows;
+	for (auto it = hands.begin(); it != hands.end(); ++it) {
+		if (((*it).handBox.boundingRect().area() >= (0.4 * screenArea))) {
+			// remove it
+			it = hands.erase(it);
+		}
+		if (it == hands.end())
+			break;
+	}
+
 	// now check if new hands were added and then delete face regions
 	if ((frameNum++ % 5) == 0 && hands.size() > 0) {
 		std::vector<cv::Rect> faces;
@@ -300,6 +311,7 @@ void FrameProcessor::detectAndTrack(const cv::Mat& frame) {
 		// also try to recalculate colors here
 		//std::for_each(hands.begin(), hands.end(), [&](Hand& hand) {hand.recalculateRange(frame, handTracker.getSkinMethod(), true); });
 	}
+	//std::for_each(hands.begin(), hands.end(), [&](Hand& hand) {hand.recalculateRange(frame, handTracker.getSkinMethod(), true); });
 }
 
 // draw everything on frame (hands, fingers, etc.)
@@ -328,12 +340,9 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 	for (Hand hand : hands) {
 		// put a rectangle|ellipse on the image
 		if (showBoundingBox) {
-			if (!hand.Tracker.isKalman)
-				cv::ellipse(frame, hand.handBox, FP_COLOR_WHITE, 2);
-			else
-				cv::rectangle(frame, hand.handBox.boundingRect(), FP_COLOR_WHITE, 2);
+				//cv::ellipse(frame, hand.handBox, FP_COLOR_WHITE, 2);
 
-			//cv::rectangle(frame, hand.Tracker.trackWindow, FP_COLOR_GREEN, 2);
+			cv::rectangle(frame, hand.handBox.boundingRect(), FP_COLOR_GREEN, 2);
 		}
 
 		// show the ROIs
@@ -405,12 +414,13 @@ void FrameProcessor::drawFrame(cv::Mat& frame) {
 	frame.convertTo(frame, -1, 1, -35);
 
 	// add glowy effect
-	if (!showMask) {
+	if (!showMask && showHandText) {
 		drawGlowyHands(frame, hands);
 	}
 
 	// draw glowy lines
-	drawGlowyLines(frame, hands);
+	if (showHandText)
+		drawGlowyLines(frame, hands);
 
 	// display system information text
 	std::vector<std::string> strings;
